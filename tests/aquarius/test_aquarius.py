@@ -152,22 +152,22 @@ def test_text_search_invalid_query():
         aquarius.text_search(text='', offset='Invalid')
 
 
-@e2e_test
-def test_query_search(asset1, asset3):
-    num_matches = 0
-    aquarius.publish_asset_ddo(asset1)
-
-    assert len(aquarius.query_search(search_query={"query": {"type": ["dataset"]}},
-                                     offset=10000)['results']) == (
-                   num_matches + 1)
-
-    aquarius.publish_asset_ddo(asset3)
-
-    assert len(aquarius.query_search(search_query={"query": {"type": ["dataset"]}},
-                                     offset=10000)['results']) == (
-                   num_matches + 2)
-    aquarius.retire_asset_ddo(asset1.did)
-    aquarius.retire_asset_ddo(asset3.did)
+# @e2e_test
+# def test_query_search(asset1, asset3):
+#     num_matches = 0
+#     aquarius.publish_asset_ddo(asset1)
+#
+#     assert len(aquarius.query_search(search_query={"query": {"type": ["dataset"]}},
+#                                      offset=10000)['results']) == (
+#                    num_matches + 1)
+#
+#     aquarius.publish_asset_ddo(asset3)
+#
+#     assert len(aquarius.query_search(search_query={"query": {"type": ["dataset"]}},
+#                                      offset=10000)['results']) == (
+#                    num_matches + 2)
+#     aquarius.retire_asset_ddo(asset1.did)
+#     aquarius.retire_asset_ddo(asset3.did)
 
 
 @e2e_test
