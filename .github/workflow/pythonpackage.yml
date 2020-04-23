@@ -1,0 +1,52 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python package
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        git clone https://github.com/keyko-io/nevermind-tools
+        cd nevermind-tools
+        export KEEPER_VERSION=latest
+        export AQUARIUS_VERSION=latest
+        rm -rf "${HOME}/.nevermind/nevermind-contracts/artifacts"
+        bash -x start_nevermind.sh --no-pleuston --no-commons --no-brizo --no-faucet --no-dashboard --no-agent --latest 2>&1 > start_nevermind.log &
+        cd ..
+        for i in $(seq 1 50); do
+        sleep 5
+        [ -f "${HOME}/.nevermind/nvermind-contracts/artifacts/ready" ] && break
+        done
+        ls -la "${HOME}/.nevermind/nevermind-contracts/artifacts/"
+        ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
+        python -m pip install --upgrade pip
+        pip install -r requirements_dev.txt
+    - name: Test with pytest
+      run: |
+        export PARITY_ADDRESS=0x00bd138abd70e2f00903268f3db08f2d25677c9e
+        export PARITY_PASSWORD=node0
+        export PARITY_KEYFILE=tests/resources/data/key_file_2.json
+        export PARITY_ADDRESS1=0x068ed00cf0441e4829d9784fcbe7b9e26d4bd8d0
+        export PARITY_PASSWORD1=secret
+        export PARITY_KEYFILE1=tests/resources/data/key_file_1.json
+        pip install pytest
+        pytest

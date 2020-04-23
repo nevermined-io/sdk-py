@@ -1,0 +1,10 @@
+include CHANGELOG.md
+include LICENSE
+include README.md
+include squid_py/agreements/access_sla_template.json
+
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+
+recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
