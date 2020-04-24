@@ -1,9 +1,9 @@
 [![banner](https://raw.githubusercontent.com/keyko-io/assets/master/images/logo/small/keyko_logo@2x-100.jpg)](https://keyko.io)
 
-# nevermind-sdk-py
+# Python API for Nevermind Data platform
 
-> 💧 Python wrapper, allowing to integrate the basic Ocean/web3.py capabilities
-> [oceanprotocol.com](https://oceanprotocol.com)
+> 🦑 Python SDK for connecting with Nevermind Data Platform
+> [keyko.io](https://keyko.io)
 
 [![PyPI](https://img.shields.io/pypi/v/squid-py.svg)](https://pypi.org/project/squid-py/)
 [![Travis (.com)](https://img.shields.io/travis/com/oceanprotocol/squid-py.svg)](https://travis-ci.com/oceanprotocol/squid-py)
