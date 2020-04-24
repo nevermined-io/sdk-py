@@ -1,4 +1,4 @@
-squid-py API Reference Docs
+nevermind-sdk-py API Reference Docs
 ===========================
 
 These docs are API Reference docs.

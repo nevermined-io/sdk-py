@@ -66,7 +66,7 @@ config_defaults = {
 
 
 class Config(configparser.ConfigParser):
-    """Class to manage the squid-py configuration."""
+    """Class to manage the nevermind-sdk-py configuration."""
 
     def __init__(self, filename=None, options_dict=None, **kwargs):
         """

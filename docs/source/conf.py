@@ -25,9 +25,9 @@ sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'squid-py'
-copyright = 'squid-py contributors'
-author = 'squid-py contributors'
+project = 'nevermind-sdk-py'
+copyright = 'nevermind-sdk-py contributors'
+author = 'nevermind-sdk-py contributors'
 
 # The full version, including alpha/beta/rc tags
 release = '0.1.0'

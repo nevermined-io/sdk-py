@@ -5,11 +5,7 @@
 > 🦑 Python SDK for connecting with Nevermind Data Platform
 > [keyko.io](https://keyko.io)
 
-[![PyPI](https://img.shields.io/pypi/v/squid-py.svg)](https://pypi.org/project/squid-py/)
-[![Travis (.com)](https://img.shields.io/travis/com/oceanprotocol/squid-py.svg)](https://travis-ci.com/oceanprotocol/squid-py)
-[![GitHub contributors](https://img.shields.io/github/contributors/oceanprotocol/squid-py.svg)](https://github.com/oceanprotocol/squid-py/graphs/contributors)
-[![Codacy Badge](https://img.shields.io/codacy/grade/7084fbf528934327904a49d458bc46d1.svg)](https://app.codacy.com/project/ocean-protocol/squid-py/dashboard)
-[![Codacy coverage](https://img.shields.io/codacy/coverage/7084fbf528934327904a49d458bc46d1.svg)](https://app.codacy.com/project/ocean-protocol/squid-py/dashboard)
+[![PyPI](https://img.shields.io/pypi/v/nevermind-sdk-py.svg)](https://pypi.org/project/nevermind-sdk-py/)
 
 ---
 
@@ -41,7 +37,7 @@ Python 3.6
 Install Squid:
 
 ```
-pip install squid-py
+pip install nevermind-sdk-py
 ```
 
 ### Usage:
