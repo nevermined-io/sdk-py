@@ -9,7 +9,7 @@ from contracts_lib_py.web3_provider import Web3Provider
 from common_utils_py.did import did_to_id
 from common_utils_py.did_resolver.did_resolver import DIDResolver
 
-from nevermind_sdk_py.brizo import BrizoProvider
+from nevermind_sdk_py.gateway import GatewayProvider
 from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
 from nevermind_sdk_py.secret_store import SecretStoreProvider
 
@@ -91,7 +91,7 @@ def consume_asset(event, agreement_id, did, service_agreement, consumer_account,
         secret_store = SecretStoreProvider.get_secret_store(
             secret_store_url, parity_url, consumer_account
         )
-        brizo = BrizoProvider.get_brizo()
+        gateway = GatewayProvider.get_gateway()
 
         consume_callback(
             agreement_id,
@@ -99,6 +99,6 @@ def consume_asset(event, agreement_id, did, service_agreement, consumer_account,
             DIDResolver(Keeper.get_instance().did_registry).resolve(did),
             consumer_account,
             downloads_path,
-            brizo,
+            gateway,
             secret_store
         )

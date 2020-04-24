@@ -50,13 +50,13 @@ def consumer_ocean_instance():
 
 
 @pytest.fixture
-def publisher_ocean_instance_brizo():
-    return get_publisher_ocean_instance(use_brizo_mock=False)
+def publisher_ocean_instance_gateway():
+    return get_publisher_ocean_instance(use_gateway_mock=False)
 
 
 @pytest.fixture
-def consumer_ocean_instance_brizo():
-    return get_consumer_ocean_instance(use_brizo_mock=False)
+def consumer_ocean_instance_gateway():
+    return get_consumer_ocean_instance(use_gateway_mock=False)
 
 
 @pytest.fixture
@@ -88,7 +88,7 @@ def setup_agreements_enviroment():
     keeper.did_registry.register(
         ddo.asset_id,
         checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
-        url='aquarius:5000',
+        url='metadata:5000',
         account=publisher_acc,
         providers=None
     )

@@ -19,9 +19,9 @@ from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
 logger = logging.getLogger(__name__)
 
 
-class Brizo:
+class Gateway:
     """
-    `Brizo` is the name chosen for the asset service provider.
+    `Gateway` is the name chosen for the asset service provider.
 
     The main functions available are:
     - initialize_service_agreement
@@ -34,7 +34,7 @@ class Brizo:
     @staticmethod
     def set_http_client(http_client):
         """Set the http client to something other than the default `requests`"""
-        Brizo._http_client = http_client
+        Gateway._http_client = http_client
 
     @staticmethod
     def encrypt_files_dict(files_dict, encrypt_endpoint, asset_id, account_address, signed_did):
@@ -44,7 +44,7 @@ class Brizo:
             'document': json.dumps(files_dict),
             'publisherAddress': account_address
         })
-        response = Brizo._http_client.post(
+        response = Gateway._http_client.post(
             encrypt_endpoint, data=payload,
             headers={'content-type': 'application/json'}
         )
@@ -78,10 +78,10 @@ class Brizo:
         :param purchase_endpoint: url of the service provider, str
         :return: bool
         """
-        payload = Brizo._prepare_consume_payload(
+        payload = Gateway._prepare_consume_payload(
             did, agreement_id, service_index, signature, account_address
         )
-        response = Brizo._http_client.post(
+        response = Gateway._http_client.post(
             purchase_endpoint, data=payload,
             headers={'content-type': 'application/json'}
         )
@@ -102,7 +102,7 @@ class Brizo:
     def consume_service(service_agreement_id, service_endpoint, account, files,
                         destination_folder, index=None):
         """
-        Call the brizo endpoint to get access to the different files that form the asset.
+        Call the Gateway endpoint to get access to the different files that form the asset.
 
         :param service_agreement_id: Service Agreement Id, str
         :param service_endpoint: Url to consume, str
@@ -121,21 +121,21 @@ class Brizo:
             assert index >= 0, logger.error('index has to be 0 or a positive integer.')
             assert index < len(files), logger.error(
                 'index can not be bigger than the number of files')
-            consume_url = Brizo._create_consume_url(service_endpoint, service_agreement_id, account,
-                                                    None, signature, index)
+            consume_url = Gateway._create_consume_url(service_endpoint, service_agreement_id, account,
+                                                      None, signature, index)
             logger.info(f'invoke consume endpoint with this url: {consume_url}')
-            response = Brizo._http_client.get(consume_url, stream=True)
-            file_name = Brizo._get_file_name(response)
-            Brizo.write_file(response, destination_folder, file_name)
+            response = Gateway._http_client.get(consume_url, stream=True)
+            file_name = Gateway._get_file_name(response)
+            Gateway.write_file(response, destination_folder, file_name)
         else:
             for i, _file in enumerate(files):
-                consume_url = Brizo._create_consume_url(service_endpoint, service_agreement_id,
-                                                        account, _file,
-                                                        signature, i)
+                consume_url = Gateway._create_consume_url(service_endpoint, service_agreement_id,
+                                                          account, _file,
+                                                          signature, i)
                 logger.info(f'invoke consume endpoint with this url: {consume_url}')
-                response = Brizo._http_client.get(consume_url, stream=True)
-                file_name = Brizo._get_file_name(response)
-                Brizo.write_file(response, destination_folder, file_name or f'file-{i}')
+                response = Gateway._http_client.get(consume_url, stream=True)
+                file_name = Gateway._get_file_name(response)
+                Gateway.write_file(response, destination_folder, file_name or f'file-{i}')
 
     @staticmethod
     def execute_service(service_agreement_id, service_endpoint, account, workflow_ddo):
@@ -149,10 +149,10 @@ class Brizo:
         signature = Keeper.get_instance().sign_hash(
             add_ethereum_prefix_and_hash_msg(service_agreement_id),
             account)
-        execute_url = Brizo._create_execute_url(service_endpoint, service_agreement_id, account,
-                                                workflow_ddo.did, signature)
+        execute_url = Gateway._create_execute_url(service_endpoint, service_agreement_id, account,
+                                                  workflow_ddo.did, signature)
         logger.info(f'invoke execute endpoint with this url: {execute_url}')
-        response = Brizo._http_client.post(execute_url)
+        response = Gateway._http_client.post(execute_url)
 
     @staticmethod
     def _prepare_consume_payload(did, service_agreement_id, service_index, signature,
@@ -177,19 +177,19 @@ class Brizo:
         })
 
     @staticmethod
-    def get_brizo_url(config):
+    def get_gateway_url(config):
         """
         Return the Brizo component url.
 
         :param config: Config
         :return: Url, str
         """
-        brizo_url = 'http://localhost:8030'
-        if config.has_option('resources', 'brizo.url'):
-            brizo_url = config.get('resources', 'brizo.url') or brizo_url
+        gateway_url = 'http://localhost:8030'
+        if config.has_option('resources', 'gateway.url'):
+            gateway_url = config.get('resources', 'gateway.url') or gateway_url
 
-        brizo_path = '/api/v1/brizo'
-        return f'{brizo_url}{brizo_path}'
+        gateway_path = '/api/v1/gateway'
+        return f'{gateway_url}{gateway_path}'
 
     @staticmethod
     def get_purchase_endpoint(config):
@@ -199,7 +199,7 @@ class Brizo:
         :param config:Config
         :return: Url, str
         """
-        return f'{Brizo.get_brizo_url(config)}/services/access/initialize'
+        return f'{Gateway.get_gateway_url(config)}/services/access/initialize'
 
     @staticmethod
     def get_consume_endpoint(config):
@@ -209,7 +209,7 @@ class Brizo:
         :param config: Config
         :return: Url, str
         """
-        return f'{Brizo.get_brizo_url(config)}/services/consume'
+        return f'{Gateway.get_gateway_url(config)}/services/consume'
 
     @staticmethod
     def get_execute_endpoint(config):
@@ -219,7 +219,7 @@ class Brizo:
         :param config: Config
         :return: Url, str
         """
-        return f'{Brizo.get_brizo_url(config)}/services/exec'
+        return f'{Gateway.get_gateway_url(config)}/services/exec'
 
     @staticmethod
     def get_encrypt_endpoint(config):
@@ -229,7 +229,7 @@ class Brizo:
         :param config: Config
         :return: Url, str
         """
-        return f'{Brizo.get_brizo_url(config)}/services/publish'
+        return f'{Gateway.get_gateway_url(config)}/services/publish'
 
     @staticmethod
     def _get_file_name(response):

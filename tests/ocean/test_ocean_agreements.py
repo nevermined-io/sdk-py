@@ -12,11 +12,11 @@ from common_utils_py.agreements.service_types import ServiceTypes, ServiceTypesI
 from nevermind_sdk_py import ConfigProvider
 from nevermind_sdk_py.assets.asset_consumer import AssetConsumer
 from nevermind_sdk_py.assets.asset_executor import AssetExecutor
-from nevermind_sdk_py.brizo.brizo import Brizo
+from nevermind_sdk_py.gateway.gateway import Gateway
 from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
 from nevermind_sdk_py.ocean.ocean_agreements import OceanAgreements
 from tests.resources.helper_functions import (get_ddo_sample, log_event)
-from tests.resources.mocks.brizo_mock import BrizoMock
+from tests.resources.mocks.gateway_mock import GatewayMock
 from tests.resources.tiers import e2e_test
 
 
@@ -168,9 +168,9 @@ def test_agreement_status(setup_agreements_enviroment, ocean_agreements):
 
 @e2e_test
 def test_sign_agreement(publisher_ocean_instance, consumer_ocean_instance, registered_ddo):
-    # point consumer_ocean_instance's brizo mock to the publisher's ocean instance
-    Brizo.set_http_client(
-        BrizoMock(publisher_ocean_instance, publisher_ocean_instance.main_account))
+    # point consumer_ocean_instance's Gateway mock to the publisher's ocean instance
+    Gateway.set_http_client(
+        GatewayMock(publisher_ocean_instance, publisher_ocean_instance.main_account))
 
     consumer_ocn = consumer_ocean_instance
     consumer_acc = consumer_ocn.main_account

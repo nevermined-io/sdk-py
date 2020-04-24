@@ -16,7 +16,7 @@ class AssetConsumer:
 
     @staticmethod
     def download(service_agreement_id, service_index, ddo, consumer_account, destination,
-                 brizo, secret_store, index=None):
+                 gateway, secret_store, index=None):
         """
         Download asset data files or result files from a compute job.
 
@@ -25,7 +25,7 @@ class AssetConsumer:
         :param ddo: DDO
         :param consumer_account: Account instance of the consumer
         :param destination: Path, str
-        :param brizo: Brizo instance
+        :param gateway: Gateway instance
         :param secret_store: SecretStore instance
         :param index: Index of the document that is going to be downloaded, int
         :return: Asset folder path, str
@@ -72,7 +72,7 @@ class AssetConsumer:
             assert index >= 0, logger.error('index has to be 0 or a positive integer.')
             assert index < len(decrypted_content_urls), logger.error(
                 'index can not be bigger than the number of files')
-        brizo.consume_service(
+        gateway.consume_service(
             service_agreement_id,
             consume_url,
             consumer_account,

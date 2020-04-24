@@ -12,8 +12,8 @@ from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
 from contracts_lib_py.web3_provider import Web3Provider
 from common_utils_py.agreements.service_factory import ServiceDescriptor, ServiceFactory
 from common_utils_py.agreements.service_types import ServiceTypes
-from common_utils_py.aquarius.aquarius_provider import AquariusProvider
-from common_utils_py.aquarius.exceptions import AquariusGenericError
+from common_utils_py.metadata.metadata_provider import MetadataProvider
+from common_utils_py.metadata.exceptions import MetadataGenericError
 from common_utils_py.ddo.ddo import DDO
 from common_utils_py.ddo.metadata import MetadataMain
 from common_utils_py.ddo.public_key_rsa import PUBLIC_KEY_TYPE_RSA
@@ -23,7 +23,7 @@ from common_utils_py.exceptions import (
 )
 from common_utils_py.utils.utilities import checksum
 
-from nevermind_sdk_py.brizo.brizo_provider import BrizoProvider
+from nevermind_sdk_py.gateway.gateway_provider import GatewayProvider
 from nevermind_sdk_py.secret_store.secret_store_provider import SecretStoreProvider
 
 logger = logging.getLogger('ocean')
@@ -39,15 +39,15 @@ class OceanAssets:
         self._asset_consumer = asset_consumer
         self._asset_executor = asset_executor
         self._config = config
-        self._aquarius_url = config.aquarius_url
+        self._metadata_url = config.metadata_url
 
         downloads_path = os.path.join(os.getcwd(), 'downloads')
         if self._config.has_option('resources', 'downloads.path'):
             downloads_path = self._config.get('resources', 'downloads.path') or downloads_path
         self._downloads_path = downloads_path
 
-    def _get_aquarius(self, url=None):
-        return AquariusProvider.get_aquarius(url or self._aquarius_url)
+    def _get_metadata_provider(self, url=None):
+        return MetadataProvider.get_metadata_provider(url or self._metadata_url)
 
     def _get_secret_store(self, account):
         return SecretStoreProvider.get_secret_store(
@@ -58,8 +58,7 @@ class OceanAssets:
                service_descriptors=None, providers=None,
                use_secret_store=True):
         """
-        Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store (
-        Aquarius).
+        Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
 
         :param metadata: dict conforming to the Metadata accepted by Ocean Protocol.
         :param publisher_account: Account of the publisher registering this asset
@@ -82,8 +81,8 @@ class OceanAssets:
 
         # Create a DDO object
         ddo = DDO()
-        brizo = BrizoProvider.get_brizo()
-        ddo_service_endpoint = self._get_aquarius().get_service_endpoint()
+        gateway = GatewayProvider.get_gateway()
+        ddo_service_endpoint = self._get_metadata_provider().get_service_endpoint()
 
         metadata_service_desc = ServiceDescriptor.metadata_service_descriptor(metadata_copy,
                                                                               ddo_service_endpoint)
@@ -95,7 +94,7 @@ class OceanAssets:
                     self._config.secret_store_url)]
                 service_descriptors += [ServiceDescriptor.access_service_descriptor(
                     access_service_attributes,
-                    brizo.get_consume_endpoint(self._config)
+                    gateway.get_consume_endpoint(self._config)
                 )]
             else:
                 service_types = set(map(lambda x: x[0], service_descriptors))
@@ -105,7 +104,7 @@ class OceanAssets:
                 else:
                     service_descriptors += [ServiceDescriptor.access_service_descriptor(
                         access_service_attributes,
-                        brizo.get_consume_endpoint(self._config)
+                        gateway.get_consume_endpoint(self._config)
 
                     )]
         elif metadata_copy['main']['type'] == 'compute':
@@ -113,12 +112,12 @@ class OceanAssets:
                                                                      publisher_account)
             if not service_descriptors:
                 service_descriptors = [ServiceDescriptor.compute_service_descriptor(
-                    compute_service_attributes, brizo.get_execute_endpoint(self._config))
+                    compute_service_attributes, gateway.get_execute_endpoint(self._config))
                 ]
             else:
                 service_descriptors += [ServiceDescriptor.compute_service_descriptor(
                     compute_service_attributes,
-                    brizo.get_execute_endpoint(self._config)
+                    gateway.get_execute_endpoint(self._config)
 
                 )]
         else:
@@ -142,7 +141,7 @@ class OceanAssets:
         did = ddo.assign_did(DID.did(ddo.proof['checksum']))
         logger.debug(f'Generating new did: {did}')
         # Check if it's already registered first!
-        if did in self._get_aquarius().list_assets():
+        if did in self._get_metadata_provider().list_assets():
             raise OceanDIDAlreadyExist(
                 f'Asset id {did} is already registered to another asset.')
 
@@ -150,7 +149,7 @@ class OceanAssets:
             if service.type == ServiceTypes.ASSET_ACCESS:
                 access_service = ServiceFactory.complete_access_service(
                     did,
-                    brizo.get_consume_endpoint(self._config),
+                    gateway.get_consume_endpoint(self._config),
                     access_service_attributes,
                     self._keeper.escrow_access_secretstore_template.address,
                     self._keeper.escrow_reward_condition.address)
@@ -162,7 +161,7 @@ class OceanAssets:
             elif service.type == ServiceTypes.CLOUD_COMPUTE:
                 compute_service = ServiceFactory.complete_compute_service(
                     did,
-                    brizo.get_execute_endpoint(self._config),
+                    gateway.get_execute_endpoint(self._config),
                     compute_service_attributes,
                     self._keeper.compute_execution_condition.address,
                     self._keeper.escrow_reward_condition.address
@@ -187,8 +186,8 @@ class OceanAssets:
                 'files'], 'files is required in the metadata main attributes.'
             logger.debug('Encrypting content urls in the metadata.')
             if not use_secret_store:
-                encrypt_endpoint = brizo.get_encrypt_endpoint(self._config)
-                files_encrypted = brizo.encrypt_files_dict(
+                encrypt_endpoint = gateway.get_encrypt_endpoint(self._config)
+                files_encrypted = gateway.encrypt_files_dict(
                     metadata_copy['main']['files'],
                     encrypt_endpoint,
                     ddo.asset_id,
@@ -235,20 +234,20 @@ class OceanAssets:
             return None
         logger.info(f'Successfully registered DDO (DID={did}) on chain.')
         try:
-            # publish the new ddo in ocean-db/Aquarius
-            response = self._get_aquarius().publish_asset_ddo(ddo)
-            logger.info('Asset/ddo published successfully in aquarius.')
+            # publish the new ddo
+            response = self._get_metadata_provider().publish_asset_ddo(ddo)
+            logger.info('Asset/ddo published successfully in Metadata.')
         except ValueError as ve:
             raise ValueError(f'Invalid value to publish in the metadata: {str(ve)}')
         except Exception as e:
-            logger.error(f'Publish asset in aquarius failed: {str(e)}')
+            logger.error(f'Publish asset in Metadata failed: {str(e)}')
         if not response:
             return None
         return ddo
 
     def retire(self, did):
         """
-        Retire this did of Aquarius
+        Retire this did of Metadata
 
         :param did: DID, str
         :return: bool
@@ -256,9 +255,9 @@ class OceanAssets:
         try:
             ddo = self.resolve(did)
             metadata_service = ddo.get_service(ServiceTypes.METADATA)
-            self._get_aquarius(metadata_service.service_endpoint).retire_asset_ddo(did)
+            self._get_metadata_provider(metadata_service.service_endpoint).retire_asset_ddo(did)
             return True
-        except AquariusGenericError as err:
+        except MetadataGenericError as err:
             logger.error(err)
             return False
 
@@ -271,40 +270,40 @@ class OceanAssets:
         """
         return self._did_resolver.resolve(did)
 
-    def search(self, text, sort=None, offset=100, page=1, aquarius_url=None):
+    def search(self, text, sort=None, offset=100, page=1, metadata_url=None):
         """
-        Search an asset in oceanDB using aquarius.
+        Search an asset in oceanDB using Metadata.
 
         :param text: String with the value that you are searching
         :param sort: Dictionary to choose order main in some value
         :param offset: Number of elements shows by page
         :param page: Page number
-        :param aquarius_url: Url of the aquarius where you want to search. If there is not
+        :param metadata_url: Url of the Metadata where you want to search. If there is not
             provided take the default
         :return: List of assets that match with the query
         """
         assert page >= 1, f'Invalid page value {page}. Required page >= 1.'
         logger.info(f'Searching asset containing: {text}')
         return [DDO(dictionary=ddo_dict) for ddo_dict in
-                self._get_aquarius(aquarius_url).text_search(text, sort, offset, page)['results']]
+                self._get_metadata_provider(metadata_url).text_search(text, sort, offset, page)['results']]
 
-    def query(self, query, sort=None, offset=100, page=1, aquarius_url=None):
+    def query(self, query, sort=None, offset=100, page=1, metadata_url=None):
         """
         Search an asset in oceanDB using search query.
 
         :param query: dict with query parameters
-            (e.g.) https://github.com/oceanprotocol/aquarius/blob/develop/docs/for_api_users/API.md
+            (e.g.) https://github.com/keyko-io/nevermind-metadata/blob/develop/docs/for_api_users/API.md
         :param sort: Dictionary to choose order main in some value
         :param offset: Number of elements shows by page
         :param page: Page number
-        :param aquarius_url: Url of the aquarius where you want to search. If there is not
+        :param metadata_url: Url of the Metadata where you want to search. If there is not
             provided take the default
         :return: List of assets that match with the query.
         """
         logger.info(f'Searching asset query: {query}')
-        aquarius = self._get_aquarius(aquarius_url)
+        metadata_provider = self._get_metadata_provider(metadata_url)
         return [DDO(dictionary=ddo_dict) for ddo_dict in
-                aquarius.query_search(query, sort, offset, page)['results']]
+                metadata_provider.query_search(query, sort, offset, page)['results']]
 
     def order(self, did, index, consumer_account, auto_consume=False):
         """
@@ -362,19 +361,19 @@ class OceanAssets:
             ddo,
             consumer_account,
             destination,
-            BrizoProvider.get_brizo(),
+            GatewayProvider.get_gateway(),
             self._get_secret_store(consumer_account),
             index
         )
 
     def validate(self, metadata):
         """
-        Validate that the metadata is ok to be stored in aquarius.
+        Validate that the metadata is ok to be stored in Metadata.
 
         :param metadata: dict conforming to the Metadata accepted by Ocean Protocol.
         :return: bool
         """
-        return self._get_aquarius(self._aquarius_url).validate_metadata(metadata)
+        return self._get_metadata_provider(self._metadata_url).validate_metadata(metadata)
 
     def owner(self, did):
         """
@@ -383,7 +382,7 @@ class OceanAssets:
         :param did: DID, str
         :return: the ethereum address of the owner/publisher of given asset did, hex-str
         """
-        # return self._get_aquarius(self._aquarius_url).get_asset_ddo(did).proof['creator']
+        # return self._get_metadata_provider(self._metadata_url).get_asset_ddo(did).proof['creator']
         return self._keeper.did_registry.get_did_owner(did_to_id(did))
 
     def owner_assets(self, owner_address):
@@ -393,7 +392,7 @@ class OceanAssets:
         :param owner_address: ethereum address of owner/publisher, hex-str
         :return: list of dids
         """
-        # return [k for k, v in self._get_aquarius(self._aquarius_url).list_assets_ddo().items() if
+        # return [k for k, v in self._get_metadata_provider(self._metadata_url).list_assets_ddo().items() if
         #         v['proof']['creator'] == owner_address]
         return self._keeper.did_registry.get_owner_asset_ids(owner_address)
 
@@ -476,7 +475,7 @@ class OceanAssets:
             compute_ddo,
             workflow_ddo,
             consumer_account,
-            BrizoProvider.get_brizo(),
+            GatewayProvider.get_gateway(),
             index
         )
 

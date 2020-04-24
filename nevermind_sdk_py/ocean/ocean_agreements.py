@@ -18,7 +18,7 @@ from common_utils_py.exceptions import (
 from nevermind_sdk_py.agreement_events.accessSecretStore import consume_asset, refund_reward
 from nevermind_sdk_py.agreement_events.computeExecution import execute_computation
 from nevermind_sdk_py.agreement_events.escrowAccessSecretStoreTemplate import fulfillLockRewardCondition
-from nevermind_sdk_py.brizo.brizo_provider import BrizoProvider
+from nevermind_sdk_py.gateway.gateway_provider import GatewayProvider
 from nevermind_sdk_py.ocean.ocean_conditions import OceanConditions
 
 logger = logging.getLogger('ocean')
@@ -131,7 +131,7 @@ class OceanAgreements:
             from_block, auto_consume
         )
 
-        return BrizoProvider.get_brizo().initialize_service_agreement(
+        return GatewayProvider.get_gateway().initialize_service_agreement(
             did,
             agreement_id,
             service_index,

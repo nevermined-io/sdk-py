@@ -142,7 +142,7 @@ class Ocean:
     @deprecated("Use ocean.assets.search")
     def search_assets_by_text(self, *args, **kwargs):
         """
-        Search an asset in oceanDB using aquarius.
+        Search an asset in oceanDB using metadata.
 
         see OceanAssets.search for params
 

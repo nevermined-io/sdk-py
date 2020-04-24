@@ -72,7 +72,7 @@ account = Account(config.parity_address, config.parity_password)
 # Let's start by registering an asset in the Ocean network
 metadata = Metadata.get_example()
 
-# consume and service endpoints require `brizo.url` is set in the config file
+# consume and service endpoints require `gateway.url` is set in the config file
 # or passed to Ocean instance in the config_dict.
 # define the services to include in the new asset DDO
 
@@ -121,10 +121,10 @@ config_dict = {
 
     },
     'resources': {
-        # aquarius is the metadata store. It stores the assets DDO/DID-document
-        'aquarius.url': 'http://localhost:5000',
-        # Brizo is the publisher's agent. It serves purchase and requests for both data access and compute services
-        'brizo.url': 'http://localhost:8030',
+        # Metadata is the metadata store. It stores the assets DDO/DID-document
+        'metadata.url': 'http://localhost:5000',
+        # Gateway is the publisher's agent. It serves purchase and requests for both data access and compute services
+        'gateway.url': 'http://localhost:8030',
         # points to the local database file used for storing temporary information (for instance, pending service agreements).
         'storage.path': 'squid_py.db',
         # Where to store downloaded asset files
@@ -159,7 +159,7 @@ In addition to the configuration file, you may use the following environment var
 1. Create the local testing environment using [barge](https://github.com/oceanprotocol/barge). Once cloned that repository, you can start the cluster running:
 
     ```
-    ./start_ocean.sh --latest --no-brizo --no-pleuston --local-spree-node
+    ./start_ocean.sh --latest --no-gateway --no-common --local-spree-node
     ```
 
     It runs an Aquarius node and an Ethereum RPC client. For details, read `docker-compose.yml`.
@@ -202,17 +202,21 @@ and [python-style-guide](https://github.com/oceanprotocol/dev-ocean/blob/master/
 
 #### Testing
 
-Automatic tests are setup via Travis, executing `tox`.
+Automatic tests are setup via Github actions
 Our test use pytest framework.
 
 #### New Version / New Release
 
 See [RELEASE_PROCESS.md](RELEASE_PROCESS.md)
 
+##Attribution
+This project is based in the [Ocean Protocol Squid-py](https://github.com/oceanprotocol/squid-py). It keeps the same Apache v2 License and adds some improvements.
+
+
 ## License
 
-```
-Copyright 2018 Ocean Protocol Foundation Ltd.
+```text
+Copyright 2020 Keyko GmbH.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -225,3 +229,4 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+```

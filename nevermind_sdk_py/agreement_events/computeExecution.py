@@ -2,7 +2,7 @@
 #  SPDX-License-Identifier: Apache-2.0
 import logging
 
-from nevermind_sdk_py.brizo import BrizoProvider
+from nevermind_sdk_py.gateway import GatewayProvider
 from common_utils_py.did_resolver.did_resolver import DIDResolver
 from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
 
@@ -27,11 +27,11 @@ def execute_computation(event, agreement_id, did, service_agreement, consumer_ac
     """
     logger.debug(f"consuming asset (agreementId {agreement_id}) after event {event}.")
     if consume_callback:
-        brizo = BrizoProvider.get_brizo()
+        gateway = GatewayProvider.get_gateway()
         consume_callback(
             agreement_id,
             DIDResolver(Keeper.get_instance().did_registry).resolve(did),
             DIDResolver(Keeper.get_instance().did_registry).resolve(workflow_did),
             consumer_account,
-            brizo
+            gateway
         )

@@ -20,7 +20,7 @@
     {
       "type": "metadata",
       "index": 0,
-      "serviceEndpoint": "http://myaquarius.org/api/v1/provider/assets/metadata/{did}",
+      "serviceEndpoint": "http://mymetadata.org/api/v1/metadata/assets/metadata/{did}",
       "attributes": {
         "main": {
           "author": "Met Office",
@@ -37,7 +37,7 @@
     {
       "type": "compute",
       "index": 2,
-      "serviceEndpoint": "http://mybrizo.org/api/v1/brizo/services/computing/exec?consumerAddress=${consumerAddress}&serviceAgreementId=${serviceAgreementId}",
+      "serviceEndpoint": "http://mygateway.org/api/v1/gateway/services/computing/exec?consumerAddress=${consumerAddress}&serviceAgreementId=${serviceAgreementId}",
       "templateId": "804932804923850985093485039850349850439583409583404534231321131a",
       "attributes": {
         "main": {
