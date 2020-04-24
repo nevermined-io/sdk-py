@@ -1,9 +1,9 @@
 [![banner](https://raw.githubusercontent.com/keyko-io/assets/master/images/logo/small/keyko_logo@2x-100.jpg)](https://keyko.io)
 
-# nevermind-sdk-py
+# Python API for Nevermind Data platform
 
-> 💧 Python wrapper, allowing to integrate the basic Ocean/web3.py capabilities
-> [oceanprotocol.com](https://oceanprotocol.com)
+> 🦑 Python SDK for connecting with Nevermind Data Platform
+> [keyko.io](https://keyko.io)
 
 [![PyPI](https://img.shields.io/pypi/v/squid-py.svg)](https://pypi.org/project/squid-py/)
 [![Travis (.com)](https://img.shields.io/travis/com/oceanprotocol/squid-py.svg)](https://travis-ci.com/oceanprotocol/squid-py)
@@ -209,10 +209,17 @@ Our test use pytest framework.
 
 See [RELEASE_PROCESS.md](RELEASE_PROCESS.md)
 
+## Attribution
+
+This library is based in the [Ocean Protocol](https://oceanprotocol.com) [Squid Python](https://github.com/oceanprotocol/squid-py) library.
+It keeps the same Apache v2 License and adds some improvements. See [NOTICE file](NOTICE).
+
 ## License
 
 ```
-Copyright 2018 Ocean Protocol Foundation Ltd.
+Copyright 2020 Keyko GmbH
+This product includes software developed at
+BigchainDB GmbH and Ocean Protocol (https://www.oceanprotocol.com/)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
