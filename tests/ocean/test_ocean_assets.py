@@ -108,19 +108,19 @@ def test_create_data_asset(publisher_ocean_instance, consumer_ocean_instance):
     ##########################################################
     # Setup 2 accounts
     ##########################################################
-    aquarius_acct = pub_ocn.main_account
+    publisher_acct = pub_ocn.main_account
     consumer_acct = cons_ocn.main_account
 
     # ensure Ocean token balance
-    if pub_ocn.accounts.balance(aquarius_acct).ocn == 0:
-        rcpt = pub_ocn.accounts.request_tokens(aquarius_acct, 200)
+    if pub_ocn.accounts.balance(publisher_acct).ocn == 0:
+        rcpt = pub_ocn.accounts.request_tokens(publisher_acct, 200)
         Web3Provider.get_web3().eth.waitForTransactionReceipt(rcpt)
     if cons_ocn.accounts.balance(consumer_acct).ocn == 0:
         rcpt = cons_ocn.accounts.request_tokens(consumer_acct, 200)
         Web3Provider.get_web3().eth.waitForTransactionReceipt(rcpt)
 
     # You will need some token to make this transfer!
-    assert pub_ocn.accounts.balance(aquarius_acct).ocn > 0
+    assert pub_ocn.accounts.balance(publisher_acct).ocn > 0
     assert cons_ocn.accounts.balance(consumer_acct).ocn > 0
 
     ##########################################################
@@ -140,7 +140,7 @@ def test_create_data_asset(publisher_ocean_instance, consumer_ocean_instance):
         pub_ocn.assets.resolve(asset.did)
         pub_ocn.assets.retire(asset.did)
     # Publish the metadata
-    new_asset = pub_ocn.assets.create(asset.metadata, aquarius_acct)
+    new_asset = pub_ocn.assets.create(asset.metadata, publisher_acct)
 
     # get_asset_metadata only returns 'main' key, is this correct?
     published_metadata = cons_ocn.assets.resolve(new_asset.did)

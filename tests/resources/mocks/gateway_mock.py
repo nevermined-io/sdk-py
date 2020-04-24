@@ -3,15 +3,15 @@
 
 import os
 
-from nevermind_sdk_py.brizo.brizo import Brizo
+from nevermind_sdk_py.gateway.gateway import Gateway
 
 
-class BrizoMock(object):
+class GatewayMock(object):
     def __init__(self, ocean_instance=None, account=None):
         if not ocean_instance:
             from tests.resources.helper_functions import get_publisher_ocean_instance
             ocean_instance = get_publisher_ocean_instance(
-                init_tokens=False, use_ss_mock=False, use_brizo_mock=True
+                init_tokens=False, use_ss_mock=False, use_gateway_mock=True
             )
 
         self.ocean_instance = ocean_instance
@@ -47,17 +47,17 @@ class BrizoMock(object):
         return True
 
     @staticmethod
-    def get_brizo_url(config):
-        return Brizo.get_brizo_url(config)
+    def get_gateway_url(config):
+        return Gateway.get_gateway_url(config)
 
     @staticmethod
     def get_purchase_endpoint(config):
-        return f'{Brizo.get_brizo_url(config)}/services/access/initialize'
+        return f'{Gateway.get_gateway_url(config)}/services/access/initialize'
 
     @staticmethod
     def get_consume_endpoint(config):
-        return f'{Brizo.get_brizo_url(config)}/services/consume'
+        return f'{Gateway.get_gateway_url(config)}/services/consume'
 
     @staticmethod
     def get_execute_endpoint(config):
-        return f'{Brizo.get_brizo_url(config)}/services/exec'
+        return f'{Gateway.get_gateway_url(config)}/services/exec'

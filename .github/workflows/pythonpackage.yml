@@ -30,7 +30,7 @@ jobs:
         export KEEPER_VERSION=latest
         export AQUARIUS_VERSION=latest
         rm -rf "${HOME}/.nevermind/nevermind-contracts/artifacts"
-        bash -x start_nevermind.sh --no-pleuston --no-commons --no-brizo --no-faucet --no-dashboard --no-agent --latest 2>&1 > start_nevermind.log &
+        bash -x start_nevermind.sh --no-commons --no-gateway --no-faucet --no-dashboard --latest 2>&1 > start_nevermind.log &
         cd ..
         for i in $(seq 1 50); do
         sleep 5

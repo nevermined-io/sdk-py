@@ -24,7 +24,7 @@ install_requirements = [
     'pyopenssl',
     'PyJWT',  # not jwt
     'PyYAML==4.2b4',
-    'common-utils-py==0.1.0',
+    'common-utils-py==0.1.1',
     'contracts-lib-py==0.1.0',
     'ocean-secret-store-client==0.0.1',
     'requests==2.21.0',
@@ -41,14 +41,12 @@ install_requirements = [
 setup_requirements = ['pytest-runner', ]
 
 test_requirements = [
-    'codacy-coverage',
     'coverage',
     'docker',
     'mccabe',
     'pylint',
     'pytest',
     'pytest-watch',
-    'tox',
 ]
 
 # Possibly required by developers of squid-py:
@@ -97,6 +95,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/keyko-io/nevermind-sdk-py',
-    version='0.7.1',
+    version='0.1.0',
     zip_safe=False,
 )

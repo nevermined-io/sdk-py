@@ -13,11 +13,11 @@ import yaml
 from contracts_lib_py.utils import get_account
 from common_utils_py.ddo.ddo import DDO
 
-from nevermind_sdk_py.brizo.brizo_provider import BrizoProvider
+from nevermind_sdk_py.gateway.gateway_provider import GatewayProvider
 from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
 from nevermind_sdk_py.ocean.ocean import Ocean
 from nevermind_sdk_py.secret_store.secret_store_provider import SecretStoreProvider
-from tests.resources.mocks.brizo_mock import BrizoMock
+from tests.resources.mocks.gateway_mock import GatewayMock
 from tests.resources.mocks.secret_store_mock import SecretStoreMock
 
 PUBLISHER_INDEX = 1
@@ -49,7 +49,7 @@ def get_consumer_account():
     return get_account(1)
 
 
-def get_publisher_ocean_instance(init_tokens=True, use_ss_mock=True, use_brizo_mock=True):
+def get_publisher_ocean_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=True):
     ocn = Ocean()
     account = get_publisher_account()
     ocn.main_account = account
@@ -57,13 +57,13 @@ def get_publisher_ocean_instance(init_tokens=True, use_ss_mock=True, use_brizo_m
         init_ocn_tokens(ocn, ocn.main_account)
     if use_ss_mock:
         SecretStoreProvider.set_secret_store_class(SecretStoreMock)
-    if use_brizo_mock:
-        BrizoProvider.set_brizo_class(BrizoMock)
+    if use_gateway_mock:
+        GatewayProvider.set_gateway_class(GatewayMock)
 
     return ocn
 
 
-def get_consumer_ocean_instance(init_tokens=True, use_ss_mock=True, use_brizo_mock=True):
+def get_consumer_ocean_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=True):
     ocn = Ocean()
     account = get_consumer_account()
     ocn.main_account = account
@@ -71,8 +71,8 @@ def get_consumer_ocean_instance(init_tokens=True, use_ss_mock=True, use_brizo_mo
         init_ocn_tokens(ocn, ocn.main_account)
     if use_ss_mock:
         SecretStoreProvider.set_secret_store_class(SecretStoreMock)
-    if use_brizo_mock:
-        BrizoProvider.set_brizo_class(BrizoMock)
+    if use_gateway_mock:
+        GatewayProvider.set_gateway_class(GatewayMock)
 
     return ocn
 

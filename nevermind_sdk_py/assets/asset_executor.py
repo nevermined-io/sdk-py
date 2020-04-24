@@ -9,10 +9,10 @@ logger = logging.getLogger(__name__)
 
 
 class AssetExecutor:
-    """Class representing the call to the brizo executre endpoint."""
+    """Class representing the call to the Gateway execute endpoint."""
 
     @staticmethod
-    def execute(agreement_id, compute_ddo, workflow_ddo, consumer_account, brizo, index):
+    def execute(agreement_id, compute_ddo, workflow_ddo, consumer_account, gateway, index):
         """
 
         :param agreement_id:
@@ -24,4 +24,4 @@ class AssetExecutor:
         service_endpoint = ServiceAgreement.from_ddo(ServiceTypes.CLOUD_COMPUTE,
                                                      compute_ddo).service_endpoint
 
-        brizo.execute_service(agreement_id, service_endpoint, consumer_account, workflow_ddo)
+        gateway.execute_service(agreement_id, service_endpoint, consumer_account, workflow_ddo)
