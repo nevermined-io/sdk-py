@@ -1,4 +1,3 @@
-"""Gateway module."""
 from nevermind_sdk_py.gateway.gateway import Gateway
 
 

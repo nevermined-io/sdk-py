@@ -1,7 +1,3 @@
-"""Secret Store module."""
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import logging
 
 from eth_utils import remove_0x_prefix

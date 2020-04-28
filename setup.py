@@ -16,7 +16,6 @@ with open('README.md') as readme_file:
 
 with open('CHANGELOG.md') as history_file:
     history = history_file.read()
-
 # Installed by pip install nevermind-sdk-py
 # or pip install -e .
 install_requirements = [
@@ -24,8 +23,8 @@ install_requirements = [
     'pyopenssl',
     'PyJWT',  # not jwt
     'PyYAML==4.2b4',
-    'common-utils-py==0.1.1',
-    'contracts-lib-py==0.1.0',
+    'common-utils-py==0.1.3',
+    'contracts-lib-py==0.1.1',
     'ocean-secret-store-client==0.0.1',
     'requests==2.21.0',
     'deprecated',

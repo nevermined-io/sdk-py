@@ -1,8 +1,3 @@
-"""Brizo module."""
-
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import json
 import logging
 import os
@@ -70,7 +65,7 @@ class Gateway:
         Send a request to the service provider (purchase_endpoint) to initialize the service
         agreement for the asset identified by `did`.
 
-        :param did: id of the asset includes the `did:op:` prefix, str
+        :param did: id of the asset includes the `did:nv:` prefix, str
         :param agreement_id: id of the agreement, hex str
         :param service_index: identifier of the service inside the asset DDO, str
         :param signature: signed agreement hash, hex str

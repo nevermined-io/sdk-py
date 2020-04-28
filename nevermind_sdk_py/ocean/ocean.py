@@ -1,7 +1,3 @@
-"""Ocean module."""
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import logging
 
 from deprecated import deprecated

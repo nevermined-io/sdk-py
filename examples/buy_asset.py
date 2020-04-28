@@ -49,7 +49,7 @@ def buy_asset():
 
     keeper = Keeper.get_instance()
     # Register ddo
-    did = ''  # 'did:op:7648596b60f74301ae1ef9baa5d637255d517ff362434754a3779e1de4c8219b'
+    did = ''  # 'did:nv:7648596b60f74301ae1ef9baa5d637255d517ff362434754a3779e1de4c8219b'
     if did:
         ddo = ocn.assets.resolve(did)
         logging.info(f'using ddo: {did}')

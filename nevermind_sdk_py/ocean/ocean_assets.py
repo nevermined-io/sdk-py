@@ -1,7 +1,3 @@
-"""Ocean module."""
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import copy
 import json
 import logging
@@ -309,7 +305,7 @@ class OceanAssets:
         """
         Place order by directly creating an SEA (agreement) on-chain.
 
-        :param did: str starting with the prefix `did:op:` and followed by the asset id which is
+        :param did: str starting with the prefix `did:nv:` and followed by the asset id which is
         a hex str
         :param index: str the service definition id identifying a specific
         service in the DDO (DID document)
@@ -461,7 +457,7 @@ class OceanAssets:
         :param did: computing service did, str
         :param index: id of the service within the asset DDO, str
         :param consumer_account: Account instance of the consumer ordering the service
-        :param workflow_did: the asset did (of `workflow` type) which consist of `did:op:` and
+        :param workflow_did: the asset did (of `workflow` type) which consist of `did:nv:` and
         the assetId hex str (without `0x` prefix), str
         :return: local path on the file system where the asset data files are downloaded, str
         """

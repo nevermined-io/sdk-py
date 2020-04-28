@@ -1,6 +1,3 @@
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 from eth_utils import add_0x_prefix
 from contracts_lib_py.web3_provider import Web3Provider
 from common_utils_py.did import did_to_id

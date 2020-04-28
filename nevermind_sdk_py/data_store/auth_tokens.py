@@ -1,5 +1,3 @@
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
 import logging
 
 from common_utils_py.data_store.storage_base import StorageBase

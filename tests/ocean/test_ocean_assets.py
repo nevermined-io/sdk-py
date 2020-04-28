@@ -1,41 +1,30 @@
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import logging
 
 import pytest
-from contracts_lib_py.exceptions import OceanDIDNotFound
-from contracts_lib_py.web3_provider import Web3Provider
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_factory import ServiceDescriptor
 from common_utils_py.agreements.service_types import ServiceTypes
-from common_utils_py.ddo.ddo import DDO
 from common_utils_py.did import DID
+from contracts_lib_py.exceptions import OceanDIDNotFound
+from contracts_lib_py.web3_provider import Web3Provider
 
 from tests.resources.helper_functions import (get_algorithm_ddo, get_computing_metadata,
-                                              get_resource_path, get_workflow_ddo, log_event)
+                                              get_workflow_ddo, log_event)
 from tests.resources.tiers import e2e_test
 
 
-def create_asset(publisher_ocean_instance):
+def create_asset(publisher_ocean_instance, ddo_sample):
     ocn = publisher_ocean_instance
-    sample_ddo_path = get_resource_path('ddo', 'ddo_sa_sample.json')
-    assert sample_ddo_path.exists(), "{} does not exist!".format(sample_ddo_path)
-
     acct = ocn.main_account
-
-    asset = DDO(json_filename=sample_ddo_path)
+    asset = ddo_sample
     my_secret_store = 'http://myownsecretstore.com'
     auth_service = ServiceDescriptor.authorization_service_descriptor(my_secret_store)
     return ocn.assets.create(asset.metadata, acct, [auth_service])
 
 
 @e2e_test
-def test_register_asset(publisher_ocean_instance):
+def test_register_asset(publisher_ocean_instance, ddo_sample):
     logging.debug("".format())
-    sample_ddo_path = get_resource_path('ddo', 'ddo_sa_sample.json')
-    assert sample_ddo_path.exists(), "{} does not exist!".format(sample_ddo_path)
-
     ##########################################################
     # Setup account
     ##########################################################
@@ -51,7 +40,7 @@ def test_register_asset(publisher_ocean_instance):
     ##########################################################
     # Create an asset DDO with valid metadata
     ##########################################################
-    asset = DDO(json_filename=sample_ddo_path)
+    asset = ddo_sample
 
     ##########################################################
     # Register using high-level interface
@@ -87,14 +76,14 @@ def test_resolve_did(publisher_ocean_instance, metadata):
         publisher_ocean_instance.assets.resolve(unregistered_did)
 
     # Raise error on bad did
-    invalid_did = "did:op:0123456789"
+    invalid_did = "did:nv:0123456789"
     with pytest.raises(OceanDIDNotFound):
         publisher_ocean_instance.assets.resolve(invalid_did)
     publisher_ocean_instance.assets.retire(did)
 
 
 @e2e_test
-def test_create_data_asset(publisher_ocean_instance, consumer_ocean_instance):
+def test_create_data_asset(publisher_ocean_instance, consumer_ocean_instance, ddo_sample):
     """
     Setup accounts and asset, register this asset on Aquarius (MetaData store)
     """
@@ -102,9 +91,6 @@ def test_create_data_asset(publisher_ocean_instance, consumer_ocean_instance):
     cons_ocn = consumer_ocean_instance
 
     logging.debug("".format())
-    sample_ddo_path = get_resource_path('ddo', 'ddo_sa_sample.json')
-    assert sample_ddo_path.exists(), "{} does not exist!".format(sample_ddo_path)
-
     ##########################################################
     # Setup 2 accounts
     ##########################################################
@@ -126,7 +112,7 @@ def test_create_data_asset(publisher_ocean_instance, consumer_ocean_instance):
     ##########################################################
     # Create an Asset with valid metadata
     ##########################################################
-    asset = DDO(json_filename=sample_ddo_path)
+    asset = ddo_sample
 
     ##########################################################
     # List currently published assets
@@ -152,15 +138,11 @@ def test_create_data_asset(publisher_ocean_instance, consumer_ocean_instance):
     publisher_ocean_instance.assets.retire(new_asset.did)
 
 
-def test_create_asset_with_different_secret_store(publisher_ocean_instance):
+def test_create_asset_with_different_secret_store(publisher_ocean_instance, ddo_sample):
     ocn = publisher_ocean_instance
-
-    sample_ddo_path = get_resource_path('ddo', 'ddo_sa_sample.json')
-    assert sample_ddo_path.exists(), "{} does not exist!".format(sample_ddo_path)
-
     acct = ocn.main_account
 
-    asset = DDO(json_filename=sample_ddo_path)
+    asset = ddo_sample
     my_secret_store = 'http://myownsecretstore.com'
     auth_service = ServiceDescriptor.authorization_service_descriptor(my_secret_store)
     new_asset = ocn.assets.create(asset.metadata, acct, [auth_service])
@@ -191,15 +173,11 @@ def test_create_asset_with_different_secret_store(publisher_ocean_instance):
     publisher_ocean_instance.assets.retire(new_asset.did)
 
 
-def test_asset_owner(publisher_ocean_instance):
+def test_asset_owner(publisher_ocean_instance, ddo_sample):
     ocn = publisher_ocean_instance
-
-    sample_ddo_path = get_resource_path('ddo', 'ddo_sa_sample.json')
-    assert sample_ddo_path.exists(), "{} does not exist!".format(sample_ddo_path)
-
     acct = ocn.main_account
 
-    asset = DDO(json_filename=sample_ddo_path)
+    asset = ddo_sample
     my_secret_store = 'http://myownsecretstore.com'
     auth_service = ServiceDescriptor.authorization_service_descriptor(my_secret_store)
     new_asset = ocn.assets.create(asset.metadata, acct, [auth_service])
@@ -208,20 +186,20 @@ def test_asset_owner(publisher_ocean_instance):
     publisher_ocean_instance.assets.retire(new_asset.did)
 
 
-def test_owner_assets(publisher_ocean_instance):
+def test_owner_assets(publisher_ocean_instance, ddo_sample):
     ocn = publisher_ocean_instance
     acct = ocn.main_account
     assets_owned = len(ocn.assets.owner_assets(acct.address))
-    asset = create_asset(publisher_ocean_instance)
+    asset = create_asset(publisher_ocean_instance, ddo_sample)
     assert len(ocn.assets.owner_assets(acct.address)) == assets_owned + 1
     publisher_ocean_instance.assets.retire(asset.did)
 
 
-def test_assets_consumed(publisher_ocean_instance, consumer_ocean_instance):
+def test_assets_consumed(publisher_ocean_instance, consumer_ocean_instance, ddo_sample):
     ocn = publisher_ocean_instance
     acct = consumer_ocean_instance.main_account
     consumed_assets = len(ocn.assets.consumer_assets(acct.address))
-    asset = create_asset(publisher_ocean_instance)
+    asset = create_asset(publisher_ocean_instance, ddo_sample)
     service = asset.get_service(service_type=ServiceTypes.ASSET_ACCESS)
     service_dict = service.as_dictionary()
     sa = ServiceAgreement.from_service_dict(service_dict)

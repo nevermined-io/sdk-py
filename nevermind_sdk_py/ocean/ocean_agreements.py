@@ -1,7 +1,3 @@
-"""Ocean module."""
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import logging
 
 from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg

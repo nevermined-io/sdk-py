@@ -1,5 +1,3 @@
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
 import logging
 
 from common_utils_py.agreements.service_agreement import ServiceAgreement

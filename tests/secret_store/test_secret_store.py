@@ -1,8 +1,4 @@
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import hashlib
-import json
 import secrets
 from unittest.mock import MagicMock, Mock
 
@@ -10,16 +6,15 @@ from contracts_lib_py.account import Account
 
 from nevermind_sdk_py import ConfigProvider
 from nevermind_sdk_py.secret_store.secret_store import SecretStore
-from tests.resources.helper_functions import get_resource_path
+from tests.resources.helper_functions import get_assset_json_text
 from tests.resources.tiers import e2e_test
 
 
 @e2e_test
 def test_secret_store_encrypt_decrypt():
-    test_document = get_resource_path('ddo', 'ddo_sample1.json')
-    with open(test_document, 'r') as file_handle:
-        metadata = json.load(file_handle)
-    metadata_json = json.dumps(metadata)
+    metadata_json = get_assset_json_text(
+        'https://raw.githubusercontent.com/keyko-io/nevermind-docs/master/architecture/specs'
+        '/examples/access/v0.1/ddo1.json')
     document_id = hashlib.sha256((metadata_json + secrets.token_hex(32)).encode()).hexdigest()
     print(document_id)
     config = ConfigProvider.get_config()
