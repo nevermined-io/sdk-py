@@ -3,7 +3,7 @@
 
 """The setup script."""
 
-#  Copyright 2018 Ocean Protocol Foundation
+#  Copyright 2018 Nevermind Protocol Foundation
 #  SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -76,7 +76,7 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
     ],
-    description="🐳 Ocean/Web3py wrapper.",
+    description="🐳 Nevermind/Web3py wrapper.",
     extras_require={
         'test': test_requirements,
         'dev': dev_requirements + test_requirements + docs_requirements,

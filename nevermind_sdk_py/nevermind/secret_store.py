@@ -7,8 +7,8 @@ from nevermind_sdk_py.secret_store.secret_store_provider import SecretStoreProvi
 logger = logging.getLogger(__name__)
 
 
-class OceanSecretStore:
-    """Ocean SecretStore class."""
+class SecretStore:
+    """Nevermind SecretStore class."""
 
     def __init__(self, config):
         self._config = config

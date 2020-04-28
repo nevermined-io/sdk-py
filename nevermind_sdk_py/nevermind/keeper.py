@@ -3,11 +3,11 @@ import logging
 from contracts_lib_py import Keeper
 
 
-class SquidKeeper(Keeper):
+class NevermindKeeper(Keeper):
 
     @staticmethod
     def get_instance(artifacts_path=None, contract_names=None):
-        return SquidKeeper(artifacts_path)
+        return NevermindKeeper(artifacts_path)
 
     def get_condition_name_by_address(self, address):
         """Return the condition name for a given address."""

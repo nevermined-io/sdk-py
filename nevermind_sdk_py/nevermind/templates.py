@@ -3,8 +3,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class OceanTemplates:
-    """Ocean templates class."""
+class Templates:
+    """Nevermind templates class."""
 
     def __init__(self, keeper, config):
         self._keeper = keeper

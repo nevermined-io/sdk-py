@@ -2,31 +2,25 @@ import pytest
 from common_utils_py.metadata.metadata import Metadata
 
 from nevermind_sdk_py import ConfigProvider
-from tests.resources.tiers import e2e_test, should_run_test
 
-if should_run_test('e2e'):
-    metadata_provider = Metadata(ConfigProvider.get_config().metadata_url)
+metadata_provider = Metadata(ConfigProvider.get_config().metadata_url)
 
 
-@e2e_test
 def test_get_service_endpoint():
     assert metadata_provider.get_service_endpoint() == f'{metadata_provider.url}/' + '{did}'
 
 
-@e2e_test
 def test_publish_valid_ddo(asset1):
     metadata_provider.publish_asset_ddo(asset1)
     assert metadata_provider.get_asset_ddo(asset1.did)
     metadata_provider.retire_asset_ddo(asset1.did)
 
 
-@e2e_test
 def test_publish_invalid_ddo():
     with pytest.raises(AttributeError):
         metadata_provider.publish_asset_ddo({})
 
 
-@e2e_test
 def test_publish_ddo_already_registered(asset1):
     metadata_provider.publish_asset_ddo(asset1)
     with pytest.raises(ValueError):
@@ -34,14 +28,12 @@ def test_publish_ddo_already_registered(asset1):
     metadata_provider.retire_asset_ddo(asset1.did)
 
 
-@e2e_test
 def test_get_asset_ddo_for_not_registered_did():
     invalid_did = 'did:nv:not_valid'
     with pytest.raises(ValueError):
         metadata_provider.get_asset_ddo(invalid_did)
 
 
-@e2e_test
 def test_get_asset_metadata(asset1):
     metadata_provider.publish_asset_ddo(asset1)
     metadata_dict = metadata_provider.get_asset_metadata(asset1.did)
@@ -52,14 +44,12 @@ def test_get_asset_metadata(asset1):
     metadata_provider.retire_asset_ddo(asset1.did)
 
 
-@e2e_test
 def test_get_asset_metadata_for_not_registered_did():
     invalid_did = 'did:nv:not_valid'
     with pytest.raises(ValueError):
         metadata_provider.get_asset_metadata(invalid_did)
 
 
-@e2e_test
 def test_list_assets(asset1):
     num_assets = len(metadata_provider.list_assets())
     metadata_provider.publish_asset_ddo(asset1)
@@ -69,7 +59,6 @@ def test_list_assets(asset1):
     metadata_provider.retire_asset_ddo(asset1.did)
 
 
-@e2e_test
 def test_list_assets_ddo(asset1):
     num_assets = len(metadata_provider.list_assets_ddo())
     metadata_provider.publish_asset_ddo(asset1)
@@ -78,7 +67,6 @@ def test_list_assets_ddo(asset1):
     metadata_provider.retire_asset_ddo(asset1.did)
 
 
-@e2e_test
 def test_update_ddo(asset1, asset2):
     metadata_provider.publish_asset_ddo(asset1)
     metadata_provider.update_asset_ddo(asset1.did, asset2)
@@ -89,13 +77,11 @@ def test_update_ddo(asset1, asset2):
     metadata_provider.retire_asset_ddo(asset1.did)
 
 
-@e2e_test
 def test_update_with_not_valid_ddo(asset1):
     with pytest.raises(Exception):
         metadata_provider.update_asset_ddo(asset1.did, {})
 
 
-@e2e_test
 def test_text_search(asset1, asset2):
     office_matches = 0
     metadata_provider.publish_asset_ddo(asset1)
@@ -116,13 +102,11 @@ def test_text_search(asset1, asset2):
     metadata_provider.retire_asset_ddo(asset2.did)
 
 
-@e2e_test
 def test_text_search_invalid_query():
     with pytest.raises(Exception):
         metadata_provider.text_search(text='', offset='Invalid')
 
 
-@e2e_test
 def test_query_search(asset1, asset2):
     num_matches = 0
     metadata_provider.publish_asset_ddo(asset1)
@@ -140,13 +124,11 @@ def test_query_search(asset1, asset2):
     metadata_provider.retire_asset_ddo(asset2.did)
 
 
-@e2e_test
 def test_query_search_invalid_query():
     with pytest.raises(Exception):
         metadata_provider.query_search(search_query='')
 
 
-@e2e_test
 def test_retire_ddo(asset1):
     n = len(metadata_provider.list_assets())
     metadata_provider.publish_asset_ddo(asset1)
@@ -155,23 +137,19 @@ def test_retire_ddo(asset1):
     assert len(metadata_provider.list_assets()) == n
 
 
-@e2e_test
 def test_retire_all_ddos(asset1):
     metadata_provider.retire_all_assets()
     assert len(metadata_provider.list_assets()) == 0
 
 
-@e2e_test
 def test_retire_not_published_did():
     with pytest.raises(Exception):
         metadata_provider.retire_asset_ddo('did:nv:not_registered')
 
 
-@e2e_test
 def test_validate_metadata(metadata):
     assert metadata_provider.validate_metadata(metadata)
 
 
-@e2e_test
 def test_validate_invalid_metadata():
     assert not metadata_provider.validate_metadata({})

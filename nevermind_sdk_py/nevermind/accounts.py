@@ -5,8 +5,8 @@ from contracts_lib_py.account import Account
 Balance = namedtuple('Balance', ('eth', 'ocn'))
 
 
-class OceanAccounts:
-    """Ocean accounts class."""
+class Accounts:
+    """Nevermind accounts class."""
 
     def __init__(self, keeper, config, ocean_tokens):
         self._keeper = keeper
@@ -39,10 +39,10 @@ class OceanAccounts:
 
     def balance(self, account):
         """
-        Return the balance, a tuple with the eth and ocn balance.
+        Return the balance, a tuple with the eth and nevermind balance.
 
         :param account: Account instance to return the balance of
-        :return: Balance tuple of (eth, ocn)
+        :return: Balance tuple of (eth, nevermind)
         """
         return Balance(self._keeper.get_ether_balance(account.address),
                        self._keeper.token.get_token_balance(account.address))

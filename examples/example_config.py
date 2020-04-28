@@ -1,4 +1,4 @@
-#  Copyright 2018 Ocean Protocol Foundation
+#  Copyright 2018 Nevermind Protocol Foundation
 #  SPDX-License-Identifier: Apache-2.0
 
 import logging

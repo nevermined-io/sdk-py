@@ -7,10 +7,8 @@ from contracts_lib_py.account import Account
 from nevermind_sdk_py import ConfigProvider
 from nevermind_sdk_py.secret_store.secret_store import SecretStore
 from tests.resources.helper_functions import get_assset_json_text
-from tests.resources.tiers import e2e_test
 
 
-@e2e_test
 def test_secret_store_encrypt_decrypt():
     metadata_json = get_assset_json_text(
         'https://raw.githubusercontent.com/keyko-io/nevermind-docs/master/architecture/specs'

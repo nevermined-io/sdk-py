@@ -15,13 +15,13 @@ from nevermind_sdk_py.agreement_events.accessSecretStore import consume_asset, r
 from nevermind_sdk_py.agreement_events.computeExecution import execute_computation
 from nevermind_sdk_py.agreement_events.escrowAccessSecretStoreTemplate import fulfillLockRewardCondition
 from nevermind_sdk_py.gateway.gateway_provider import GatewayProvider
-from nevermind_sdk_py.ocean.ocean_conditions import OceanConditions
+from nevermind_sdk_py.nevermind.conditions import Conditions
 
 logger = logging.getLogger('ocean')
 
 
-class OceanAgreements:
-    """Ocean agreements class."""
+class Agreements:
+    """Nevermind agreements class."""
 
     def __init__(self, keeper, asset_resolver, asset_consumer, asset_executor, config):
         self._keeper = keeper
@@ -29,7 +29,7 @@ class OceanAgreements:
         self._asset_consumer = asset_consumer
         self._asset_executor = asset_executor
         self._config = config
-        self.conditions = OceanConditions(self._keeper)
+        self.conditions = Conditions(self._keeper)
 
     def get(self, agreement_id):
         """
@@ -94,7 +94,7 @@ class OceanAgreements:
     def send(self, did, agreement_id, service_index, signature,
              consumer_account, auto_consume=False):
         """
-        Send a signed service agreement to the publisher Brizo instance to
+        Send a signed service agreement to the publisher Gateway instance to
         consume/access the service.
 
         :param did: str representation fo the asset DID. Use this to retrieve the asset DDO.

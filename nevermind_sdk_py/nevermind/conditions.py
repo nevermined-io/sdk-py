@@ -3,8 +3,8 @@ from contracts_lib_py.web3_provider import Web3Provider
 from common_utils_py.did import did_to_id
 
 
-class OceanConditions:
-    """Ocean conditions class."""
+class Conditions:
+    """Nevermind conditions class."""
 
     def __init__(self, keeper):
         self._keeper = keeper

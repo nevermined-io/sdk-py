@@ -1,8 +1,8 @@
 from common_utils_py.agreements.service_factory import ServiceDescriptor
 
 
-class OceanServices:
-    """Ocean services class."""
+class Services:
+    """Nevermind services class."""
 
     @staticmethod
     def create_access_service(attributes, service_endpoint):

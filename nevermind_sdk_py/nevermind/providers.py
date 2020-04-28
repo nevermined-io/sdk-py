@@ -1,5 +1,5 @@
-class OceanProviders:
-    """Ocean assets class."""
+class Providers:
+    """Nevermind assets class."""
 
     def __init__(self, keeper, did_resolver, config):
         self._keeper = keeper

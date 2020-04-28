@@ -25,8 +25,8 @@ from nevermind_sdk_py.secret_store.secret_store_provider import SecretStoreProvi
 logger = logging.getLogger('ocean')
 
 
-class OceanAssets:
-    """Ocean assets class."""
+class Assets:
+    """Nevermind assets class."""
 
     def __init__(self, keeper, did_resolver, agreements, asset_consumer, asset_executor, config):
         self._keeper = keeper
@@ -56,7 +56,7 @@ class OceanAssets:
         """
         Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
 
-        :param metadata: dict conforming to the Metadata accepted by Ocean Protocol.
+        :param metadata: dict conforming to the Metadata accepted by Nevermind Protocol.
         :param publisher_account: Account of the publisher registering this asset
         :param service_descriptors: list of ServiceDescriptor tuples of length 2.
             The first item must be one of ServiceTypes and the second
@@ -64,7 +64,7 @@ class OceanAssets:
         :param providers: list of addresses of providers of this asset (a provider is
             an ethereum account that is authorized to provide asset services)
         :param use_secret_store: bool indicate whether to use the secret store directly for
-            encrypting urls (Uses Brizo provider service if set to False)
+            encrypting urls (Uses Gateway provider service if set to False)
         :return: DDO instance
         """
         assert isinstance(metadata, dict), f'Expected metadata of type dict, got {type(metadata)}'
@@ -366,7 +366,7 @@ class OceanAssets:
         """
         Validate that the metadata is ok to be stored in Metadata.
 
-        :param metadata: dict conforming to the Metadata accepted by Ocean Protocol.
+        :param metadata: dict conforming to the Metadata accepted by Nevermind Protocol.
         :return: bool
         """
         return self._get_metadata_provider(self._metadata_url).validate_metadata(metadata)

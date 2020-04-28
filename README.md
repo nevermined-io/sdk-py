@@ -47,7 +47,7 @@ import os
 import time
 
 from nevermind_sdk_py import (
-    Ocean,
+    Nevermind,
     ConfigProvider,
     Config,
     Metadata,
@@ -55,8 +55,8 @@ from nevermind_sdk_py import (
 )
 
 ConfigProvider.set_config(Config('config.ini'))
-# Make a new instance of Ocean
-ocean = Ocean() # or Ocean(Config('config.ini'))
+# Make a new instance of Nevermind
+ocean = Ocean() # or Nevermind(Config('config.ini'))
 config = ocean.config
 # make account instance, assuming the ethereum account and password are set 
 # in the config file `config.ini`
@@ -65,11 +65,11 @@ account = ocean.accounts.list()[0]
 account = Account(config.parity_address, config.parity_password)
 
 # PUBLISHER
-# Let's start by registering an asset in the Ocean network
+# Let's start by registering an asset in the Nevermind network
 metadata = Metadata.get_example()
 
 # consume and service endpoints require `gateway.url` is set in the config file
-# or passed to Ocean instance in the config_dict.
+# or passed to Nevermind instance in the config_dict.
 # define the services to include in the new asset DDO
 
 ddo = ocean.assets.create(metadata, account)
@@ -80,7 +80,7 @@ _ddo = ocean.assets.resolve(ddo.did)
 
 # CONSUMER
 # search for assets
-asset_ddo = ocean.assets.search('Ocean protocol')[0]
+asset_ddo = ocean.assets.search('Nevermind protocol')[0]
 # Need some ocean tokens to be able to order assets
 ocean.accounts.request_tokens(account, 10)
 
@@ -135,7 +135,7 @@ In addition to the configuration file, you may use the following environment var
 - KEEPER_PATH
 - KEEPER_URL
 - GAS_LIMIT
-- AQUARIUS_URL
+- METADATA_URL
 
 ## Development
 
@@ -158,7 +158,7 @@ In addition to the configuration file, you may use the following environment var
     ./start_ocean.sh --latest --no-gateway --no-common --local-spree-node
     ```
 
-    It runs an Aquarius node and an Ethereum RPC client. For details, read `docker-compose.yml`.
+    It runs a Nevermind Metadata node and an Ethereum RPC client. For details, read `docker-compose.yml`.
 
 1. Create local configuration file
 

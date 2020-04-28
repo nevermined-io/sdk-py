@@ -1,8 +1,6 @@
-from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
-from tests.resources.tiers import e2e_test
+from nevermind_sdk_py.nevermind.keeper import NevermindKeeper as Keeper
 
 
-@e2e_test
 def test_get_condition_name_by_address():
     keeper = Keeper.get_instance()
     name = keeper.get_condition_name_by_address(keeper.lock_reward_condition.address)

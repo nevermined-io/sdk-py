@@ -1,4 +1,3 @@
-__author__ = """OceanProtocol"""
 __version__ = '0.1.0'
 from .config import (
     Config
@@ -6,6 +5,6 @@ from .config import (
 from .config_provider import (
     ConfigProvider,
 )
-from .ocean import (
-    Ocean,
+from .nevermind import (
+    Nevermind,
 )

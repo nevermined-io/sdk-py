@@ -1,10 +1,10 @@
-#  Copyright 2018 Ocean Protocol Foundation
+#  Copyright 2018 Nevermind Protocol Foundation
 #  SPDX-License-Identifier: Apache-2.0
 import uuid
 
 metadata = {
     "main": {
-        "name": "Ocean protocol white paper",
+        "name": "Nevermind protocol white paper",
         "dateCreated": "2012-02-01T10:55:11Z",
         "author": "Mario",
         "license": "CC0: Public Domain",

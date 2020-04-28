@@ -2,7 +2,7 @@ import logging
 
 from nevermind_sdk_py.gateway import GatewayProvider
 from common_utils_py.did_resolver.did_resolver import DIDResolver
-from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
+from nevermind_sdk_py.nevermind.keeper import NevermindKeeper as Keeper
 
 
 logger = logging.getLogger(__name__)

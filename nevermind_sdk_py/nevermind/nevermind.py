@@ -1,36 +1,37 @@
 import logging
 
-from deprecated import deprecated
+from common_utils_py.did_resolver.did_resolver import DIDResolver
 from contracts_lib_py.contract_handler import ContractHandler
 from contracts_lib_py.web3_provider import Web3Provider
-from common_utils_py.did_resolver.did_resolver import DIDResolver
+from deprecated import deprecated
 
 from nevermind_sdk_py.assets.asset_consumer import AssetConsumer
 from nevermind_sdk_py.assets.asset_executor import AssetExecutor
 from nevermind_sdk_py.config_provider import ConfigProvider
-from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
-from nevermind_sdk_py.ocean.ocean_accounts import OceanAccounts
-from nevermind_sdk_py.ocean.ocean_agreements import OceanAgreements
-from nevermind_sdk_py.ocean.ocean_assets import OceanAssets
-from nevermind_sdk_py.ocean.ocean_auth import OceanAuth
-from nevermind_sdk_py.ocean.ocean_providers import OceanProviders
-from nevermind_sdk_py.ocean.ocean_secret_store import OceanSecretStore
-from nevermind_sdk_py.ocean.ocean_services import OceanServices
-from nevermind_sdk_py.ocean.ocean_templates import OceanTemplates
-from nevermind_sdk_py.ocean.ocean_tokens import OceanTokens
+from nevermind_sdk_py.nevermind.accounts import Accounts
+from nevermind_sdk_py.nevermind.agreements import Agreements
+from nevermind_sdk_py.nevermind.assets import Assets
+from nevermind_sdk_py.nevermind.auth import Auth
+from nevermind_sdk_py.nevermind.keeper import NevermindKeeper as Keeper
+from nevermind_sdk_py.nevermind.providers import Providers
+from nevermind_sdk_py.nevermind.secret_store import SecretStore
+from nevermind_sdk_py.nevermind.services import Services
+from nevermind_sdk_py.nevermind.templates import Templates
+from nevermind_sdk_py.nevermind.tokens import Tokens
 
 CONFIG_FILE_ENVIRONMENT_NAME = 'CONFIG_FILE'
 
 logger = logging.getLogger('ocean')
 
-class Ocean:
-    """The Ocean class is the entry point into Ocean Protocol."""
+
+class Nevermind:
+    """The Nevermind class is the entry point into Nevermind Protocol."""
 
     def __init__(self, config=None):
         """
-        Initialize Ocean class.
-           >> # Make a new Ocean instance
-           >> ocean = Ocean({...})
+        Initialize Nevermind class.
+           >> # Make a new Nevermind instance
+           >> ocean = Nevermind({...})
 
         This class provides the main top-level functions in ocean protocol:
          * Publish assets metadata and associated services
@@ -41,19 +42,19 @@ class Ocean:
 
             >> ddo = ocean.assets.create(metadata, publisher_account)
 
-         * Discover/Search assets via the current configured metadata store (Aquarius)
+         * Discover/Search assets via the current configured metadata store.
             >> assets_list = ocean.assets.search('search text')
 
          * Purchase asset services by choosing a service agreement from the
            asset's DDO. Purchase goes through the service agreements interface
            and starts by signing a service agreement then sending the signature
-           to the publisher's Brizo server via the `purchaseEndpoint` in the service
+           to the publisher's Gateway server via the `purchaseEndpoint` in the service
            definition:
 
            >> service_def_id = ddo.get_service(ServiceTypes.ASSET_ACCESS).service_definition_id
            >> service_agreement_id = ocean.assets.order(did, service_def_id, consumer_account)
 
-        An instance of Ocean is parameterized by a `Config` instance.
+        An instance of Nevermind is parameterized by a `Config` instance.
 
         :param config: Config instance
         """
@@ -84,15 +85,15 @@ class Ocean:
         self._did_resolver = DIDResolver(self._keeper.did_registry)
 
         # Initialize the public sub-modules
-        self.tokens = OceanTokens(self._keeper)
-        self.accounts = OceanAccounts(self._keeper, self._config, self.tokens)
-        self.secret_store = OceanSecretStore(self._config)
-        self.templates = OceanTemplates(
+        self.tokens = Tokens(self._keeper)
+        self.accounts = Accounts(self._keeper, self._config, self.tokens)
+        self.secret_store = SecretStore(self._config)
+        self.templates = Templates(
             self._keeper,
             config
         )
         self.agreements = self._make_ocean_agreements()
-        self.assets = OceanAssets(
+        self.assets = Assets(
             self._keeper,
             self._did_resolver,
             self.agreements,
@@ -100,11 +101,11 @@ class Ocean:
             AssetExecutor,
             self._config
         )
-        self.services = OceanServices()
-        self.ocean_providers = OceanProviders(self._keeper, self._did_resolver, self._config)
-        self.auth = OceanAuth(self._keeper, self._config.storage_path)
+        self.services = Services()
+        self.ocean_providers = Providers(self._keeper, self._did_resolver, self._config)
+        self.auth = Auth(self._keeper, self._config.storage_path)
 
-        logger.debug('Squid Ocean instance initialized: ')
+        logger.debug('Nevermind instance initialized: ')
         logger.debug(f'\tOther accounts: {sorted([a.address for a in self.accounts.list()])}')
         logger.debug(f'\tDIDRegistry @ {self._keeper.did_registry.address}')
 
@@ -118,7 +119,7 @@ class Ocean:
         return self._keeper
 
     def _make_ocean_agreements(self):
-        return OceanAgreements(
+        return Agreements(
             self._keeper,
             self._did_resolver,
             AssetConsumer,
@@ -140,7 +141,7 @@ class Ocean:
         """
         Search an asset in oceanDB using metadata.
 
-        see OceanAssets.search for params
+        see Assets.search for params
 
         :return: List of assets that match with the query
         """
@@ -151,7 +152,7 @@ class Ocean:
         """
         Search an asset in oceanDB using search query.
 
-        See OceanAssets.query for params
+        See Assets.query for params
 
         :return: List of assets that match with the query.
         """
@@ -160,10 +161,9 @@ class Ocean:
     @deprecated("Use ocean.assets.create")
     def register_asset(self, *args, **kwargs):
         """
-        Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store (
-        Aquarius).
+        Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
 
-        See OceanAssets.query for params
+        See Assets.query for params
 
         :return: DDO instance
         """

@@ -10,20 +10,18 @@ from contracts_lib_py.web3_provider import Web3Provider
 
 from examples import ExampleConfig
 from nevermind_sdk_py import ConfigProvider
-from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
+from nevermind_sdk_py.nevermind.keeper import NevermindKeeper as Keeper
 from tests.resources.helper_functions import (_get_asset, get_consumer_account,
-                                              get_consumer_ocean_instance, get_ddo_sample,
+                                              get_consumer_instance, get_ddo_sample,
                                               get_metadata, get_publisher_account,
-                                              get_publisher_ocean_instance, get_registered_ddo,
+                                              get_publisher_instance, get_registered_ddo,
                                               setup_logging)
 from tests.resources.mocks.secret_store_mock import SecretStoreMock
-from tests.resources.tiers import should_run_test
 
 setup_logging()
 
-if should_run_test('e2e'):
-    ConfigProvider.set_config(ExampleConfig.get_config())
-    metadata_provider = Metadata(ConfigProvider.get_config().metadata_url)
+ConfigProvider.set_config(ExampleConfig.get_config())
+metadata_provider = Metadata(ConfigProvider.get_config().metadata_url)
 
 
 @pytest.fixture(autouse=True)
@@ -40,28 +38,28 @@ def secret_store():
 
 
 @pytest.fixture
-def publisher_ocean_instance():
-    return get_publisher_ocean_instance()
+def publisher_instance():
+    return get_publisher_instance()
 
 
 @pytest.fixture
-def consumer_ocean_instance():
-    return get_consumer_ocean_instance()
+def consumer_instance():
+    return get_consumer_instance()
 
 
 @pytest.fixture
-def publisher_ocean_instance_gateway():
-    return get_publisher_ocean_instance(use_gateway_mock=False)
+def publisher_instance_gateway():
+    return get_publisher_instance(use_gateway_mock=False)
 
 
 @pytest.fixture
-def consumer_ocean_instance_gateway():
-    return get_consumer_ocean_instance(use_gateway_mock=False)
+def consumer_instance_gateway():
+    return get_consumer_instance(use_gateway_mock=False)
 
 
 @pytest.fixture
 def registered_ddo():
-    return get_registered_ddo(get_publisher_ocean_instance(), get_publisher_account())
+    return get_registered_ddo(get_publisher_instance(), get_publisher_account())
 
 
 @pytest.fixture

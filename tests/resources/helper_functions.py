@@ -12,8 +12,8 @@ from common_utils_py.ddo.ddo import DDO
 from contracts_lib_py.utils import get_account
 
 from nevermind_sdk_py.gateway.gateway_provider import GatewayProvider
-from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
-from nevermind_sdk_py.ocean.ocean import Ocean
+from nevermind_sdk_py.nevermind.keeper import NevermindKeeper as Keeper
+from nevermind_sdk_py.nevermind.nevermind import Nevermind
 from nevermind_sdk_py.secret_store.secret_store_provider import SecretStoreProvider
 from tests.resources.mocks.gateway_mock import GatewayMock
 from tests.resources.mocks.secret_store_mock import SecretStoreMock
@@ -30,8 +30,8 @@ def get_resource_path(dir_name, file_name):
         return pathlib.Path(os.path.join(os.path.sep, *base, file_name))
 
 
-def init_ocn_tokens(ocn, account, amount=100):
-    ocn.accounts.request_tokens(account, amount)
+def init_ocn_tokens(nevermind, account, amount=100):
+    nevermind.accounts.request_tokens(account, amount)
     Keeper.get_instance().token.token_approve(
         Keeper.get_instance().dispenser.address,
         amount,
@@ -47,32 +47,32 @@ def get_consumer_account():
     return get_account(1)
 
 
-def get_publisher_ocean_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=True):
-    ocn = Ocean()
+def get_publisher_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=True):
+    nevermind = Nevermind()
     account = get_publisher_account()
-    ocn.main_account = account
+    nevermind.main_account = account
     if init_tokens:
-        init_ocn_tokens(ocn, ocn.main_account)
+        init_ocn_tokens(nevermind, nevermind.main_account)
     if use_ss_mock:
         SecretStoreProvider.set_secret_store_class(SecretStoreMock)
     if use_gateway_mock:
         GatewayProvider.set_gateway_class(GatewayMock)
 
-    return ocn
+    return nevermind
 
 
-def get_consumer_ocean_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=True):
-    ocn = Ocean()
+def get_consumer_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=True):
+    nevermind = Nevermind()
     account = get_consumer_account()
-    ocn.main_account = account
+    nevermind.main_account = account
     if init_tokens:
-        init_ocn_tokens(ocn, ocn.main_account)
+        init_ocn_tokens(nevermind, nevermind.main_account)
     if use_ss_mock:
         SecretStoreProvider.set_secret_store_class(SecretStoreMock)
     if use_gateway_mock:
         GatewayProvider.set_gateway_class(GatewayMock)
 
-    return ocn
+    return nevermind
 
 
 def _get_asset(url):

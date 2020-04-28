@@ -1,20 +1,19 @@
 from unittest.mock import MagicMock, Mock
 
 import pytest
-from contracts_lib_py.web3_provider import Web3Provider
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_agreement_template import ServiceAgreementTemplate
 from common_utils_py.agreements.service_types import ServiceTypes, ServiceTypesIndices
+from contracts_lib_py.web3_provider import Web3Provider
 
 from nevermind_sdk_py import ConfigProvider
 from nevermind_sdk_py.assets.asset_consumer import AssetConsumer
 from nevermind_sdk_py.assets.asset_executor import AssetExecutor
 from nevermind_sdk_py.gateway.gateway import Gateway
-from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
-from nevermind_sdk_py.ocean.ocean_agreements import OceanAgreements
+from nevermind_sdk_py.nevermind.agreements import Agreements
+from nevermind_sdk_py.nevermind.keeper import NevermindKeeper as Keeper
 from tests.resources.helper_functions import (get_ddo_sample, log_event)
 from tests.resources.mocks.gateway_mock import GatewayMock
-from tests.resources.tiers import e2e_test
 
 
 @pytest.fixture
@@ -31,7 +30,7 @@ def ocean_agreements():
     did_resolver.resolve = MagicMock(return_value=ddo)
     # consumer_class = Mock
     # consumer_class.download = MagicMock(return_value='')
-    return OceanAgreements(
+    return Agreements(
         keeper,
         did_resolver,
         AssetConsumer,
@@ -56,12 +55,10 @@ def test_create_agreement(ocean_agreements):
     pass
 
 
-@e2e_test
 def test_agreement_release_reward():
     pass
 
 
-@e2e_test
 def test_agreement_refund_reward():
     pass
 
@@ -163,22 +160,19 @@ def test_agreement_status(setup_agreements_enviroment, ocean_agreements):
                                                      }
 
 
-@e2e_test
-def test_sign_agreement(publisher_ocean_instance, consumer_ocean_instance, registered_ddo):
-    # point consumer_ocean_instance's Gateway mock to the publisher's ocean instance
+def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
+    # point consumer_instance's Gateway mock to the publisher's nevermind instance
     Gateway.set_http_client(
-        GatewayMock(publisher_ocean_instance, publisher_ocean_instance.main_account))
+        GatewayMock(publisher_instance, publisher_instance.main_account))
 
-    consumer_ocn = consumer_ocean_instance
-    consumer_acc = consumer_ocn.main_account
+    consumer_acc = consumer_instance.main_account
     keeper = Keeper.get_instance()
 
-    pub_ocn = publisher_ocean_instance
-    publisher_acc = pub_ocn.main_account
+    publisher_acc = publisher_instance.main_account
 
     did = registered_ddo.did
     asset_id = registered_ddo.asset_id
-    ddo = consumer_ocn.assets.resolve(did)
+    ddo = consumer_instance.assets.resolve(did)
     service_agreement = ServiceAgreement.from_ddo(ServiceTypes.ASSET_ACCESS, ddo)
 
     price = service_agreement.get_price()
@@ -186,10 +180,10 @@ def test_sign_agreement(publisher_ocean_instance, consumer_ocean_instance, regis
     # Give consumer some tokens
     keeper.dispenser.request_vodkas(price * 2, consumer_acc)
 
-    agreement_id, signature = consumer_ocean_instance.agreements.prepare(
+    agreement_id, signature = consumer_instance.agreements.prepare(
         did, consumer_acc, ServiceTypesIndices.DEFAULT_ACCESS_INDEX)
 
-    success = publisher_ocean_instance.agreements.create(
+    success = publisher_instance.agreements.create(
         did,
         ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
         agreement_id,
@@ -268,7 +262,7 @@ def test_sign_agreement(publisher_ocean_instance, consumer_ocean_instance, regis
         wait=True
     )
     assert event, 'no event for EscrowReward.Fulfilled'
-    publisher_ocean_instance.assets.retire(did)
+    publisher_instance.assets.retire(did)
 
     # path = consumer_ocean_instance.assets.consume(
     #     agreement_id, did, service_definition_id,

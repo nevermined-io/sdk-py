@@ -8,22 +8,22 @@ from nevermind_sdk_py import ConfigProvider
 from nevermind_sdk_py.data_store.auth_tokens import AuthTokensStorage
 
 
-class OceanAuth:
-    """Ocean auth class.
+class Auth:
+    """Nevermind auth class.
     Provide basic management of a user auth token. This token can be used to emulate
     sign-in behaviour. The token can be stored and associated with an expiry time.
     This is useful in front-end applications that interact with a 3rd-party wallet
     apps. The advantage of using the auth token is to reduce the number of confirmation
     prompts requiring user action.
 
-    The auth token works with a provider service such as Brizo which also uses this
+    The auth token works with a provider service such as Gateway which also uses this
     ocean module to handle auth tokens.
 
     Token format is "signature-timestamp".
 
     """
     DEFAULT_EXPIRATION_TIME = 30 * 24 * 60 * 60  # in seconds
-    DEFAULT_MESSAGE = "Ocean Protocol Authentication"
+    DEFAULT_MESSAGE = "Nevermind Protocol Authentication"
 
     def __init__(self, keeper, storage_path):
         self._keeper = keeper

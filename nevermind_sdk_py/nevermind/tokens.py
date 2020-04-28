@@ -1,8 +1,8 @@
 import logging
 
 
-class OceanTokens:
-    """Ocean token class."""
+class Tokens:
+    """Nevermind token class."""
 
     def __init__(self, keeper):
         self._keeper = keeper
