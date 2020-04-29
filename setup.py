@@ -3,9 +3,6 @@
 
 """The setup script."""
 
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import os
 from os.path import join
 
@@ -16,7 +13,6 @@ with open('README.md') as readme_file:
 
 with open('CHANGELOG.md') as history_file:
     history = history_file.read()
-
 # Installed by pip install nevermind-sdk-py
 # or pip install -e .
 install_requirements = [
@@ -24,8 +20,8 @@ install_requirements = [
     'pyopenssl',
     'PyJWT',  # not jwt
     'PyYAML==4.2b4',
-    'common-utils-py==0.1.1',
-    'contracts-lib-py==0.1.0',
+    'common-utils-py==0.1.3',
+    'contracts-lib-py==0.1.1',
     'ocean-secret-store-client==0.0.1',
     'requests==2.21.0',
     'deprecated',
@@ -77,7 +73,7 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
     ],
-    description="🐳 Ocean/Web3py wrapper.",
+    description="🐳 Nevermind/Web3py wrapper.",
     extras_require={
         'test': test_requirements,
         'dev': dev_requirements + test_requirements + docs_requirements,

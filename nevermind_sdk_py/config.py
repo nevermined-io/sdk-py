@@ -1,8 +1,3 @@
-"""Config data."""
-
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import configparser
 import logging
 import os
@@ -14,7 +9,7 @@ DEFAULT_KEEPER_PORT = 8545
 DEFAULT_KEEPER_URL = 'http://localhost:8545'
 DEFAULT_KEEPER_PATH = 'artifacts'
 DEFAULT_GAS_LIMIT = 4000000
-DEFAULT_NAME_AQUARIUS_URL = 'http://localhost:5000'
+DEFAULT_NAME_METADATA_URL = 'http://localhost:5000'
 DEFAULT_STORAGE_PATH = 'squid_py.db'
 
 NAME_KEEPER_URL = 'keeper.url'
@@ -57,7 +52,7 @@ config_defaults = {
         NAME_PARITY_PASSWORD: '',
     },
     'resources': {
-        NAME_METADATA_URL: DEFAULT_NAME_AQUARIUS_URL,
+        NAME_METADATA_URL: DEFAULT_NAME_METADATA_URL,
         NAME_STORAGE_PATH: DEFAULT_STORAGE_PATH,
         NAME_AUTH_TOKEN_MESSAGE: '',
         NAME_AUTH_TOKEN_EXPIRATION: ''

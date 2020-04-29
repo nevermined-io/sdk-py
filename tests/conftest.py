@@ -1,29 +1,27 @@
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import uuid
 
 import pytest
-from contracts_lib_py.contract_handler import ContractHandler
-from contracts_lib_py.web3_provider import Web3Provider
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_types import ServiceTypes
 from common_utils_py.did import DID
+from common_utils_py.metadata.metadata import Metadata
+from contracts_lib_py.contract_handler import ContractHandler
+from contracts_lib_py.web3_provider import Web3Provider
 
 from examples import ExampleConfig
 from nevermind_sdk_py import ConfigProvider
-from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
-from tests.resources.helper_functions import (get_consumer_account, get_consumer_ocean_instance,
-                                              get_ddo_sample, get_metadata, get_publisher_account,
-                                              get_publisher_ocean_instance, get_registered_ddo,
+from nevermind_sdk_py.nevermind.keeper import NevermindKeeper as Keeper
+from tests.resources.helper_functions import (_get_asset, get_consumer_account,
+                                              get_consumer_instance, get_ddo_sample,
+                                              get_metadata, get_publisher_account,
+                                              get_publisher_instance, get_registered_ddo,
                                               setup_logging)
 from tests.resources.mocks.secret_store_mock import SecretStoreMock
-from tests.resources.tiers import should_run_test
 
 setup_logging()
 
-if should_run_test('e2e'):
-    ConfigProvider.set_config(ExampleConfig.get_config())
+ConfigProvider.set_config(ExampleConfig.get_config())
+metadata_provider = Metadata(ConfigProvider.get_config().metadata_url)
 
 
 @pytest.fixture(autouse=True)
@@ -40,34 +38,58 @@ def secret_store():
 
 
 @pytest.fixture
-def publisher_ocean_instance():
-    return get_publisher_ocean_instance()
+def publisher_instance():
+    return get_publisher_instance()
 
 
 @pytest.fixture
-def consumer_ocean_instance():
-    return get_consumer_ocean_instance()
+def consumer_instance():
+    return get_consumer_instance()
 
 
 @pytest.fixture
-def publisher_ocean_instance_gateway():
-    return get_publisher_ocean_instance(use_gateway_mock=False)
+def publisher_instance_gateway():
+    return get_publisher_instance(use_gateway_mock=False)
 
 
 @pytest.fixture
-def consumer_ocean_instance_gateway():
-    return get_consumer_ocean_instance(use_gateway_mock=False)
+def consumer_instance_gateway():
+    return get_consumer_instance(use_gateway_mock=False)
 
 
 @pytest.fixture
 def registered_ddo():
-    return get_registered_ddo(get_publisher_ocean_instance(), get_publisher_account())
+    return get_registered_ddo(get_publisher_instance(), get_publisher_account())
 
 
 @pytest.fixture
 def web3_instance():
     config = ExampleConfig.get_config()
     return Web3Provider.get_web3(config.keeper_url)
+
+
+@pytest.fixture
+def asset1():
+    asset = _get_asset(
+        'https://raw.githubusercontent.com/keyko-io/nevermind-docs/master/architecture/specs'
+        '/examples/access/v0.1/ddo1.json')
+    asset._did = DID.did(asset.proof['checksum'])
+    yield asset
+    metadata_provider.retire_all_assets()
+
+
+@pytest.fixture
+def asset2():
+    asset = _get_asset(
+        'https://raw.githubusercontent.com/keyko-io/nevermind-docs/master/architecture/specs'
+        '/examples/access/v0.1/ddo2-update.json')
+    asset._did = DID.did(asset.proof['checksum'])
+    return asset
+
+
+@pytest.fixture
+def ddo_sample():
+    return get_ddo_sample()
 
 
 @pytest.fixture
@@ -78,12 +100,12 @@ def metadata():
 
 
 @pytest.fixture
-def setup_agreements_enviroment():
+def setup_agreements_enviroment(ddo_sample):
     consumer_acc = get_consumer_account()
     publisher_acc = get_publisher_account()
     keeper = Keeper.get_instance()
 
-    ddo = get_ddo_sample()
+    ddo = ddo_sample
     ddo._did = DID.did({'0': '0x987654321'})
     keeper.did_registry.register(
         ddo.asset_id,

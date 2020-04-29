@@ -1,8 +1,3 @@
-"""Brizo module."""
-
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import json
 import logging
 import os
@@ -14,7 +9,7 @@ from common_utils_py.exceptions import (OceanEncryptAssetUrlsError,
                                     OceanInitializeServiceAgreementError)
 from common_utils_py.http_requests.requests_session import get_requests_session
 
-from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
+from nevermind_sdk_py.nevermind.keeper import NevermindKeeper as Keeper
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +65,7 @@ class Gateway:
         Send a request to the service provider (purchase_endpoint) to initialize the service
         agreement for the asset identified by `did`.
 
-        :param did: id of the asset includes the `did:op:` prefix, str
+        :param did: id of the asset includes the `did:nv:` prefix, str
         :param agreement_id: id of the agreement, hex str
         :param service_index: identifier of the service inside the asset DDO, str
         :param signature: signed agreement hash, hex str
@@ -157,7 +152,7 @@ class Gateway:
     @staticmethod
     def _prepare_consume_payload(did, service_agreement_id, service_index, signature,
                                  consumer_address):
-        """Prepare a payload to send to `Brizo`.
+        """Prepare a payload to send to Nevermind Gateway.
 
         :param did: DID, str
         :param service_agreement_id: Service Agreement Id, str
@@ -179,7 +174,7 @@ class Gateway:
     @staticmethod
     def get_gateway_url(config):
         """
-        Return the Brizo component url.
+        Return the Gateway component url.
 
         :param config: Config
         :return: Url, str

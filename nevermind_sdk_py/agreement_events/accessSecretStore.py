@@ -1,6 +1,3 @@
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import logging
 
 from eth_utils import add_0x_prefix
@@ -10,7 +7,7 @@ from common_utils_py.did import did_to_id
 from common_utils_py.did_resolver.did_resolver import DIDResolver
 
 from nevermind_sdk_py.gateway import GatewayProvider
-from nevermind_sdk_py.ocean.keeper import SquidKeeper as Keeper
+from nevermind_sdk_py.nevermind.keeper import NevermindKeeper as Keeper
 from nevermind_sdk_py.secret_store import SecretStoreProvider
 
 logger = logging.getLogger(__name__)

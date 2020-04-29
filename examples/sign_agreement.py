@@ -1,6 +1,3 @@
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import logging
 import os
 from time import sleep
@@ -8,7 +5,7 @@ from time import sleep
 from contracts_lib_py.utils import get_account
 
 from examples import example_metadata, ExampleConfig
-from nevermind_sdk_py import ConfigProvider, Ocean
+from nevermind_sdk_py import ConfigProvider, Nevermind
 
 if 'TEST_NILE' in os.environ and os.environ['TEST_NILE'] == '1':
     ASYNC_DELAY = 5  # seconds
@@ -19,12 +16,12 @@ else:
 def sign_service_agreement():
     ConfigProvider.set_config(ExampleConfig.get_config())
     # make ocean instance and register an asset
-    ocn = Ocean()
+    nevermind = Nevermind()
     acc = get_account(0)
-    ddo = ocn.assets.create(example_metadata.metadata, acc)
+    ddo = nevermind.assets.create(example_metadata.metadata, acc)
 
     consumer_account = get_account(1)
-    agreement_id, signature = ocn.agreements.prepare(
+    agreement_id, signature = nevermind.agreements.prepare(
         ddo.did,
         consumer_account
     )

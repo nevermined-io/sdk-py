@@ -1,6 +1,3 @@
-#  Copyright 2018 Ocean Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
-
 import os
 
 from nevermind_sdk_py.gateway.gateway import Gateway
@@ -9,8 +6,8 @@ from nevermind_sdk_py.gateway.gateway import Gateway
 class GatewayMock(object):
     def __init__(self, ocean_instance=None, account=None):
         if not ocean_instance:
-            from tests.resources.helper_functions import get_publisher_ocean_instance
-            ocean_instance = get_publisher_ocean_instance(
+            from tests.resources.helper_functions import get_publisher_instance
+            ocean_instance = get_publisher_instance(
                 init_tokens=False, use_ss_mock=False, use_gateway_mock=True
             )
 
@@ -20,11 +17,11 @@ class GatewayMock(object):
             from tests.resources.helper_functions import get_publisher_account
             self.account = get_publisher_account()
 
-        # ocean_instance.agreements.watch_provider_events(self.account)
+        # nevermind_instance.agreements.watch_provider_events(self.account)
 
     def initialize_service_agreement(self, did, agreement_id, service_definition_id,
                                      signature, account_address, purchase_endpoint):
-        print(f'BrizoMock.initialize_service_agreement: purchase_endpoint={purchase_endpoint}')
+        print(f'GatewayMock.initialize_service_agreement: purchase_endpoint={purchase_endpoint}')
         self.ocean_instance.agreements.create(
             did,
             service_definition_id,
