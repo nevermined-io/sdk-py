@@ -33,7 +33,7 @@ class Nevermind:
            >> # Make a new Nevermind instance
            >> ocean = Nevermind({...})
 
-        This class provides the main top-level functions in ocean protocol:
+        This class provides the main top-level functions in nevermind protocol:
          * Publish assets metadata and associated services
             * Each asset is assigned a unique DID and a DID Document (DDO)
             * The DDO contains the asset's services including the metadata
