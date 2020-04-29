@@ -96,10 +96,10 @@ def test_agreement_status(setup_agreements_enviroment, agreements):
     )
     assert event, 'no event for AgreementCreated '
     assert agreements.status(agreement_id) == {"agreementId": agreement_id,
-                                                     "conditions": {"lockReward": 1,
-                                                                    "accessSecretStore": 1,
-                                                                    "escrowReward": 1
-                                                                    }
+                                               "conditions": {"lockReward": 1,
+                                                              "accessSecretStore": 1,
+                                                              "escrowReward": 1
+                                                              }
                                                }
     # keeper.dispenser.request_vodkas(price, consumer_acc)
 
@@ -116,10 +116,10 @@ def test_agreement_status(setup_agreements_enviroment, agreements):
     )
     assert event, 'no event for LockRewardCondition.Fulfilled'
     assert agreements.status(agreement_id) == {"agreementId": agreement_id,
-                                                     "conditions": {"lockReward": 2,
-                                                                    "accessSecretStore": 1,
-                                                                    "escrowReward": 1
-                                                                    }
+                                               "conditions": {"lockReward": 2,
+                                                              "accessSecretStore": 1,
+                                                              "escrowReward": 1
+                                                              }
                                                }
     tx_hash = keeper.access_secret_store_condition.fulfill(
         agreement_id, asset_id, consumer_acc.address, publisher_acc)
@@ -133,10 +133,10 @@ def test_agreement_status(setup_agreements_enviroment, agreements):
     )
     assert event, 'no event for AccessSecretStoreCondition.Fulfilled'
     assert agreements.status(agreement_id) == {"agreementId": agreement_id,
-                                                     "conditions": {"lockReward": 2,
-                                                                    "accessSecretStore": 2,
-                                                                    "escrowReward": 1
-                                                                    }
+                                               "conditions": {"lockReward": 2,
+                                                              "accessSecretStore": 2,
+                                                              "escrowReward": 1
+                                                              }
                                                }
     tx_hash = keeper.escrow_reward_condition.fulfill(
         agreement_id, price, publisher_acc.address,
@@ -153,10 +153,10 @@ def test_agreement_status(setup_agreements_enviroment, agreements):
     )
     assert event, 'no event for EscrowReward.Fulfilled'
     assert agreements.status(agreement_id) == {"agreementId": agreement_id,
-                                                     "conditions": {"lockReward": 2,
-                                                                    "accessSecretStore": 2,
-                                                                    "escrowReward": 2
-                                                                    }
+                                               "conditions": {"lockReward": 2,
+                                                              "accessSecretStore": 2,
+                                                              "escrowReward": 2
+                                                              }
                                                }
 
 
