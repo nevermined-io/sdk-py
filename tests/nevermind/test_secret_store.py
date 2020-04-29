@@ -4,7 +4,7 @@ import secrets
 from tests.resources.helper_functions import get_assset_json_text
 
 
-def test_ocean_secret_store(publisher_instance):
+def test_secret_store(publisher_instance):
     metadata_json = get_assset_json_text(
         'https://raw.githubusercontent.com/keyko-io/nevermind-docs/master/architecture/specs'
         '/examples/access/v0.1/ddo1.json')

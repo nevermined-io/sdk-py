@@ -223,7 +223,7 @@ def test_assets_consumed(publisher_instance, consumer_instance, ddo_sample):
     publisher_instance.assets.retire(asset.did)
 
 
-def test_ocean_assets_resolve(publisher_instance, metadata):
+def test_assets_resolve(publisher_instance, metadata):
     publisher = publisher_instance.main_account
     ddo = publisher_instance.assets.create(metadata, publisher)
     ddo_resolved = publisher_instance.assets.resolve(ddo.did)
@@ -231,18 +231,18 @@ def test_ocean_assets_resolve(publisher_instance, metadata):
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_ocean_assets_search(publisher_instance, metadata):
+def test_assets_search(publisher_instance, metadata):
     publisher = publisher_instance.main_account
     ddo = publisher_instance.assets.create(metadata, publisher)
     assert len(publisher_instance.assets.search('Monkey')) > 0
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_ocean_assets_validate(publisher_instance, metadata):
+def test_assets_validate(publisher_instance, metadata):
     assert publisher_instance.assets.validate(metadata)
 
 
-def test_ocean_assets_algorithm(publisher_instance):
+def test_assets_algorithm(publisher_instance):
     # Allow publish an algorithm
     publisher = publisher_instance.main_account
     metadata = get_algorithm_ddo()['service'][0]
@@ -251,7 +251,7 @@ def test_ocean_assets_algorithm(publisher_instance):
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_ocean_assets_workflow(publisher_instance):
+def test_assets_workflow(publisher_instance):
     # Allow publish an workflow
     publisher = publisher_instance.main_account
     metadata = get_workflow_ddo()['service'][0]
@@ -260,7 +260,7 @@ def test_ocean_assets_workflow(publisher_instance):
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_ocean_assets_compute(publisher_instance):
+def test_assets_compute(publisher_instance):
     publisher = publisher_instance.main_account
     metadata = get_computing_metadata()
     ddo = publisher_instance.assets.create(metadata, publisher)
@@ -268,7 +268,7 @@ def test_ocean_assets_compute(publisher_instance):
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_ocean_transfer_ownership(publisher_instance, metadata, consumer_instance):
+def test_transfer_ownership(publisher_instance, metadata, consumer_instance):
     publisher = publisher_instance.main_account
     consumer = consumer_instance.main_account
     ddo = publisher_instance.assets.create(metadata, publisher)
@@ -279,7 +279,7 @@ def test_ocean_transfer_ownership(publisher_instance, metadata, consumer_instanc
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_ocean_grant_permissions(publisher_instance, metadata, consumer_instance):
+def test_grant_permissions(publisher_instance, metadata, consumer_instance):
     publisher = publisher_instance.main_account
     consumer = consumer_instance.main_account
     ddo = publisher_instance.assets.create(metadata, publisher)
@@ -290,7 +290,7 @@ def test_ocean_grant_permissions(publisher_instance, metadata, consumer_instance
     assert not publisher_instance.assets.get_permissions(ddo.did, consumer.address)
 
 
-def test_ocean_execute_workflow(publisher_instance, consumer_instance):
+def test_execute_workflow(publisher_instance, consumer_instance):
     publisher = publisher_instance.main_account
     consumer = consumer_instance.main_account
     metadata = get_workflow_ddo()['service'][0]

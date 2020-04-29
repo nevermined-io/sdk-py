@@ -92,7 +92,7 @@ class Nevermind:
             self._keeper,
             config
         )
-        self.agreements = self._make_ocean_agreements()
+        self.agreements = self._make_agreements()
         self.assets = Assets(
             self._keeper,
             self._did_resolver,
@@ -118,7 +118,7 @@ class Nevermind:
         """Keeper instance."""
         return self._keeper
 
-    def _make_ocean_agreements(self):
+    def _make_agreements(self):
         return Agreements(
             self._keeper,
             self._did_resolver,

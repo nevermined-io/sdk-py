@@ -116,10 +116,10 @@ def get_computing_ddo():
         "/examples/compute/v0.1/ddo.computing.json")
 
 
-def get_registered_ddo(ocean_instance, account):
+def get_registered_ddo(nevermind_instance, account):
     metadata = get_metadata()
     metadata['main']['files'][0]['checksum'] = str(uuid.uuid4())
-    ddo = ocean_instance.assets.create(metadata, account)
+    ddo = nevermind_instance.assets.create(metadata, account)
     return ddo
 
 

@@ -1,4 +1,4 @@
-def test_ocean_instance(publisher_instance):
+def test_nevermind_instance(publisher_instance):
     assert publisher_instance.tokens
     assert publisher_instance.agreements
     assert publisher_instance.assets

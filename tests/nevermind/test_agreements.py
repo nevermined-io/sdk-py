@@ -17,7 +17,7 @@ from tests.resources.mocks.gateway_mock import GatewayMock
 
 
 @pytest.fixture
-def ocean_agreements():
+def agreements():
     keeper = Keeper.get_instance()
     w3 = Web3Provider.get_web3()
     did_resolver = Mock()
@@ -39,7 +39,7 @@ def ocean_agreements():
     )
 
 
-def test_prepare_agreement(ocean_agreements):
+def test_prepare_agreement(agreements):
     # consumer_account = get_consumer_account()
     # ddo = get_ddo_sample()
     # ocean_agreements.prepare(ddo.did, ServiceTypes.ASSET_ACCESS, consumer_account.address)
@@ -47,11 +47,11 @@ def test_prepare_agreement(ocean_agreements):
     pass
 
 
-def test_send_agreement(ocean_agreements):
+def test_send_agreement(agreements):
     pass
 
 
-def test_create_agreement(ocean_agreements):
+def test_create_agreement(agreements):
     pass
 
 
@@ -63,7 +63,7 @@ def test_agreement_refund_reward():
     pass
 
 
-def test_agreement_status(setup_agreements_enviroment, ocean_agreements):
+def test_agreement_status(setup_agreements_enviroment, agreements):
     (
         keeper,
         publisher_acc,
@@ -95,16 +95,16 @@ def test_agreement_status(setup_agreements_enviroment, ocean_agreements):
         wait=True
     )
     assert event, 'no event for AgreementCreated '
-    assert ocean_agreements.status(agreement_id) == {"agreementId": agreement_id,
+    assert agreements.status(agreement_id) == {"agreementId": agreement_id,
                                                      "conditions": {"lockReward": 1,
                                                                     "accessSecretStore": 1,
                                                                     "escrowReward": 1
                                                                     }
-                                                     }
+                                               }
     # keeper.dispenser.request_vodkas(price, consumer_acc)
 
     # keeper.token.token_approve(keeper.lock_reward_condition.address, price, consumer_acc)
-    ocean_agreements.conditions.lock_reward(agreement_id, price, consumer_acc)
+    agreements.conditions.lock_reward(agreement_id, price, consumer_acc)
     # keeper.lock_reward_condition.fulfill(
     #     agreement_id, keeper.escrow_reward_condition.address, price, consumer_acc)
     event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
@@ -115,12 +115,12 @@ def test_agreement_status(setup_agreements_enviroment, ocean_agreements):
         wait=True
     )
     assert event, 'no event for LockRewardCondition.Fulfilled'
-    assert ocean_agreements.status(agreement_id) == {"agreementId": agreement_id,
+    assert agreements.status(agreement_id) == {"agreementId": agreement_id,
                                                      "conditions": {"lockReward": 2,
                                                                     "accessSecretStore": 1,
                                                                     "escrowReward": 1
                                                                     }
-                                                     }
+                                               }
     tx_hash = keeper.access_secret_store_condition.fulfill(
         agreement_id, asset_id, consumer_acc.address, publisher_acc)
     keeper.access_secret_store_condition.get_tx_receipt(tx_hash)
@@ -132,12 +132,12 @@ def test_agreement_status(setup_agreements_enviroment, ocean_agreements):
         wait=True
     )
     assert event, 'no event for AccessSecretStoreCondition.Fulfilled'
-    assert ocean_agreements.status(agreement_id) == {"agreementId": agreement_id,
+    assert agreements.status(agreement_id) == {"agreementId": agreement_id,
                                                      "conditions": {"lockReward": 2,
                                                                     "accessSecretStore": 2,
                                                                     "escrowReward": 1
                                                                     }
-                                                     }
+                                               }
     tx_hash = keeper.escrow_reward_condition.fulfill(
         agreement_id, price, publisher_acc.address,
         consumer_acc.address, lock_cond_id,
@@ -152,12 +152,12 @@ def test_agreement_status(setup_agreements_enviroment, ocean_agreements):
         wait=True
     )
     assert event, 'no event for EscrowReward.Fulfilled'
-    assert ocean_agreements.status(agreement_id) == {"agreementId": agreement_id,
+    assert agreements.status(agreement_id) == {"agreementId": agreement_id,
                                                      "conditions": {"lockReward": 2,
                                                                     "accessSecretStore": 2,
                                                                     "escrowReward": 2
                                                                     }
-                                                     }
+                                               }
 
 
 def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
@@ -264,7 +264,7 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
     assert event, 'no event for EscrowReward.Fulfilled'
     publisher_instance.assets.retire(did)
 
-    # path = consumer_ocean_instance.assets.consume(
+    # path = consumer_instance.assets.consume(
     #     agreement_id, did, service_definition_id,
     #     consumer_acc, ConfigProvider.get_config().downloads_path
     # )
