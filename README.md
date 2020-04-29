@@ -17,8 +17,8 @@
      - [Usage:](#usage)
   - [Configuration](#configuration)
   - [Development](#development)
-        - [Code style](#code-style)
         - [Testing](#testing)
+        - [New Version / New Release](#new-version-new-release)
   - [License](#license)
 
 ---
@@ -56,11 +56,11 @@ from nevermind_sdk_py import (
 
 ConfigProvider.set_config(Config('config.ini'))
 # Make a new instance of Nevermind
-ocean = Ocean() # or Nevermind(Config('config.ini'))
-config = ocean.config
+nevermind = Nevermind() # or Nevermind(Config('config.ini'))
+config = nevermind.config
 # make account instance, assuming the ethereum account and password are set 
 # in the config file `config.ini`
-account = ocean.accounts.list()[0]
+account = nevermind.accounts.list()[0]
 # or 
 account = Account(config.parity_address, config.parity_password)
 
@@ -72,28 +72,28 @@ metadata = Metadata.get_example()
 # or passed to Nevermind instance in the config_dict.
 # define the services to include in the new asset DDO
 
-ddo = ocean.assets.create(metadata, account)
+ddo = nevermind.assets.create(metadata, account)
 
 # Now we have an asset registered, we can verify it exists by resolving the did
-_ddo = ocean.assets.resolve(ddo.did)
+_ddo = nevermind.assets.resolve(ddo.did)
 # ddo and _ddo should be identical
 
 # CONSUMER
 # search for assets
-asset_ddo = ocean.assets.search('Nevermind protocol')[0]
+asset_ddo = nevermind.assets.search('Nevermind protocol')[0]
 # Need some ocean tokens to be able to order assets
-ocean.accounts.request_tokens(account, 10)
+nevermind.accounts.request_tokens(account, 10)
 
 # Start the purchase/consume request. This will automatically make a payment from the specified account.
-consumer_account = ocean.accounts.list()[1]
-service_agreement_id = ocean.assets.order(asset_ddo.did, 0, consumer_account)
+consumer_account = nevermind.accounts.list()[1]
+service_agreement_id = nevermind.assets.order(asset_ddo.did, 0, consumer_account)
 
 # after a short wait (seconds to minutes) the asset data files should be available in the `downloads.path` defined in config
 # wait a bit to let things happen
 time.sleep(20)
 
 # Asset files are saved in a folder named after the asset id
-dataset_dir = os.path.join(ocean.config.downloads_path, f'datafile.{asset_ddo.asset_id}.0')
+dataset_dir = os.path.join(nevermind.config.downloads_path, f'datafile.{asset_ddo.asset_id}.0')
 if os.path.exists(dataset_dir):
     print('asset files downloaded: {}'.format(os.listdir(dataset_dir)))
 
@@ -152,10 +152,10 @@ In addition to the configuration file, you may use the following environment var
     pip install -r requirements_dev.txt
     ```
 
-1. Create the local testing environment using [barge](https://github.com/oceanprotocol/barge). Once cloned that repository, you can start the cluster running:
+1. Create the local testing environment using [nevermind-tools](https://github.com/keyko-io/nevermind-tools). Once cloned that repository, you can start the cluster running:
 
     ```
-    ./start_ocean.sh --latest --no-gateway --no-common --local-spree-node
+    ./start_nevermind.sh --latest --no-gateway --no-common --local-spree-node
     ```
 
     It runs a Nevermind Metadata node and an Ethereum RPC client. For details, read `docker-compose.yml`.
@@ -179,22 +179,6 @@ In addition to the configuration file, you may use the following environment var
 
     The artifacts contain the addresses of all the deployed contracts and their ABI definitions required to interact with them.
 
-1. Run the automated tests
-
-    ```
-    TEST_TIER=<tier> python3 setup.py test # where <tier> is unit, integration or e2e, depending on how much of the tests you want to run (e2e runs everything)
-    ```
-
-1. Run tests automatically as you change code while doing TDD
-
-    ```
-    TEST_TIER=<tier> ptw
-    ```
-
-#### Code style
-
-The information about code style in python is documented in this two links [python-developer-guide](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/development/python-developer-guide.md)
-and [python-style-guide](https://github.com/oceanprotocol/dev-ocean/blob/master/doc/development/python-style-guide.md).
 
 #### Testing
 
