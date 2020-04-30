@@ -30,7 +30,7 @@ copyright = 'nevermined-sdk-py contributors'
 author = 'nevermined-sdk-py contributors'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = '0.2.0'
 # The short X.Y version
 release_parts = release.split('.')  # a list
 version = release_parts[0] + '.' + release_parts[1]

@@ -96,7 +96,7 @@ class ExampleConfig:
                 # "metadata.url": "http://localhost:5000",
                 # "gateway.url": "http://172.15.0.17:8030",
                 "gateway.url": "http://localhost:8030",
-                "storage.path": "squid_py.db",
+                "storage.path": "sdk.db",
                 "downloads.path": "consume-downloads"
             }
         }

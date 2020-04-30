@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Run this in the root of the squid-py repo
+# Run this in the root of the nevermined-sdk-py repo
 # (to get paths of ./artifacts and the scripts themselves)
 # Set the environment variable export TEST_NILE=1 for testing vs. deployed Nile
 # Set the environment variable export TEST_NILE=0 for testing vs. local Spree network
@@ -11,7 +11,7 @@
 #where:
 #    -h  show this help text
 #
-#Run this in the root of the squid-py repo
+#Run this in the root of the nevermined-sdk-py repo
 #(to get paths of ./artifacts and the scripts themselves)
 #Set the environment variable export TEST_NILE=1 for testing vs. deployed Nile
 #Set the environment variable export TEST_NILE=0 for testing vs. local Spree network
@@ -56,19 +56,19 @@ runtest() {
     echo "*********************************************************\n"
 }
 
-runtest ./squid_py/examples/ register_asset.py
-runtest ./squid_py/examples/ resolve_asset.py
-runtest ./squid_py/examples/ search_assets.py
-runtest ./squid_py/examples/ sign_agreement.py
-runtest ./squid_py/examples/ buy_asset.py
+runtest ./nevermined-sdk-py/examples/ register_asset.py
+runtest ./nevermined-sdk-py/examples/ resolve_asset.py
+runtest ./nevermined-sdk-py/examples/ search_assets.py
+runtest ./nevermined-sdk-py/examples/ sign_agreement.py
+runtest ./nevermined-sdk-py/examples/ buy_asset.py
 
-SQUID_VERSION=$(pip freeze | grep squid)
+SDK_VERSION=$(pip freeze | grep sdk)
 
 echo "\n********* SUMMARY OF $total TESTS ***************************"
 
 echo -e "\n"
-echo "     Squid version:"
-echo "     "$SQUID_VERSION
+echo "     Sdk version:"
+echo "     "$SDK_VERSION
 
 echo -e "\n"
 if [ $TEST_NILE -eq 1 ]; then
