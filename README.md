@@ -25,7 +25,7 @@
 
 ## Features
 
-Squid-py include the methods to make easy the connection with contracts deployed in different networks.
+Sdk-py include the methods to make easy the connection with contracts deployed in different networks.
 This repository include also the methods to encrypt and decrypt information using the Parity Secret Store.
 
 ## Prerequisites
@@ -34,7 +34,7 @@ Python 3.6
 
 ## Quick-start
 
-Install Squid:
+Install sdk:
 
 ```
 pip install nevermined-sdk-py
@@ -104,7 +104,7 @@ if os.path.exists(dataset_dir):
 ```python
 config_dict = {
     'keeper-contracts': {
-        # Point to an Ethereum RPC client. Note that Squid learns the name of the network to work with from this client.
+        # Point to an Ethereum RPC client. Note that sdk learns the name of the network to work with from this client.
         'keeper.url': 'http://localhost:8545',
         # Specify the keeper contracts artifacts folder (has the smart contracts definitions json files). When you
         # install the package, the artifacts are automatically picked up from the `keeper-contracts` Python
@@ -122,7 +122,7 @@ config_dict = {
         # Gateway is the publisher's agent. It serves purchase and requests for both data access and compute services
         'gateway.url': 'http://localhost:8030',
         # points to the local database file used for storing temporary information (for instance, pending service agreements).
-        'storage.path': 'squid_py.db',
+        'storage.path': 'sdk.db',
         # Where to store downloaded asset files
         'downloads.path': 'consume-downloads'
     }

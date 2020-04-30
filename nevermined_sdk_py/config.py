@@ -10,7 +10,7 @@ DEFAULT_KEEPER_URL = 'http://localhost:8545'
 DEFAULT_KEEPER_PATH = 'artifacts'
 DEFAULT_GAS_LIMIT = 4000000
 DEFAULT_NAME_METADATA_URL = 'http://localhost:5000'
-DEFAULT_STORAGE_PATH = 'squid_py.db'
+DEFAULT_STORAGE_PATH = 'sdk.db'
 
 NAME_KEEPER_URL = 'keeper.url'
 NAME_KEEPER_PATH = 'keeper.path'
@@ -79,7 +79,7 @@ class Config(configparser.ConfigParser):
         [resources]
         metadata.url = http://localhost:5000                          # Metadata url.
         gateway.url = http://localhost:8030                           # Gateway url.
-        storage.path = squid_py.db                                    # Path of sla back-up storage.
+        storage.path = sdk.db                                    # Path of sla back-up storage.
 
         :param filename: Path of the config file, str.
         :param options_dict: Python dict with the config, dict.

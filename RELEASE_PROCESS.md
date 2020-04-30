@@ -20,4 +20,4 @@
   - Click "Publish release".
 
 - Go to Travis and check the Travis job. It should deploy a new release to PyPI.
-- Check PyPI for the new release at [https://pypi.org/project/squid-py/](https://pypi.org/project/squid-py/)
+- Check PyPI for the new release at [https://pypi.org/project/nevermind-sdk-py/](https://pypi.org/project/nevermind-sdk-py/)
