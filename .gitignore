@@ -110,7 +110,7 @@ docker/docs
 squid_py.db
 consume-downloads
 .log
-start_nevermind.log
+start_nevermined.log
 errors.log.*
 info.log.*
 *.db

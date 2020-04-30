@@ -1,11 +1,11 @@
 [![banner](https://raw.githubusercontent.com/keyko-io/assets/master/images/logo/small/keyko_logo@2x-100.jpg)](https://keyko.io)
 
-# Python API for Nevermind Data platform
+# Python API for Nevermined Data platform
 
-> 🦑 Python SDK for connecting with Nevermind Data Platform
+> 🦑 Python SDK for connecting with Nevermined Data Platform
 > [keyko.io](https://keyko.io)
 
-[![PyPI](https://img.shields.io/pypi/v/nevermind-sdk-py.svg)](https://pypi.org/project/nevermind-sdk-py/)
+[![PyPI](https://img.shields.io/pypi/v/nevermined-sdk-py.svg)](https://pypi.org/project/nevermined-sdk-py/)
 
 ---
 
@@ -37,7 +37,7 @@ Python 3.6
 Install Squid:
 
 ```
-pip install nevermind-sdk-py
+pip install nevermined-sdk-py
 ```
 
 ### Usage:
@@ -46,8 +46,8 @@ pip install nevermind-sdk-py
 import os
 import time
 
-from nevermind_sdk_py import (
-    Nevermind,
+from nevermined_sdk_py import (
+    Nevermined,
     ConfigProvider,
     Config,
     Metadata,
@@ -55,45 +55,45 @@ from nevermind_sdk_py import (
 )
 
 ConfigProvider.set_config(Config('config.ini'))
-# Make a new instance of Nevermind
-nevermind = Nevermind() # or Nevermind(Config('config.ini'))
-config = nevermind.config
+# Make a new instance of Nevermined
+nevermined = Nevermined() # or Nevermined(Config('config.ini'))
+config = nevermined.config
 # make account instance, assuming the ethereum account and password are set 
 # in the config file `config.ini`
-account = nevermind.accounts.list()[0]
+account = nevermined.accounts.list()[0]
 # or 
 account = Account(config.parity_address, config.parity_password)
 
 # PUBLISHER
-# Let's start by registering an asset in the Nevermind network
+# Let's start by registering an asset in the Nevermined network
 metadata = Metadata.get_example()
 
 # consume and service endpoints require `gateway.url` is set in the config file
-# or passed to Nevermind instance in the config_dict.
+# or passed to Nevermined instance in the config_dict.
 # define the services to include in the new asset DDO
 
-ddo = nevermind.assets.create(metadata, account)
+ddo = nevermined.assets.create(metadata, account)
 
 # Now we have an asset registered, we can verify it exists by resolving the did
-_ddo = nevermind.assets.resolve(ddo.did)
+_ddo = nevermined.assets.resolve(ddo.did)
 # ddo and _ddo should be identical
 
 # CONSUMER
 # search for assets
-asset_ddo = nevermind.assets.search('Nevermind protocol')[0]
+asset_ddo = nevermined.assets.search('Nevermined protocol')[0]
 # Need some ocean tokens to be able to order assets
-nevermind.accounts.request_tokens(account, 10)
+nevermined.accounts.request_tokens(account, 10)
 
 # Start the purchase/consume request. This will automatically make a payment from the specified account.
-consumer_account = nevermind.accounts.list()[1]
-service_agreement_id = nevermind.assets.order(asset_ddo.did, 0, consumer_account)
+consumer_account = nevermined.accounts.list()[1]
+service_agreement_id = nevermined.assets.order(asset_ddo.did, 0, consumer_account)
 
 # after a short wait (seconds to minutes) the asset data files should be available in the `downloads.path` defined in config
 # wait a bit to let things happen
 time.sleep(20)
 
 # Asset files are saved in a folder named after the asset id
-dataset_dir = os.path.join(nevermind.config.downloads_path, f'datafile.{asset_ddo.asset_id}.0')
+dataset_dir = os.path.join(nevermined.config.downloads_path, f'datafile.{asset_ddo.asset_id}.0')
 if os.path.exists(dataset_dir):
     print('asset files downloaded: {}'.format(os.listdir(dataset_dir)))
 
@@ -152,13 +152,13 @@ In addition to the configuration file, you may use the following environment var
     pip install -r requirements_dev.txt
     ```
 
-1. Create the local testing environment using [nevermind-tools](https://github.com/keyko-io/nevermind-tools). Once cloned that repository, you can start the cluster running:
+1. Create the local testing environment using [nevermined-tools](https://github.com/keyko-io/nevermined-tools). Once cloned that repository, you can start the cluster running:
 
     ```
-    ./start_nevermind.sh --latest --no-gateway --no-common --local-spree-node
+    ./start_nevermined.sh --latest --no-gateway --no-common --local-spree-node
     ```
 
-    It runs a Nevermind Metadata node and an Ethereum RPC client. For details, read `docker-compose.yml`.
+    It runs a Nevermined Metadata node and an Ethereum RPC client. For details, read `docker-compose.yml`.
 
 1. Create local configuration file
 

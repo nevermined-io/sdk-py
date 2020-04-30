@@ -5,7 +5,7 @@ from time import sleep
 from contracts_lib_py.utils import get_account
 
 from examples import example_metadata, ExampleConfig
-from nevermind_sdk_py import ConfigProvider, Nevermind
+from nevermined_sdk_py import ConfigProvider, Nevermined
 
 if 'TEST_NILE' in os.environ and os.environ['TEST_NILE'] == '1':
     ASYNC_DELAY = 5  # seconds
@@ -16,12 +16,12 @@ else:
 def sign_service_agreement():
     ConfigProvider.set_config(ExampleConfig.get_config())
     # make ocean instance and register an asset
-    nevermind = Nevermind()
+    nevermined = Nevermined()
     acc = get_account(0)
-    ddo = nevermind.assets.create(example_metadata.metadata, acc)
+    ddo = nevermined.assets.create(example_metadata.metadata, acc)
 
     consumer_account = get_account(1)
-    agreement_id, signature = nevermind.agreements.prepare(
+    agreement_id, signature = nevermined.agreements.prepare(
         ddo.did,
         consumer_account
     )
