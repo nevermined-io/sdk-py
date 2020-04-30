@@ -1,11 +1,11 @@
-#  Copyright 2018 Nevermind Protocol Foundation
+#  Copyright 2018 Nevermined Protocol Foundation
 #  SPDX-License-Identifier: Apache-2.0
 
 import logging
 import os
 import sys
 
-from nevermind_sdk_py import Config
+from nevermined_sdk_py import Config
 
 
 def get_variable_value(variable):

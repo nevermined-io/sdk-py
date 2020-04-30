@@ -1,6 +1,6 @@
 from contracts_lib_py.account import Account
 
-from nevermind_sdk_py.secret_store import SecretStoreProvider
+from nevermined_sdk_py.secret_store import SecretStoreProvider
 
 
 class SSMock:

@@ -9,8 +9,8 @@ from contracts_lib_py.contract_handler import ContractHandler
 from contracts_lib_py.web3_provider import Web3Provider
 
 from examples import ExampleConfig
-from nevermind_sdk_py import ConfigProvider
-from nevermind_sdk_py.nevermind.keeper import NevermindKeeper as Keeper
+from nevermined_sdk_py import ConfigProvider
+from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
 from tests.resources.helper_functions import (_get_asset, get_consumer_account,
                                               get_consumer_instance, get_ddo_sample,
                                               get_metadata, get_publisher_account,
@@ -71,7 +71,7 @@ def web3_instance():
 @pytest.fixture
 def asset1():
     asset = _get_asset(
-        'https://raw.githubusercontent.com/keyko-io/nevermind-docs/master/architecture/specs'
+        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs'
         '/examples/access/v0.1/ddo1.json')
     asset._did = DID.did(asset.proof['checksum'])
     yield asset
@@ -81,7 +81,7 @@ def asset1():
 @pytest.fixture
 def asset2():
     asset = _get_asset(
-        'https://raw.githubusercontent.com/keyko-io/nevermind-docs/master/architecture/specs'
+        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs'
         '/examples/access/v0.1/ddo2-update.json')
     asset._did = DID.did(asset.proof['checksum'])
     return asset

@@ -4,14 +4,14 @@ from unittest.mock import MagicMock, Mock
 
 from contracts_lib_py.account import Account
 
-from nevermind_sdk_py import ConfigProvider
-from nevermind_sdk_py.secret_store.secret_store import SecretStore
+from nevermined_sdk_py import ConfigProvider
+from nevermined_sdk_py.secret_store.secret_store import SecretStore
 from tests.resources.helper_functions import get_assset_json_text
 
 
 def test_secret_store_encrypt_decrypt():
     metadata_json = get_assset_json_text(
-        'https://raw.githubusercontent.com/keyko-io/nevermind-docs/master/architecture/specs'
+        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs'
         '/examples/access/v0.1/ddo1.json')
     document_id = hashlib.sha256((metadata_json + secrets.token_hex(32)).encode()).hexdigest()
     print(document_id)

@@ -1,7 +1,7 @@
 import pytest
 from common_utils_py.metadata.metadata import Metadata
 
-from nevermind_sdk_py import ConfigProvider
+from nevermined_sdk_py import ConfigProvider
 
 metadata_provider = Metadata(ConfigProvider.get_config().metadata_url)
 

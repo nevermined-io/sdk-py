@@ -1,4 +1,4 @@
-nevermind-sdk-py API Reference Docs
+nevermined-sdk-py API Reference Docs
 ===========================
 
 These docs are API Reference docs.

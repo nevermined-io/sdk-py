@@ -13,15 +13,15 @@ with open('README.md') as readme_file:
 
 with open('CHANGELOG.md') as history_file:
     history = history_file.read()
-# Installed by pip install nevermind-sdk-py
+# Installed by pip install nevermined-sdk-py
 # or pip install -e .
 install_requirements = [
     'coloredlogs',
     'pyopenssl',
     'PyJWT',  # not jwt
     'PyYAML==4.2b4',
-    'common-utils-py==0.1.3',
-    'contracts-lib-py==0.1.1',
+    'common-utils-py==0.2.0',
+    'contracts-lib-py==0.2.0',
     'ocean-secret-store-client==0.0.1',
     'requests==2.21.0',
     'deprecated',
@@ -45,7 +45,7 @@ test_requirements = [
     'pytest-watch',
 ]
 
-# Possibly required by developers of nevermind-sdk-py:
+# Possibly required by developers of nevermined-sdk-py:
 dev_requirements = [
     'bumpversion',
     'pkginfo',
@@ -59,7 +59,7 @@ docs_requirements = [
 ]
 
 packages = []
-for d, _, _ in os.walk('nevermind_sdk_py'):
+for d, _, _ in os.walk('nevermined_sdk_py'):
     if os.path.exists(join(d, '__init__.py')):
         packages.append(d.replace(os.path.sep, '.'))
 
@@ -73,7 +73,7 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
     ],
-    description="🐳 Nevermind/Web3py wrapper.",
+    description="🐳 Nevermined/Web3py wrapper.",
     extras_require={
         'test': test_requirements,
         'dev': dev_requirements + test_requirements + docs_requirements,
@@ -84,13 +84,13 @@ setup(
     long_description=readme,
     long_description_content_type="text/markdown",
     include_package_data=True,
-    keywords='nevermind-sdk-py',
-    name='nevermind-sdk-py',
+    keywords='nevermined-sdk-py',
+    name='nevermined-sdk-py',
     packages=packages,
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/keyko-io/nevermind-sdk-py',
+    url='https://github.com/keyko-io/nevermined-sdk-py',
     version='0.1.0',
     zip_safe=False,
 )
