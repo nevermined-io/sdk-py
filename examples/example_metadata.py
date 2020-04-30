@@ -1,10 +1,10 @@
-#  Copyright 2018 Nevermind Protocol Foundation
+#  Copyright 2018 Nevermined Protocol Foundation
 #  SPDX-License-Identifier: Apache-2.0
 import uuid
 
 metadata = {
     "main": {
-        "name": "Nevermind protocol white paper",
+        "name": "Nevermined protocol white paper",
         "dateCreated": "2012-02-01T10:55:11Z",
         "author": "Mario",
         "license": "CC0: Public Domain",

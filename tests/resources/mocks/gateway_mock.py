@@ -1,6 +1,6 @@
 import os
 
-from nevermind_sdk_py.gateway.gateway import Gateway
+from nevermined_sdk_py.gateway.gateway import Gateway
 
 
 class GatewayMock(object):
@@ -17,7 +17,7 @@ class GatewayMock(object):
             from tests.resources.helper_functions import get_publisher_account
             self.account = get_publisher_account()
 
-        # nevermind_instance.agreements.watch_provider_events(self.account)
+        # nevermined_instance.agreements.watch_provider_events(self.account)
 
     def initialize_service_agreement(self, did, agreement_id, service_definition_id,
                                      signature, account_address, purchase_endpoint):

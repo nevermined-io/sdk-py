@@ -6,8 +6,8 @@ COMMAND_STATUS=1
 mkdir -p artifacts
 
 until [ $COMMAND_STATUS -eq 0 ] || [ $RETRY_COUNT -eq 120 ]; do
-  nevermind_contracts_docker_id=$(docker container ls | grep nevermind-contracts | awk '{print $1}')
-  docker cp ${nevermind_contracts_docker_id}:/nevermind-contracts/artifacts/ready ./artifacts/
+  nevermined_contracts_docker_id=$(docker container ls | grep nevermined-contracts | awk '{print $1}')
+  docker cp ${nevermined_contracts_docker_id}:/nevermined-contracts/artifacts/ready ./artifacts/
   COMMAND_STATUS=$?
   sleep 5
   let RETRY_COUNT=RETRY_COUNT+1
@@ -18,4 +18,4 @@ if [ $COMMAND_STATUS -ne 0 ]; then
   exit 1
 fi
 
-docker cp ${nevermind_contracts_docker_id}:/nevermind-contracts/artifacts/. ./artifacts/
+docker cp ${nevermined_contracts_docker_id}:/nevermined-contracts/artifacts/. ./artifacts/

@@ -1,4 +1,4 @@
-# The nevermind-sdk-py Release Process
+# The nevermined-sdk-py Release Process
 
 - Create a new local feature branch, e.g. `git checkout -b feature/bumpversion-to-v0.2.5`
 - Use the `bumpversion.sh` script to bump the project version. You can execute the script using {major|minor|patch} as first argument to bump the version accordingly:
@@ -11,7 +11,7 @@
 - Wait for all the tests to pass!
 - Merge the pull request into the `develop` branch.
 - To make a GitHub release (which creates a Git tag):
-  - Go to the nevermind-sdk-py repo's Releases page [https://github.com/keyko-io/nevermind-sdk-py/releases](https://github.com/keyko-io/nevermind-sdk-py/releases)
+  - Go to the nevermined-sdk-py repo's Releases page [https://github.com/keyko-io/nevermined-sdk-py/releases](https://github.com/keyko-io/nevermined-sdk-py/releases)
   - Click "Draft a new release".
   - For tag version, put something like `v0.2.5`
   - For release title, put the same value (like `v0.2.5`).

@@ -8,8 +8,8 @@ from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_types import ServiceTypes
 
 from examples import ExampleConfig, example_metadata
-from nevermind_sdk_py import ConfigProvider, Nevermind
-from nevermind_sdk_py.nevermind.keeper import NevermindKeeper as Keeper
+from nevermined_sdk_py import ConfigProvider, Nevermined
+from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
 from tests.resources.helper_functions import get_account
 
 
@@ -28,7 +28,7 @@ else:
 
 def buy_asset():
     """
-    Requires all Nevermind services running.
+    Requires all Nevermined services running.
 
     """
     ConfigProvider.set_config(ExampleConfig.get_config())
@@ -37,25 +37,25 @@ def buy_asset():
         'duero': '0xfEF2d5e1670342b9EF22eeeDcb287EC526B48095',
         'nile': '0x4aaab179035dc57b35e2ce066919048686f82972'
     }
-    # make nevermind instance
-    nevermind = Nevermind()
+    # make nevermined instance
+    nevermined = Nevermined()
     Diagnostics.verify_contracts()
     acc = get_account(0)
     if not acc:
-        acc = ([acc for acc in nevermind.accounts.list() if acc.password] or nevermind.accounts.list())[0]
+        acc = ([acc for acc in nevermined.accounts.list() if acc.password] or nevermined.accounts.list())[0]
 
     keeper = Keeper.get_instance()
     # Register ddo
     did = ''  # 'did:nv:7648596b60f74301ae1ef9baa5d637255d517ff362434754a3779e1de4c8219b'
     if did:
-        ddo = nevermind.assets.resolve(did)
+        ddo = nevermined.assets.resolve(did)
         logging.info(f'using ddo: {did}')
     else:
-        ddo = nevermind.assets.create(example_metadata.metadata, acc, providers=[], use_secret_store=True)
+        ddo = nevermined.assets.create(example_metadata.metadata, acc, providers=[], use_secret_store=True)
         assert ddo is not None, f'Registering asset on-chain failed.'
         did = ddo.did
         logging.info(f'registered ddo: {did}')
-        # nevermind here will be used only to publish the asset. Handling the asset by the publisher
+        # nevermined here will be used only to publish the asset. Handling the asset by the publisher
         # will be performed by the Gateway server running locally
         test_net = os.environ.get('TEST_NET', '')
         if test_net.startswith('nile'):
@@ -83,24 +83,24 @@ def buy_asset():
         logging.info(f'is {provider} set as did provider: '
                      f'{keeper.did_registry.is_did_provider(ddo.asset_id, provider)}')
 
-    nevermind_cons = Nevermind()
+    nevermined_cons = Nevermined()
     consumer_account = get_account(1)
 
     # sign agreement using the registered asset did above
     service = ddo.get_service(service_type=ServiceTypes.ASSET_ACCESS)
     # This will send the order request to Gateway which in turn will execute the agreement on-chain
-    nevermind_cons.accounts.request_tokens(consumer_account, 10)
+    nevermined_cons.accounts.request_tokens(consumer_account, 10)
     sa = ServiceAgreement.from_service_dict(service.as_dictionary())
     agreement_id = ''
     if not agreement_id:
         # Use these 2 lines to request new agreement from Gateway
-        # agreement_id, signature = nevermind_cons.agreements.prepare(did, sa.service_definition_id,
+        # agreement_id, signature = nevermined_cons.agreements.prepare(did, sa.service_definition_id,
         # consumer_account)
-        # nevermind_cons.agreements.send(did, agreement_id, sa.service_definition_id, signature,
+        # nevermined_cons.agreements.send(did, agreement_id, sa.service_definition_id, signature,
         # consumer_account)
 
         # assets.order now creates agreement directly using consumer account.
-        agreement_id = nevermind_cons.assets.order(
+        agreement_id = nevermined_cons.assets.order(
             did, sa.index, consumer_account)
 
     logging.info('placed order: %s, %s', did, agreement_id)
@@ -121,14 +121,14 @@ def buy_asset():
     )
     logging.info(f'Got access event {event}')
     i = 0
-    while nevermind.agreements.is_access_granted(
+    while nevermined.agreements.is_access_granted(
             agreement_id, did, consumer_account.address) is not True and i < 15:
         time.sleep(1)
         i += 1
 
-    assert nevermind.agreements.is_access_granted(agreement_id, did, consumer_account.address)
+    assert nevermined.agreements.is_access_granted(agreement_id, did, consumer_account.address)
 
-    nevermind.assets.consume(
+    nevermined.assets.consume(
         agreement_id,
         did,
         sa.index,

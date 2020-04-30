@@ -1,7 +1,7 @@
 include CHANGELOG.md
 include LICENSE
 include README.md
-include nevermind_skd_py/agreements/access_sla_template.json
+include nevermined_skd_py/agreements/access_sla_template.json
 
 recursive-include tests *
 recursive-exclude * __pycache__

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright 2018 Nevermind Protocol Foundation
+#  Copyright 2018 Nevermined Protocol Foundation
 #  SPDX-License-Identifier: Apache-2.0
 
 #
@@ -25,9 +25,9 @@ sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'nevermind-sdk-py'
-copyright = 'nevermind-sdk-py contributors'
-author = 'nevermind-sdk-py contributors'
+project = 'nevermined-sdk-py'
+copyright = 'nevermined-sdk-py contributors'
+author = 'nevermined-sdk-py contributors'
 
 # The full version, including alpha/beta/rc tags
 release = '0.1.0'
@@ -48,7 +48,7 @@ extensions = [
 
 # apidoc settings
 # See https://github.com/sphinx-contrib/apidoc
-apidoc_module_dir = '../../nevermind_sdk_py'
+apidoc_module_dir = '../../nevermined_sdk_py'
 # apidoc_output_dir = 'api' by default, and leave it that way!
 apidoc_separate_modules = True
 # See https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html
