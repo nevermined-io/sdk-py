@@ -169,8 +169,6 @@ def test_agreement_direct(publisher_instance, consumer_instance, metadata):
 
     agreement_id, signature = consumer_instance.agreements.prepare(ddo.did, consumer_account,
                                                                    ServiceTypesIndices.DEFAULT_ACCESS_INDEX)
-    consumer_instance.accounts.request_tokens(consumer_account, 100)
-
     assert consumer_instance.agreements.create_direct(ddo.did,
                                                       ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
                                                       agreement_id, signature,
