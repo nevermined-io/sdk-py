@@ -63,7 +63,29 @@ def test_agreement_refund_reward():
     pass
 
 
-@pytest.mark.skip(reason="Failing some times with actions")
+def test_agreement_direct(publisher_instance, consumer_instance, metadata):
+    publisher_account = publisher_instance.main_account
+    consumer_account = consumer_instance.main_account
+
+    ddo = publisher_instance.assets.create(metadata, publisher_account,
+                                           providers=['0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0'])
+
+    agreement_id, signature = consumer_instance.agreements.prepare(ddo.did, consumer_account,
+                                                                   ServiceTypesIndices.DEFAULT_ACCESS_INDEX)
+    assert consumer_instance.agreements.create_direct(ddo.did,
+                                                      ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
+                                                      agreement_id, signature,
+                                                      consumer_account.address,
+                                                      publisher_account)
+    assert publisher_instance.agreements.status(agreement_id)
+
+    import time
+    time.sleep(15)
+    assert publisher_instance.agreements.is_access_granted(agreement_id, ddo.did,
+                                                           consumer_account.address)
+    publisher_instance.assets.retire(ddo.did)
+
+
 def test_agreement_status(setup_agreements_enviroment, agreements):
     (
         keeper,
@@ -159,28 +181,6 @@ def test_agreement_status(setup_agreements_enviroment, agreements):
                                                               "escrowReward": 2
                                                               }
                                                }
-
-
-def test_agreement_direct(publisher_instance, consumer_instance, metadata):
-    publisher_account = publisher_instance.main_account
-    consumer_account = consumer_instance.main_account
-
-    ddo = publisher_instance.assets.create(metadata, publisher_account, providers=['0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0'])
-
-    agreement_id, signature = consumer_instance.agreements.prepare(ddo.did, consumer_account,
-                                                                   ServiceTypesIndices.DEFAULT_ACCESS_INDEX)
-    assert consumer_instance.agreements.create_direct(ddo.did,
-                                                      ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
-                                                      agreement_id, signature,
-                                                      consumer_account.address,
-                                                      publisher_account)
-    assert publisher_instance.agreements.status(agreement_id)
-
-    import time
-    time.sleep(15)
-    assert publisher_instance.agreements.is_access_granted(agreement_id, ddo.did,
-                                                           consumer_account.address)
-    publisher_instance.assets.retire(ddo.did)
 
 
 def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
