@@ -339,6 +339,7 @@ class Assets:
             consumer_account,
             auto_consume=auto_consume
         )
+        return agreement_id
 
     def consume(self, service_agreement_id, did, service_index, consumer_account,
                 destination, index=None):
