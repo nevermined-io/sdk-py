@@ -3,7 +3,6 @@ import logging
 from common_utils_py.did_resolver.did_resolver import DIDResolver
 from contracts_lib_py.contract_handler import ContractHandler
 from contracts_lib_py.web3_provider import Web3Provider
-from deprecated import deprecated
 
 from nevermined_sdk_py.assets.asset_consumer import AssetConsumer
 from nevermined_sdk_py.assets.asset_executor import AssetExecutor
@@ -21,7 +20,7 @@ from nevermined_sdk_py.nevermined.tokens import Tokens
 
 CONFIG_FILE_ENVIRONMENT_NAME = 'CONFIG_FILE'
 
-logger = logging.getLogger('ocean')
+logger = logging.getLogger(__name__)
 
 
 class Nevermined:
@@ -102,7 +101,7 @@ class Nevermined:
             self._config
         )
         self.services = Services()
-        self.ocean_providers = Providers(self._keeper, self._did_resolver, self._config)
+        self.providers = Providers(self._keeper, self._did_resolver, self._config)
         self.auth = Auth(self._keeper, self._config.storage_path)
 
         logger.debug('Nevermined instance initialized: ')
@@ -126,112 +125,3 @@ class Nevermined:
             AssetExecutor,
             self._config
         )
-
-    @deprecated("Use ocean.accounts.list")
-    def get_accounts(self):
-        """
-        Returns all available accounts loaded via a wallet, or by Web3.
-
-        :return: list of Account instances
-        """
-        return self.accounts.list()
-
-    @deprecated("Use ocean.assets.search")
-    def search_assets_by_text(self, *args, **kwargs):
-        """
-        Search an asset in oceanDB using metadata.
-
-        see Assets.search for params
-
-        :return: List of assets that match with the query
-        """
-        return self.assets.search(*args, **kwargs)['results']
-
-    @deprecated("Use ocean.assets.query")
-    def search_assets(self, *args, **kwargs):
-        """
-        Search an asset in oceanDB using search query.
-
-        See Assets.query for params
-
-        :return: List of assets that match with the query.
-        """
-        return self.assets.query(*args, **kwargs)
-
-    @deprecated("Use ocean.assets.create")
-    def register_asset(self, *args, **kwargs):
-        """
-        Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
-
-        See Assets.query for params
-
-        :return: DDO instance
-        """
-        return self.assets.create(*args, **kwargs)
-
-    @deprecated("Use ocean.assets.order")
-    def purchase_asset_service(self, *args, **kwargs):
-        """
-        Sign service agreement.
-
-        Sign the service agreement defined in the service section identified
-        by `service_definition_id` in the ddo and send the signed agreement to the purchase endpoint
-        associated with this service.
-
-        :return: tuple(agreement_id, signature) the service agreement id (can be used to query
-            the keeper-contracts for the status of the service agreement) and signed agreement hash
-        """
-        return self.assets.order(*args, **kwargs)
-
-    @deprecated("Use ")
-    def execute_service_agreement(self, *args, **kwargs):
-        """
-        Execute the service agreement on-chain using keeper's ServiceExecutionAgreement contract.
-
-        The on-chain initializeAgreement method requires the following arguments:
-        templateId, signature, consumer, hashes, timeouts, serviceAgreementId, did.
-        `agreement_message_hash` is necessary to verify the signature.
-        The consumer `signature` includes the conditions timeouts and parameters values which
-        is usedon-chain to verify that the values actually match the signed hashes.
-
-        :return: dict the `initializeAgreement` transaction receipt
-        """
-        return self.agreements.create(*args, **kwargs)
-
-    @deprecated("Use ")
-    def is_access_granted(self, *args, **kwargs):
-        """
-        Check permission for the agreement.
-
-        Verify on-chain that the `consumer_address` has permission to access the given asset `did`
-        according to the `service_agreement_id`.
-
-        :return: bool True if user has permission
-        """
-        return self.agreements.is_access_granted(*args, **kwargs)
-
-    @deprecated("Use ocean.assets.resolve")
-    def resolve_asset_did(self, did):
-        """
-        When you pass a did retrieve the ddo associated.
-
-        :param did: DID, str
-        :return: DDO
-        """
-        return self.assets.resolve(did)
-
-    @deprecated("Use ocean.assets.consume")
-    def consume_service(self, *args, **kwargs):
-        """
-        Consume the asset data.
-
-        Using the service endpoint defined in the ddo's service pointed to by service_definition_id.
-        Consumer's permissions is checked implicitly by the secret-store during decryption
-        of the contentUrls.
-        The service endpoint is expected to also verify the consumer's permissions to consume this
-        asset.
-        This method downloads and saves the asset datafiles to disk.
-
-        :return: None
-        """
-        return self.assets.consume(*args, **kwargs)

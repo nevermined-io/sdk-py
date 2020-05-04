@@ -1,7 +1,6 @@
 import logging
+import time
 
-from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
-from contracts_lib_py.web3_provider import Web3Provider
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_types import ServiceTypes
 from common_utils_py.did import did_to_id
@@ -10,14 +9,17 @@ from common_utils_py.exceptions import (
     OceanInvalidServiceAgreementSignature,
     OceanServiceAgreementExists,
 )
+from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
+from contracts_lib_py.web3_provider import Web3Provider
 
 from nevermined_sdk_py.agreement_events.accessSecretStore import consume_asset, refund_reward
 from nevermined_sdk_py.agreement_events.computeExecution import execute_computation
-from nevermined_sdk_py.agreement_events.escrowAccessSecretStoreTemplate import fulfillLockRewardCondition
+from nevermined_sdk_py.agreement_events.escrowAccessSecretStoreTemplate import \
+    fulfillLockRewardCondition
 from nevermined_sdk_py.gateway.gateway_provider import GatewayProvider
 from nevermined_sdk_py.nevermined.conditions import Conditions
 
-logger = logging.getLogger('ocean')
+logger = logging.getLogger(__name__)
 
 
 class Agreements:
@@ -260,6 +262,115 @@ class Agreements:
                 )
 
         return success
+
+    def create_direct(self, did, index, agreement_id,
+                      service_agreement_signature, consumer_address,
+                      account, auto_consume=False):
+        """
+        Execute the service agreement on-chain using keeper's ServiceAgreement contract.
+
+        The on-chain executeAgreement method requires the following arguments:
+        templateId, signature, consumer, hashes, timeouts, serviceAgreementId, did.
+        `agreement_message_hash` is necessary to verify the signature.
+        The consumer `signature` includes the conditions timeouts and parameters values which
+        is usedon-chain to verify that the values actually match the signed hashes.
+
+        :param did: str representation fo the asset DID. Use this to retrieve the asset DDO.
+        :param index: str identifies the specific service in
+         the ddo to use in this agreement.
+        :param agreement_id: 32 bytes identifier created by the consumer and will be used
+         on-chain for the executed agreement.
+        :param service_agreement_signature: str the signed agreement message hash which includes
+         conditions and their parameters values and other details of the agreement.
+        :param consumer_address: ethereum account address of consumer, hex str
+        :param account: Account instance creating the agreement. Can be either the
+            consumer, publisher or provider
+        :param auto_consume: bool
+        :return: dict the `executeAgreement` transaction receipt
+        """
+        assert consumer_address and Web3Provider.get_web3().isChecksumAddress(
+            consumer_address), f'Invalid consumer address {consumer_address}'
+        assert account.address in self._keeper.accounts, \
+            f'Unrecognized account address {account.address}'
+
+        agreement_template_approved = self._keeper.template_manager.is_template_approved(
+            self._keeper.escrow_access_secretstore_template.address)
+        agreement_exec_template_approved = self._keeper.template_manager.is_template_approved(
+            self._keeper.escrow_compute_execution_template.address)
+        if not agreement_template_approved:
+            msg = (f'The EscrowAccessSecretStoreTemplate contract at address '
+                   f'{self._keeper.escrow_access_secretstore_template.address} is not '
+                   f'approved and cannot be used for creating service agreements.')
+            logger.warning(msg)
+            raise OceanInvalidAgreementTemplate(msg)
+        if not agreement_exec_template_approved:
+            msg = (f'The EscroComputeExecutionTemplate contract at address '
+                   f'{self._keeper.agreement_exec_template_approved.address} is not '
+                   f'approved and cannot be used for creating service agreements.')
+            logger.warning(msg)
+            raise OceanInvalidAgreementTemplate(msg)
+
+        asset = self._asset_resolver.resolve(did)
+        asset_id = asset.asset_id
+        service_agreement = asset.get_service_by_index(index)
+        if service_agreement.type == ServiceTypes.ASSET_ACCESS:
+            agreement_template = self._keeper.escrow_access_secretstore_template
+        elif service_agreement.type == ServiceTypes.CLOUD_COMPUTE:
+            agreement_template = self._keeper.escrow_compute_execution_template
+        else:
+            raise Exception('The agreement could not be created. Review the index of your service.')
+
+        if agreement_template.get_agreement_consumer(agreement_id) is not None:
+            raise OceanServiceAgreementExists(
+                f'Service agreement {agreement_id} already exists, cannot reuse '
+                f'the same agreement id.')
+
+        if consumer_address != account.address:
+            if not self._verify_service_agreement_signature(
+                    did, agreement_id, index,
+                    consumer_address, service_agreement_signature,
+                    ddo=asset
+            ):
+                raise OceanInvalidServiceAgreementSignature(
+                    f'Verifying consumer signature failed: '
+                    f'signature {service_agreement_signature}, '
+                    f'consumerAddress {consumer_address}'
+                )
+
+        publisher_address = Web3Provider.get_web3().toChecksumAddress(asset.publisher)
+        condition_ids = service_agreement.generate_agreement_condition_ids(
+            agreement_id, asset_id, consumer_address, publisher_address, self._keeper)
+
+        time_locks = service_agreement.conditions_timelocks
+        time_outs = service_agreement.conditions_timeouts
+        success = agreement_template.create_agreement(
+            agreement_id,
+            asset_id,
+            condition_ids,
+            time_locks,
+            time_outs,
+            consumer_address,
+            account
+        )
+        if success:
+            self.conditions.lock_reward(agreement_id, service_agreement.get_price(), account)
+
+        return self._is_condition_fulfilled(agreement_id, 'lockReward')
+
+    def _is_condition_fulfilled(self, agreement_id, condition_type):
+        max_retries = 5
+        sleep_time = 500
+        iteration = 0
+        while iteration < max_retries:
+            status = self.status(agreement_id)
+            condition_status = status.get('conditions').get(condition_type)
+            logger.debug(f'Condition check[  ${condition_type}  ] : + ${condition_status}')
+            if condition_status == 2:
+                return True
+            iteration = iteration + 1
+            time.sleep(sleep_time)
+
+        return False
 
     def _process_consumer_agreement_events(
             self, agreement_id, did, service_agreement, account,

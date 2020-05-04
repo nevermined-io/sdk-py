@@ -22,7 +22,7 @@ from common_utils_py.utils.utilities import checksum
 from nevermined_sdk_py.gateway.gateway_provider import GatewayProvider
 from nevermined_sdk_py.secret_store.secret_store_provider import SecretStoreProvider
 
-logger = logging.getLogger('ocean')
+logger = logging.getLogger(__name__)
 
 
 class Assets:
@@ -326,6 +326,19 @@ class Assets:
             auto_consume=auto_consume
         )
         return agreement_id
+
+    def order_direct(self, did, index, consumer_account, auto_consume=False):
+        agreement_id = self._agreements.new()
+        logger.debug(f'about to request create agreement: {agreement_id}')
+        self._agreements.create_direct(
+            did,
+            index,
+            agreement_id,
+            None,
+            consumer_account.address,
+            consumer_account,
+            auto_consume=auto_consume
+        )
 
     def consume(self, service_agreement_id, did, service_index, consumer_account,
                 destination, index=None):
