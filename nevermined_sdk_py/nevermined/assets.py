@@ -327,7 +327,7 @@ class Assets:
         )
         return agreement_id
 
-    def order_direct(self, did, index, consumer_account, auto_consume=False):
+    def order_direct(self, did, index, consumer_account, account):
         agreement_id = self._agreements.new()
         logger.debug(f'about to request create agreement: {agreement_id}')
         self._agreements.create_direct(
@@ -336,8 +336,7 @@ class Assets:
             agreement_id,
             None,
             consumer_account.address,
-            consumer_account,
-            auto_consume=auto_consume
+            account
         )
         return agreement_id
 
