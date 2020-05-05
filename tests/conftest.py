@@ -48,6 +48,16 @@ def consumer_instance():
 
 
 @pytest.fixture
+def publisher_instance_no_init():
+    return get_publisher_instance(False, True, True)
+
+
+@pytest.fixture
+def consumer_instance_no_init():
+    return get_consumer_instance(False, True, True)
+
+
+@pytest.fixture
 def publisher_instance_gateway():
     return get_publisher_instance(use_gateway_mock=False)
 
@@ -71,7 +81,8 @@ def web3_instance():
 @pytest.fixture
 def asset1():
     asset = _get_asset(
-        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs/examples/access/v0.1/ddo1.json')
+        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs'
+        '/examples/access/v0.1/ddo1.json')
     asset._did = DID.did(asset.proof['checksum'])
     yield asset
     metadata_provider.retire_all_assets()
@@ -80,7 +91,8 @@ def asset1():
 @pytest.fixture
 def asset2():
     asset = _get_asset(
-        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs/examples/access/v0.1/ddo2-update.json')
+        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs'
+        '/examples/access/v0.1/ddo2-update.json')
     asset._did = DID.did(asset.proof['checksum'])
     return asset
 
