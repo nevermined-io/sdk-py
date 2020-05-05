@@ -3,7 +3,7 @@ import logging
 import pytest
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_factory import ServiceDescriptor
-from common_utils_py.agreements.service_types import ServiceTypes
+from common_utils_py.agreements.service_types import ServiceTypes, ServiceTypesIndices
 from common_utils_py.did import DID
 from contracts_lib_py.exceptions import OceanDIDNotFound
 from contracts_lib_py.web3_provider import Web3Provider
@@ -306,3 +306,33 @@ def test_execute_workflow(publisher_instance, consumer_instance):
                                      workflow_ddo.did)
     publisher_instance.assets.retire(ddo_computing.did)
     publisher_instance.assets.retire(workflow_ddo.did)
+
+
+def test_agreement_direct(publisher_instance_no_init, consumer_instance_no_init, metadata):
+    publisher_account = publisher_instance_no_init.main_account
+    consumer_account = consumer_instance_no_init.main_account
+    ddo = publisher_instance_no_init.assets.create(metadata, publisher_account,
+                                           providers=[
+                                               '0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0'])
+
+    agreement_id = consumer_instance_no_init.assets.order_direct(ddo.did,
+                                                         ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
+                                                         consumer_account,
+                                                         consumer_account
+                                                         )
+    assert publisher_instance_no_init.agreements.status(agreement_id)
+
+    keeper = publisher_instance_no_init.keeper
+
+    event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
+        agreement_id,
+        10,
+        log_event(keeper.lock_reward_condition.FULFILLED_EVENT),
+        (),
+        wait=True
+    )
+    assert event, 'no event for LockRewardCondition.Fulfilled'
+
+    assert publisher_instance_no_init.agreements.is_access_granted(agreement_id, ddo.did,
+                                                           consumer_account.address)
+    publisher_instance_no_init.assets.retire(ddo.did)

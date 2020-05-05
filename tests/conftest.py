@@ -48,6 +48,16 @@ def consumer_instance():
 
 
 @pytest.fixture
+def publisher_instance_no_init():
+    return get_publisher_instance(False, True, True)
+
+
+@pytest.fixture
+def consumer_instance_no_init():
+    return get_consumer_instance(False, True, True)
+
+
+@pytest.fixture
 def publisher_instance_gateway():
     return get_publisher_instance(use_gateway_mock=False)
 
