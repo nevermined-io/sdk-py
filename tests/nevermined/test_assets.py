@@ -5,7 +5,7 @@ from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_factory import ServiceDescriptor
 from common_utils_py.agreements.service_types import ServiceTypes, ServiceTypesIndices
 from common_utils_py.did import DID
-from contracts_lib_py.exceptions import OceanDIDNotFound
+from contracts_lib_py.exceptions import DIDNotFound
 from contracts_lib_py.web3_provider import Web3Provider
 
 from tests.resources.helper_functions import (get_algorithm_ddo, get_computing_metadata,
@@ -69,12 +69,12 @@ def test_resolve_did(publisher_instance, metadata):
 
     # Can't resolve unregistered asset
     unregistered_did = DID.did({"0": "0x00112233445566"})
-    with pytest.raises(OceanDIDNotFound):
+    with pytest.raises(DIDNotFound):
         publisher_instance.assets.resolve(unregistered_did)
 
     # Raise error on bad did
     invalid_did = "did:nv:0123456789"
-    with pytest.raises(OceanDIDNotFound):
+    with pytest.raises(DIDNotFound):
         publisher_instance.assets.resolve(invalid_did)
     publisher_instance.assets.retire(did)
 

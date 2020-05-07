@@ -149,7 +149,7 @@ class Agreements:
         else:
             raise Exception('The agreement could not be created. Review the index of your service.')
 
-        if agreement_template.get_agreement_consumer(agreement_id) is not None:
+        if agreement_template.get_agreement_consumer(agreement_id) != '0x0000000000000000000000000000000000000000':
             raise OceanServiceAgreementExists(
                 f'Service agreement {agreement_id} already exists, cannot reuse '
                 f'the same agreement id.')
@@ -278,7 +278,7 @@ class Agreements:
         else:
             raise Exception('The agreement could not be created. Review the index of your service.')
 
-        if agreement_template.get_agreement_consumer(agreement_id) is not None:
+        if agreement_template.get_agreement_consumer(agreement_id) != '0x0000000000000000000000000000000000000000':
             raise OceanServiceAgreementExists(
                 f'Service agreement {agreement_id} already exists, cannot reuse '
                 f'the same agreement id.')
