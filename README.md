@@ -6,7 +6,7 @@
 > [keyko.io](https://keyko.io)
 
 [![PyPI](https://img.shields.io/pypi/v/nevermined-sdk-py.svg)](https://pypi.org/project/nevermined-sdk-py/)
-
+[![Python package](https://github.com/keyko-io/nevermined-sdk-py/workflows/Python%20package/badge.svg)](https://github.com/keyko-io/nevermined-sdk-py/actions)
 ---
 
 ## Table of Contents
