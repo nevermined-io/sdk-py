@@ -186,27 +186,27 @@ def test_owner_assets(publisher_instance, ddo_sample):
     publisher_instance.assets.retire(asset.did)
 
 
-def test_assets_consumed(publisher_instance, consumer_instance, ddo_sample):
-    acct = consumer_instance.main_account
-    consumed_assets = len(publisher_instance.assets.consumer_assets(acct.address))
-    asset = create_asset(publisher_instance, ddo_sample)
+def test_assets_consumed(publisher_instance_no_init, consumer_instance_no_init, ddo_sample):
+    acct = consumer_instance_no_init.main_account
+    consumed_assets = len(publisher_instance_no_init.assets.consumer_assets(acct.address))
+    asset = create_asset(publisher_instance_no_init, ddo_sample)
     service = asset.get_service(service_type=ServiceTypes.ASSET_ACCESS)
     service_dict = service.as_dictionary()
     sa = ServiceAgreement.from_service_dict(service_dict)
-    keeper = publisher_instance.keeper
+    keeper = publisher_instance_no_init.keeper
 
     def grant_access(event, instance, agr_id, did, cons_address, account):
         instance.agreements.conditions.grant_access(
             agr_id, did, cons_address, account)
 
-    agreement_id = consumer_instance.assets.order(
+    agreement_id = consumer_instance_no_init.assets.order(
         asset.did, sa.index, acct)
     keeper.lock_reward_condition.subscribe_condition_fulfilled(
         agreement_id,
         15,
         grant_access,
-        (publisher_instance, agreement_id, asset.did,
-         acct.address, publisher_instance.main_account),
+        (publisher_instance_no_init, agreement_id, asset.did,
+         acct.address, publisher_instance_no_init.main_account),
         wait=True
     )
 
@@ -217,10 +217,10 @@ def test_assets_consumed(publisher_instance, consumer_instance, ddo_sample):
         (),
         wait=True
     )
-    assert publisher_instance.agreements.is_access_granted(agreement_id, asset.did, acct.address)
+    assert publisher_instance_no_init.agreements.is_access_granted(agreement_id, asset.did, acct.address)
 
-    assert len(publisher_instance.assets.consumer_assets(acct.address)) == consumed_assets + 1
-    publisher_instance.assets.retire(asset.did)
+    assert len(publisher_instance_no_init.assets.consumer_assets(acct.address)) == consumed_assets + 1
+    publisher_instance_no_init.assets.retire(asset.did)
 
 
 def test_assets_resolve(publisher_instance, metadata):
