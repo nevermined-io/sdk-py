@@ -16,16 +16,16 @@ def test_token_request(publisher_instance):
         receiver_account).ocn == start_ocean + (amount * 1000000000000000000)
 
 
-def test_transfer_tokens(publisher_instance, consumer_instance):
-    receiver_account = publisher_instance.main_account
-    sender_account = consumer_instance.main_account
+def test_transfer_tokens(publisher_instance_no_init, consumer_instance_no_init):
+    receiver_account = publisher_instance_no_init.main_account
+    sender_account = consumer_instance_no_init.main_account
 
-    receiver_start_balance = publisher_instance.accounts.balance(receiver_account).ocn
-    sender_start_balance = consumer_instance.accounts.balance(sender_account).ocn
+    receiver_start_balance = publisher_instance_no_init.accounts.balance(receiver_account).ocn
+    sender_start_balance = consumer_instance_no_init.accounts.balance(sender_account).ocn
 
-    consumer_instance.tokens.transfer(receiver_account.address, 500, sender_account)
+    consumer_instance_no_init.tokens.transfer(receiver_account.address, 500, sender_account)
 
-    assert publisher_instance.accounts.balance(
+    assert publisher_instance_no_init.accounts.balance(
         receiver_account).ocn == receiver_start_balance + 500
-    assert consumer_instance.accounts.balance(
+    assert consumer_instance_no_init.accounts.balance(
         sender_account).ocn == sender_start_balance - 500
