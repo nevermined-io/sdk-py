@@ -17,7 +17,7 @@ def create_asset(publisher_instance, ddo_sample):
     acct = nevermined.main_account
     asset = ddo_sample
     my_secret_store = 'http://myownsecretstore.com'
-    auth_service = ServiceDescriptor.authorization_service_descriptor('SecretStore', my_secret_store)
+    auth_service = ServiceDescriptor.authorization_service_descriptor(my_secret_store)
     return nevermined.assets.create(asset.metadata, acct, [auth_service])
 
 
