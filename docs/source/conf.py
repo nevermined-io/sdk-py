@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright 2018 Nevermined Protocol Foundation
-#  SPDX-License-Identifier: Apache-2.0
 
 #
 # Configuration file for the Sphinx documentation builder.
@@ -129,7 +127,7 @@ font_family_monospace = ("'Fira Code', 'Fira Mono', Menlo, Monaco, Consolas, "
 
 html_theme_options = {
     # Colors
-    'logo': 'logo.png',
+    'logo': 'logo.jpg',
     'logo_name': True,
     'logo_text_align': 'center',
     'show_powered_by': False,

@@ -71,6 +71,11 @@ docs: ## generate Sphinx HTML documentation, including API docs
 	$(MAKE) -C docs html
 	google-chrome docs/build/html/index.html
 
+github: ## generate Sphinx HTML documentation, including API docs
+	$(MAKE) -C docs clean
+	$(MAKE) -C docs html
+	@cp -a docs/build/html/. docs/
+
 release: dist ## package and upload a release
 	twine upload dist/*
 
