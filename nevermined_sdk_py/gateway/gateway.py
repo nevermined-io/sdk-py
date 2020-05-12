@@ -5,8 +5,8 @@ import re
 
 from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
 from common_utils_py.agreements.service_agreement import ServiceAgreement
-from common_utils_py.exceptions import (OceanEncryptAssetUrlsError,
-                                    OceanInitializeServiceAgreementError)
+from common_utils_py.exceptions import (EncryptAssetUrlsError,
+                                    InitializeServiceAgreementError)
 from common_utils_py.http_requests.requests_session import get_requests_session
 
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
@@ -49,7 +49,7 @@ class Gateway:
                        f'{encrypt_endpoint}, reason {response.text}, status {response.status_code}'
                        )
                 logger.error(msg)
-                raise OceanEncryptAssetUrlsError(msg)
+                raise EncryptAssetUrlsError(msg)
 
             logger.info(
                 f'Asset urls encrypted successfully, encrypted urls str: {response.text},'
@@ -86,7 +86,7 @@ class Gateway:
                        f'{purchase_endpoint}, reason {response.text}, status {response.status_code}'
                        )
                 logger.error(msg)
-                raise OceanInitializeServiceAgreementError(msg)
+                raise InitializeServiceAgreementError(msg)
 
             logger.info(
                 f'Service agreement initialized successfully, service agreement id {agreement_id},'

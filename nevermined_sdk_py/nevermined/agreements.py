@@ -5,9 +5,9 @@ from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_types import ServiceTypes
 from common_utils_py.did import did_to_id
 from common_utils_py.exceptions import (
-    OceanInvalidAgreementTemplate,
-    OceanInvalidServiceAgreementSignature,
-    OceanServiceAgreementExists,
+    InvalidAgreementTemplate,
+    InvalidServiceAgreementSignature,
+    ServiceAgreementExists,
 )
 from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
 from contracts_lib_py.web3_provider import Web3Provider
@@ -131,13 +131,13 @@ class Agreements:
                    f'{self._keeper.escrow_access_secretstore_template.address} is not '
                    f'approved and cannot be used for creating service agreements.')
             logger.warning(msg)
-            raise OceanInvalidAgreementTemplate(msg)
+            raise InvalidAgreementTemplate(msg)
         if not agreement_exec_template_approved:
             msg = (f'The EscroComputeExecutionTemplate contract at address '
                    f'{self._keeper.agreement_exec_template_approved.address} is not '
                    f'approved and cannot be used for creating service agreements.')
             logger.warning(msg)
-            raise OceanInvalidAgreementTemplate(msg)
+            raise InvalidAgreementTemplate(msg)
 
         asset = self._asset_resolver.resolve(did)
         asset_id = asset.asset_id
@@ -150,7 +150,7 @@ class Agreements:
             raise Exception('The agreement could not be created. Review the index of your service.')
 
         if agreement_template.get_agreement_consumer(agreement_id) != '0x0000000000000000000000000000000000000000':
-            raise OceanServiceAgreementExists(
+            raise ServiceAgreementExists(
                 f'Service agreement {agreement_id} already exists, cannot reuse '
                 f'the same agreement id.')
 
@@ -160,7 +160,7 @@ class Agreements:
                     consumer_address, service_agreement_signature,
                     ddo=asset
             ):
-                raise OceanInvalidServiceAgreementSignature(
+                raise InvalidServiceAgreementSignature(
                     f'Verifying consumer signature failed: '
                     f'signature {service_agreement_signature}, '
                     f'consumerAddress {consumer_address}'
@@ -260,13 +260,13 @@ class Agreements:
                    f'{self._keeper.escrow_access_secretstore_template.address} is not '
                    f'approved and cannot be used for creating service agreements.')
             logger.warning(msg)
-            raise OceanInvalidAgreementTemplate(msg)
+            raise InvalidAgreementTemplate(msg)
         if not agreement_exec_template_approved:
             msg = (f'The EscroComputeExecutionTemplate contract at address '
                    f'{self._keeper.agreement_exec_template_approved.address} is not '
                    f'approved and cannot be used for creating service agreements.')
             logger.warning(msg)
-            raise OceanInvalidAgreementTemplate(msg)
+            raise InvalidAgreementTemplate(msg)
 
         asset = self._asset_resolver.resolve(did)
         asset_id = asset.asset_id
@@ -279,7 +279,7 @@ class Agreements:
             raise Exception('The agreement could not be created. Review the index of your service.')
 
         if agreement_template.get_agreement_consumer(agreement_id) != '0x0000000000000000000000000000000000000000':
-            raise OceanServiceAgreementExists(
+            raise ServiceAgreementExists(
                 f'Service agreement {agreement_id} already exists, cannot reuse '
                 f'the same agreement id.')
 
@@ -289,7 +289,7 @@ class Agreements:
                     consumer_address, service_agreement_signature,
                     ddo=asset
             ):
-                raise OceanInvalidServiceAgreementSignature(
+                raise InvalidServiceAgreementSignature(
                     f'Verifying consumer signature failed: '
                     f'signature {service_agreement_signature}, '
                     f'consumerAddress {consumer_address}'

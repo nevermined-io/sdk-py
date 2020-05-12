@@ -3,21 +3,21 @@ import json
 import logging
 import os
 
-from eth_utils import add_0x_prefix
-from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
-from contracts_lib_py.web3_provider import Web3Provider
 from common_utils_py.agreements.service_factory import ServiceDescriptor, ServiceFactory
-from common_utils_py.agreements.service_types import ServiceTypes
-from common_utils_py.metadata.metadata_provider import MetadataProvider
-from common_utils_py.metadata.exceptions import MetadataGenericError
+from common_utils_py.agreements.service_types import ServiceAuthorizationTypes, ServiceTypes
 from common_utils_py.ddo.ddo import DDO
 from common_utils_py.ddo.metadata import MetadataMain
 from common_utils_py.ddo.public_key_rsa import PUBLIC_KEY_TYPE_RSA
 from common_utils_py.did import DID, did_to_id, did_to_id_bytes
 from common_utils_py.exceptions import (
-    OceanDIDAlreadyExist,
+    DIDAlreadyExist,
 )
+from common_utils_py.metadata.exceptions import MetadataGenericError
+from common_utils_py.metadata.metadata_provider import MetadataProvider
 from common_utils_py.utils.utilities import checksum
+from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
+from contracts_lib_py.web3_provider import Web3Provider
+from eth_utils import add_0x_prefix
 
 from nevermined_sdk_py.gateway.gateway_provider import GatewayProvider
 from nevermined_sdk_py.secret_store.secret_store_provider import SecretStoreProvider
@@ -52,7 +52,7 @@ class Assets:
 
     def create(self, metadata, publisher_account,
                service_descriptors=None, providers=None,
-               use_secret_store=True):
+               authorization_type=ServiceAuthorizationTypes.SECRET_STORE):
         """
         Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
 
@@ -63,8 +63,8 @@ class Assets:
             item is a dict of parameters and values required by the service
         :param providers: list of addresses of providers of this asset (a provider is
             an ethereum account that is authorized to provide asset services)
-        :param use_secret_store: bool indicate whether to use the secret store directly for
-            encrypting urls (Uses Gateway provider service if set to False)
+        :param authorization_type: str indicate the authorization type that is going to be used to encrypt the urls.
+            SecretStore, PSK-RSA and PSK-ECDSA are supported.
         :return: DDO instance
         """
         assert isinstance(metadata, dict), f'Expected metadata of type dict, got {type(metadata)}'
@@ -79,15 +79,19 @@ class Assets:
         ddo = DDO()
         gateway = GatewayProvider.get_gateway()
         ddo_service_endpoint = self._get_metadata_provider().get_service_endpoint()
-
         metadata_service_desc = ServiceDescriptor.metadata_service_descriptor(metadata_copy,
                                                                               ddo_service_endpoint)
         if metadata_copy['main']['type'] == 'dataset' or metadata_copy['main'][
             'type'] == 'algorithm':
             access_service_attributes = self._build_access_service(metadata_copy, publisher_account)
             if not service_descriptors:
-                service_descriptors = [ServiceDescriptor.authorization_service_descriptor(
-                    self._config.secret_store_url)]
+                service_descriptors = [ServiceDescriptor.authorization_service_descriptor({
+                    'main': {
+                        'service': 'SecretStore',
+                        'publicKey': '0casd',
+                        'threshold': '1'}},
+                    self._config.secret_store_url
+                )]
                 service_descriptors += [ServiceDescriptor.access_service_descriptor(
                     access_service_attributes,
                     gateway.get_consume_endpoint(self._config)
@@ -96,6 +100,8 @@ class Assets:
                 service_types = set(map(lambda x: x[0], service_descriptors))
                 if ServiceTypes.AUTHORIZATION not in service_types:
                     service_descriptors += [ServiceDescriptor.authorization_service_descriptor(
+                        {'main': {'service': 'SecretStore', 'publicKey': '0casd',
+                                  'threshold': '1'}},
                         self._config.secret_store_url)]
                 else:
                     service_descriptors += [ServiceDescriptor.access_service_descriptor(
@@ -138,7 +144,7 @@ class Assets:
         logger.debug(f'Generating new did: {did}')
         # Check if it's already registered first!
         if did in self._get_metadata_provider().list_assets():
-            raise OceanDIDAlreadyExist(
+            raise DIDAlreadyExist(
                 f'Asset id {did} is already registered to another asset.')
 
         for service in services:
@@ -181,8 +187,24 @@ class Assets:
             assert metadata_copy['main'][
                 'files'], 'files is required in the metadata main attributes.'
             logger.debug('Encrypting content urls in the metadata.')
-            if not use_secret_store:
-                encrypt_endpoint = gateway.get_encrypt_endpoint(self._config)
+            if authorization_type == ServiceAuthorizationTypes.PSK_RSA:
+                encrypt_endpoint = gateway.get_publish_endpoint(self._config)
+                files_encrypted = gateway.encrypt_files_dict(
+                    metadata_copy['main']['files'],
+                    encrypt_endpoint,
+                    ddo.asset_id,
+                    publisher_account.address,
+                    self._keeper.sign_hash(add_ethereum_prefix_and_hash_msg(ddo.asset_id),
+                                           publisher_account)
+                )
+            elif authorization_type == ServiceAuthorizationTypes.SECRET_STORE:
+                files_encrypted = self._get_secret_store(publisher_account) \
+                    .encrypt_document(
+                    did_to_id(did),
+                    json.dumps(metadata_copy['main']['files']),
+                )
+            elif authorization_type == ServiceAuthorizationTypes.PSK_ECDSA:
+                encrypt_endpoint = gateway.get_publish_endpoint(self._config)
                 files_encrypted = gateway.encrypt_files_dict(
                     metadata_copy['main']['files'],
                     encrypt_endpoint,
@@ -192,11 +214,8 @@ class Assets:
                                            publisher_account)
                 )
             else:
-                files_encrypted = self._get_secret_store(publisher_account) \
-                    .encrypt_document(
-                    did_to_id(did),
-                    json.dumps(metadata_copy['main']['files']),
-                )
+                raise Exception(
+                    f'The ServiceAuthorizationType {authorization_type} is not supported')
 
             # only assign if the encryption worked
             if files_encrypted:
@@ -281,14 +300,16 @@ class Assets:
         assert page >= 1, f'Invalid page value {page}. Required page >= 1.'
         logger.info(f'Searching asset containing: {text}')
         return [DDO(dictionary=ddo_dict) for ddo_dict in
-                self._get_metadata_provider(metadata_url).text_search(text, sort, offset, page)['results']]
+                self._get_metadata_provider(metadata_url).text_search(text, sort, offset, page)[
+                    'results']]
 
     def query(self, query, sort=None, offset=100, page=1, metadata_url=None):
         """
         Search an asset in oceanDB using search query.
 
         :param query: dict with query parameters
-            (e.g.) https://github.com/keyko-io/nevermined-metadata/blob/develop/docs/for_api_users/API.md
+            (e.g.) https://github.com/keyko-io/nevermined-metadata/blob/develop/docs
+            /for_api_users/API.md
         :param sort: Dictionary to choose order main in some value
         :param offset: Number of elements shows by page
         :param page: Page number
@@ -312,7 +333,7 @@ class Assets:
         :param consumer_account: Account instance of the consumer
         :param auto_consume: boolean
         :return: agreement_id the service agreement id (can be used to query
-            the keeper-contracts for the status of the service agreement)
+            the nevermined-contracts for the status of the service agreement)
         """
         agreement_id = self._agreements.new()
         logger.debug(f'about to request create agreement: {agreement_id}')
@@ -401,7 +422,8 @@ class Assets:
         :param owner_address: ethereum address of owner/publisher, hex-str
         :return: list of dids
         """
-        # return [k for k, v in self._get_metadata_provider(self._metadata_url).list_assets_ddo().items() if
+        # return [k for k, v in self._get_metadata_provider(self._metadata_url).list_assets_ddo(
+        # ).items() if
         #         v['proof']['creator'] == owner_address]
         return self._keeper.did_registry.get_owner_asset_ids(owner_address)
 

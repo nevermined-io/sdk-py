@@ -48,8 +48,8 @@ class GatewayMock(object):
         return Gateway.get_gateway_url(config)
 
     @staticmethod
-    def get_purchase_endpoint(config):
-        return f'{Gateway.get_gateway_url(config)}/services/access/initialize'
+    def get_access_endpoint(config):
+        return f'{Gateway.get_gateway_url(config)}/services/access'
 
     @staticmethod
     def get_consume_endpoint(config):
@@ -58,3 +58,7 @@ class GatewayMock(object):
     @staticmethod
     def get_execute_endpoint(config):
         return f'{Gateway.get_gateway_url(config)}/services/exec'
+
+    @staticmethod
+    def get_encrypt_endpoint(config):
+        return f'{Gateway.get_gateway_url(config)}/services/encrypt'

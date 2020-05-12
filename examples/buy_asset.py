@@ -10,7 +10,7 @@ from common_utils_py.agreements.service_types import ServiceTypes
 from examples import ExampleConfig, example_metadata
 from nevermined_sdk_py import ConfigProvider, Nevermined
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
-from tests.resources.helper_functions import get_account
+from contracts_lib_py.utils import get_account
 
 
 def _log_event(event_name):
@@ -51,7 +51,7 @@ def buy_asset():
         ddo = nevermined.assets.resolve(did)
         logging.info(f'using ddo: {did}')
     else:
-        ddo = nevermined.assets.create(example_metadata.metadata, acc, providers=[], use_secret_store=True)
+        ddo = nevermined.assets.create(example_metadata.metadata, acc, providers=[], authorization_type='SecretStore')
         assert ddo is not None, f'Registering asset on-chain failed.'
         did = ddo.did
         logging.info(f'registered ddo: {did}')
@@ -133,7 +133,8 @@ def buy_asset():
         did,
         sa.index,
         consumer_account,
-        config.downloads_path)
+        config.downloads_path,
+        index=0)
     logging.info('Success buying asset.')
 
     event = keeper.escrow_reward_condition.subscribe_condition_fulfilled(
