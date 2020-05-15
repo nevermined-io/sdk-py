@@ -10,12 +10,14 @@ DEFAULT_KEEPER_URL = 'http://localhost:8545'
 DEFAULT_KEEPER_PATH = 'artifacts'
 DEFAULT_GAS_LIMIT = 4000000
 DEFAULT_NAME_METADATA_URL = 'http://localhost:5000'
+DEFAULT_NAME_GATEWAY_URL = 'http://localhost:8030'
 DEFAULT_STORAGE_PATH = 'sdk.db'
 
 NAME_KEEPER_URL = 'keeper.url'
 NAME_KEEPER_PATH = 'keeper.path'
 NAME_GAS_LIMIT = 'gas_limit'
 NAME_METADATA_URL = 'metadata.url'
+NAME_GATEWAY_URL = 'gateway.url'
 NAME_STORAGE_PATH = 'storage.path'
 NAME_AUTH_TOKEN_MESSAGE = 'auth_token_message'
 NAME_AUTH_TOKEN_EXPIRATION = 'auth_token_expiration'
@@ -30,6 +32,7 @@ environ_names = {
     NAME_KEEPER_PATH: ['KEEPER_PATH', 'Path to the keeper contracts'],
     NAME_GAS_LIMIT: ['GAS_LIMIT', 'Gas limit'],
     NAME_METADATA_URL: ['METADATA_URL', 'Metadata URL'],
+    NAME_GATEWAY_URL: ['GATEWAY_URL', 'Gateway URL'],
     NAME_STORAGE_PATH: ['STORAGE_PATH', 'Path to the local database file'],
     NAME_AUTH_TOKEN_MESSAGE: ['AUTH_TOKEN_MESSAGE',
                               'Message to use for generating user auth token'],
@@ -53,6 +56,7 @@ config_defaults = {
     },
     'resources': {
         NAME_METADATA_URL: DEFAULT_NAME_METADATA_URL,
+        NAME_GATEWAY_URL: DEFAULT_NAME_GATEWAY_URL,
         NAME_STORAGE_PATH: DEFAULT_STORAGE_PATH,
         NAME_AUTH_TOKEN_MESSAGE: '',
         NAME_AUTH_TOKEN_EXPIRATION: ''
@@ -150,6 +154,11 @@ class Config(configparser.ConfigParser):
     def metadata_url(self):
         """URL of metadata component. (e.g.): http://mymetadata:5000."""
         return self.get('resources', NAME_METADATA_URL)
+
+    @property
+    def gateway_url(self):
+        """URL of gateway component. (e.g.): http://mygateway:8030."""
+        return self.get('resources', NAME_GATEWAY_URL)
 
     @property
     def secret_store_url(self):

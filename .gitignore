@@ -108,7 +108,7 @@ docker/docs
 /config_local.ini
 /artifacts
 sdk.db
-consume-downloads
+access-downloads
 .log
 start_nevermined.log
 errors.log.*

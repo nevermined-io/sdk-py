@@ -3,21 +3,21 @@ import json
 import logging
 import os
 
-from eth_utils import add_0x_prefix
-from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
-from contracts_lib_py.web3_provider import Web3Provider
 from common_utils_py.agreements.service_factory import ServiceDescriptor, ServiceFactory
-from common_utils_py.agreements.service_types import ServiceTypes
-from common_utils_py.metadata.metadata_provider import MetadataProvider
-from common_utils_py.metadata.exceptions import MetadataGenericError
+from common_utils_py.agreements.service_types import ServiceAuthorizationTypes, ServiceTypes
 from common_utils_py.ddo.ddo import DDO
 from common_utils_py.ddo.metadata import MetadataMain
 from common_utils_py.ddo.public_key_rsa import PUBLIC_KEY_TYPE_RSA
 from common_utils_py.did import DID, did_to_id, did_to_id_bytes
 from common_utils_py.exceptions import (
-    OceanDIDAlreadyExist,
+    DIDAlreadyExist,
 )
+from common_utils_py.metadata.exceptions import MetadataGenericError
+from common_utils_py.metadata.metadata_provider import MetadataProvider
 from common_utils_py.utils.utilities import checksum
+from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
+from contracts_lib_py.web3_provider import Web3Provider
+from eth_utils import add_0x_prefix
 
 from nevermined_sdk_py.gateway.gateway_provider import GatewayProvider
 from nevermined_sdk_py.secret_store.secret_store_provider import SecretStoreProvider
@@ -52,7 +52,7 @@ class Assets:
 
     def create(self, metadata, publisher_account,
                service_descriptors=None, providers=None,
-               use_secret_store=True):
+               authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False):
         """
         Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
 
@@ -63,14 +63,14 @@ class Assets:
             item is a dict of parameters and values required by the service
         :param providers: list of addresses of providers of this asset (a provider is
             an ethereum account that is authorized to provide asset services)
+        :param authorization_type: str indicate the authorization type that is going to be used
+        to encrypt the urls.
+            SecretStore, PSK-RSA and PSK-ECDSA are supported.
         :param use_secret_store: bool indicate whether to use the secret store directly for
             encrypting urls (Uses Gateway provider service if set to False)
         :return: DDO instance
         """
         assert isinstance(metadata, dict), f'Expected metadata of type dict, got {type(metadata)}'
-        # if not metadata or not Metadata.validate(metadata):
-        #     raise OceanInvalidMetadata('Metadata seems invalid. Please make sure'
-        #                                ' the required metadata values are filled in.')
 
         # copy metadata so we don't change the original
         metadata_copy = copy.deepcopy(metadata)
@@ -79,33 +79,62 @@ class Assets:
         ddo = DDO()
         gateway = GatewayProvider.get_gateway()
         ddo_service_endpoint = self._get_metadata_provider().get_service_endpoint()
-
         metadata_service_desc = ServiceDescriptor.metadata_service_descriptor(metadata_copy,
                                                                               ddo_service_endpoint)
         if metadata_copy['main']['type'] == 'dataset' or metadata_copy['main'][
             'type'] == 'algorithm':
-            access_service_attributes = self._build_access_service(metadata_copy, publisher_account)
+            access_service_attributes = self._build_access(metadata_copy, publisher_account)
             if not service_descriptors:
-                service_descriptors = [ServiceDescriptor.authorization_service_descriptor(
-                    self._config.secret_store_url)]
+                if authorization_type == ServiceAuthorizationTypes.PSK_RSA:
+                    service_descriptors = [ServiceDescriptor.authorization_service_descriptor(
+                        self._build_authorization(authorization_type,
+                                                  public_key=gateway.get_rsa_public_key(self._config)),
+                        gateway.get_access_endpoint(self._config)
+                    )]
+                elif authorization_type == ServiceAuthorizationTypes.PSK_ECDSA:
+                    service_descriptors = [ServiceDescriptor.authorization_service_descriptor(
+                        self._build_authorization(authorization_type,
+                                                  public_key=gateway.get_ecdsa_public_key(self._config)),
+                        gateway.get_access_endpoint(self._config)
+                    )]
+                else:
+                    service_descriptors = [ServiceDescriptor.authorization_service_descriptor(
+                        self._build_authorization(authorization_type, threshold=0),
+                        self._config.secret_store_url
+                    )]
                 service_descriptors += [ServiceDescriptor.access_service_descriptor(
                     access_service_attributes,
-                    gateway.get_consume_endpoint(self._config)
+                    gateway.get_access_endpoint(self._config)
                 )]
             else:
                 service_types = set(map(lambda x: x[0], service_descriptors))
                 if ServiceTypes.AUTHORIZATION not in service_types:
-                    service_descriptors += [ServiceDescriptor.authorization_service_descriptor(
-                        self._config.secret_store_url)]
+                    if authorization_type == ServiceAuthorizationTypes.PSK_RSA:
+                        service_descriptors += [ServiceDescriptor.authorization_service_descriptor(
+                            self._build_authorization(authorization_type,
+                                                      public_key=gateway.get_rsa_public_key(self._config)),
+                            gateway.get_access_endpoint(self._config)
+                        )]
+                    elif authorization_type == ServiceAuthorizationTypes.PSK_ECDSA:
+                        service_descriptors += [ServiceDescriptor.authorization_service_descriptor(
+                            self._build_authorization(authorization_type,
+                                                      public_key=gateway.get_ecdsa_public_key(self._config)),
+                            gateway.get_access_endpoint(self._config)
+                        )]
+                    else:
+                        service_descriptors += [ServiceDescriptor.authorization_service_descriptor(
+                            self._build_authorization(authorization_type, threshold=0),
+                            self._config.secret_store_url
+                        )]
                 else:
                     service_descriptors += [ServiceDescriptor.access_service_descriptor(
                         access_service_attributes,
-                        gateway.get_consume_endpoint(self._config)
+                        gateway.get_access_endpoint(self._config)
 
                     )]
         elif metadata_copy['main']['type'] == 'compute':
-            compute_service_attributes = self._build_compute_service(metadata_copy,
-                                                                     publisher_account)
+            compute_service_attributes = self._build_compute(metadata_copy,
+                                                             publisher_account)
             if not service_descriptors:
                 service_descriptors = [ServiceDescriptor.compute_service_descriptor(
                     compute_service_attributes, gateway.get_execute_endpoint(self._config))
@@ -138,14 +167,14 @@ class Assets:
         logger.debug(f'Generating new did: {did}')
         # Check if it's already registered first!
         if did in self._get_metadata_provider().list_assets():
-            raise OceanDIDAlreadyExist(
+            raise DIDAlreadyExist(
                 f'Asset id {did} is already registered to another asset.')
 
         for service in services:
             if service.type == ServiceTypes.ASSET_ACCESS:
                 access_service = ServiceFactory.complete_access_service(
                     did,
-                    gateway.get_consume_endpoint(self._config),
+                    gateway.get_access_endpoint(self._config),
                     access_service_attributes,
                     self._keeper.escrow_access_secretstore_template.address,
                     self._keeper.escrow_reward_condition.address)
@@ -187,17 +216,13 @@ class Assets:
                     metadata_copy['main']['files'],
                     encrypt_endpoint,
                     ddo.asset_id,
-                    publisher_account.address,
-                    self._keeper.sign_hash(add_ethereum_prefix_and_hash_msg(ddo.asset_id),
-                                           publisher_account)
-                )
+                    authorization_type)
             else:
                 files_encrypted = self._get_secret_store(publisher_account) \
                     .encrypt_document(
                     did_to_id(did),
                     json.dumps(metadata_copy['main']['files']),
                 )
-
             # only assign if the encryption worked
             if files_encrypted:
                 logger.debug(f'Content urls encrypted successfully {files_encrypted}')
@@ -281,14 +306,16 @@ class Assets:
         assert page >= 1, f'Invalid page value {page}. Required page >= 1.'
         logger.info(f'Searching asset containing: {text}')
         return [DDO(dictionary=ddo_dict) for ddo_dict in
-                self._get_metadata_provider(metadata_url).text_search(text, sort, offset, page)['results']]
+                self._get_metadata_provider(metadata_url).text_search(text, sort, offset, page)[
+                    'results']]
 
     def query(self, query, sort=None, offset=100, page=1, metadata_url=None):
         """
         Search an asset in oceanDB using search query.
 
         :param query: dict with query parameters
-            (e.g.) https://github.com/keyko-io/nevermined-metadata/blob/develop/docs/for_api_users/API.md
+            (e.g.) https://github.com/keyko-io/nevermined-metadata/blob/develop/docs
+            /for_api_users/API.md
         :param sort: Dictionary to choose order main in some value
         :param offset: Number of elements shows by page
         :param page: Page number
@@ -312,7 +339,7 @@ class Assets:
         :param consumer_account: Account instance of the consumer
         :param auto_consume: boolean
         :return: agreement_id the service agreement id (can be used to query
-            the keeper-contracts for the status of the service agreement)
+            the nevermined-contracts for the status of the service agreement)
         """
         agreement_id = self._agreements.new()
         logger.debug(f'about to request create agreement: {agreement_id}')
@@ -340,15 +367,15 @@ class Assets:
         )
         return agreement_id
 
-    def consume(self, service_agreement_id, did, service_index, consumer_account,
-                destination, index=None):
+    def access(self, service_agreement_id, did, service_index, consumer_account,
+               destination, index=None):
         """
         Consume the asset data.
 
         Using the service endpoint defined in the ddo's service pointed to by service_definition_id.
         Consumer's permissions is checked implicitly by the secret-store during decryption
         of the contentUrls.
-        The service endpoint is expected to also verify the consumer's permissions to consume this
+        The service endpoint is expected to also verify the consumer's permissions to access this
         asset.
         This method downloads and saves the asset datafiles to disk.
 
@@ -401,7 +428,8 @@ class Assets:
         :param owner_address: ethereum address of owner/publisher, hex-str
         :return: list of dids
         """
-        # return [k for k, v in self._get_metadata_provider(self._metadata_url).list_assets_ddo().items() if
+        # return [k for k, v in self._get_metadata_provider(self._metadata_url).list_assets_ddo(
+        # ).items() if
         #         v['proof']['creator'] == owner_address]
         return self._keeper.did_registry.get_owner_asset_ids(owner_address)
 
@@ -489,7 +517,18 @@ class Assets:
         )
 
     @staticmethod
-    def _build_access_service(metadata, publisher_account):
+    def _build_authorization(authorization_type, public_key=None, threshold=None):
+        authorization = dict()
+        authorization['main'] = dict()
+        authorization['main']['service'] = authorization_type
+        if public_key:
+            authorization['main']['publicKey'] = public_key
+        if threshold:
+            authorization['main']['threshold'] = threshold
+        return authorization
+
+    @staticmethod
+    def _build_access(metadata, publisher_account):
         return {"main": {
             "name": "dataAssetAccessServiceAgreement",
             "creator": publisher_account.address,
@@ -498,7 +537,7 @@ class Assets:
             "datePublished": metadata[MetadataMain.KEY]['dateCreated']
         }}
 
-    def _build_compute_service(self, metadata, publisher_account):
+    def _build_compute(self, metadata, publisher_account):
         return {"main": {
             "name": "dataAssetComputeServiceAgreement",
             "creator": publisher_account.address,

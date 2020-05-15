@@ -17,7 +17,9 @@ def create_asset(publisher_instance, ddo_sample):
     acct = nevermined.main_account
     asset = ddo_sample
     my_secret_store = 'http://myownsecretstore.com'
-    auth_service = ServiceDescriptor.authorization_service_descriptor(my_secret_store)
+    auth_service = ServiceDescriptor.authorization_service_descriptor(
+        {'main': {'service': 'SecretStore', 'publicKey': '0casd',
+                  'threshold': '1'}}, my_secret_store)
     return nevermined.assets.create(asset.metadata, acct, [auth_service])
 
 
@@ -137,7 +139,9 @@ def test_create_asset_with_different_secret_store(publisher_instance, ddo_sample
 
     asset = ddo_sample
     my_secret_store = 'http://myownsecretstore.com'
-    auth_service = ServiceDescriptor.authorization_service_descriptor(my_secret_store)
+    auth_service = ServiceDescriptor.authorization_service_descriptor(
+        {'main': {'service': 'SecretStore', 'publicKey': '0casd',
+                  'threshold': '1'}}, my_secret_store)
     new_asset = publisher_instance.assets.create(asset.metadata, acct, [auth_service])
     assert new_asset.get_service(ServiceTypes.AUTHORIZATION).service_endpoint == my_secret_store
     assert new_asset.get_service(ServiceTypes.ASSET_ACCESS)
@@ -171,7 +175,9 @@ def test_asset_owner(publisher_instance, ddo_sample):
 
     asset = ddo_sample
     my_secret_store = 'http://myownsecretstore.com'
-    auth_service = ServiceDescriptor.authorization_service_descriptor(my_secret_store)
+    auth_service = ServiceDescriptor.authorization_service_descriptor(
+        {'main': {'service': 'SecretStore', 'publicKey': '0casd',
+                  'threshold': '1'}}, my_secret_store)
     new_asset = publisher_instance.assets.create(asset.metadata, acct, [auth_service])
 
     assert publisher_instance.assets.owner(new_asset.did) == acct.address
@@ -312,14 +318,14 @@ def test_agreement_direct(publisher_instance_no_init, consumer_instance_no_init,
     publisher_account = publisher_instance_no_init.main_account
     consumer_account = consumer_instance_no_init.main_account
     ddo = publisher_instance_no_init.assets.create(metadata, publisher_account,
-                                           providers=[
-                                               '0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0'])
+                                                   providers=[
+                                                       '0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0'])
 
     agreement_id = consumer_instance_no_init.assets.order_direct(ddo.did,
-                                                         ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
-                                                         consumer_account,
-                                                         consumer_account
-                                                         )
+                                                                 ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
+                                                                 consumer_account,
+                                                                 consumer_account
+                                                                 )
     assert publisher_instance_no_init.agreements.status(agreement_id)
 
     keeper = publisher_instance_no_init.keeper
@@ -334,5 +340,5 @@ def test_agreement_direct(publisher_instance_no_init, consumer_instance_no_init,
     assert event, 'no event for LockRewardCondition.Fulfilled'
 
     assert publisher_instance_no_init.agreements.is_access_granted(agreement_id, ddo.did,
-                                                           consumer_account.address)
+                                                                   consumer_account.address)
     publisher_instance_no_init.assets.retire(ddo.did)

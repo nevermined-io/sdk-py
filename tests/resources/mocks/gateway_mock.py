@@ -19,25 +19,23 @@ class GatewayMock(object):
 
         # nevermined_instance.agreements.watch_provider_events(self.account)
 
-    def initialize_service_agreement(self, did, agreement_id, service_definition_id,
-                                     signature, account_address, purchase_endpoint):
-        print(f'GatewayMock.initialize_service_agreement: purchase_endpoint={purchase_endpoint}')
-        self.ocean_instance.agreements.create(
-            did,
-            service_definition_id,
-            agreement_id,
-            signature,
-            account_address,
-            self.account
-        )
-        return True
-
     @staticmethod
-    def consume_service(service_agreement_id, service_endpoint, account_address, files,
+    def consume_service(did, service_agreement_id, service_endpoint, account_address, files,
                         destination_folder, *_, **__):
         for f in files:
             with open(os.path.join(destination_folder, os.path.basename(f['url'])), 'w') as of:
                 of.write(f'mock data {service_agreement_id}.{service_endpoint}.{account_address}')
+
+    @staticmethod
+    def access_service(did, service_agreement_id, service_endpoint, account, destination_folder,
+                       index, *_, **__):
+        with open(os.path.join(destination_folder, os.path.basename(did)), 'w') as of:
+            of.write(f'mock data {service_agreement_id}.{service_endpoint}.{account}')
+
+    @staticmethod
+    def encrypt_files_dict(files_dict, encrypt_endpoint, asset_id, method):
+        encrypted = f'{method}.{asset_id}!!{files_dict}!!'
+        return encrypted
 
     @staticmethod
     def execute_service(agreement_id, service_endpoint, consumer_account, workflow_ddo):
@@ -48,8 +46,8 @@ class GatewayMock(object):
         return Gateway.get_gateway_url(config)
 
     @staticmethod
-    def get_purchase_endpoint(config):
-        return f'{Gateway.get_gateway_url(config)}/services/access/initialize'
+    def get_access_endpoint(config):
+        return f'{Gateway.get_gateway_url(config)}/services/access'
 
     @staticmethod
     def get_consume_endpoint(config):
@@ -57,4 +55,16 @@ class GatewayMock(object):
 
     @staticmethod
     def get_execute_endpoint(config):
-        return f'{Gateway.get_gateway_url(config)}/services/exec'
+        return f'{Gateway.get_gateway_url(config)}/services/execute'
+
+    @staticmethod
+    def get_encrypt_endpoint(config):
+        return f'{Gateway.get_gateway_url(config)}/services/encrypt'
+
+    @staticmethod
+    def get_rsa_public_key(config):
+        return 'rsa_public_key'
+
+    @staticmethod
+    def get_ecdsa_public_key(config):
+        return 'ecdsa-public-key'

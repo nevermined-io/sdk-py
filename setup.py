@@ -20,7 +20,7 @@ install_requirements = [
     'pyopenssl',
     'PyJWT',  # not jwt
     'PyYAML==4.2b4',
-    'common-utils-py==0.2.1',
+    'common-utils-py==0.2.7',
     'contracts-lib-py==0.2.3',
     'ocean-secret-store-client==0.0.1',
     'requests==2.21.0',
@@ -91,6 +91,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/keyko-io/nevermined-sdk-py',
-    version='0.2.0',
+    version='0.3.0',
     zip_safe=False,
 )

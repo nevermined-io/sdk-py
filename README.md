@@ -68,7 +68,7 @@ account = Account(config.parity_address, config.parity_password)
 # Let's start by registering an asset in the Nevermined network
 metadata = Metadata.get_example()
 
-# consume and service endpoints require `gateway.url` is set in the config file
+# access and service endpoints require `gateway.url` is set in the config file
 # or passed to Nevermined instance in the config_dict.
 # define the services to include in the new asset DDO
 
@@ -84,7 +84,7 @@ asset_ddo = nevermined.assets.search('Nevermined protocol')[0]
 # Need some ocean tokens to be able to order assets
 nevermined.accounts.request_tokens(account, 10)
 
-# Start the purchase/consume request. This will automatically make a payment from the specified account.
+# Start the purchase/access request. This will automatically make a payment from the specified account.
 consumer_account = nevermined.accounts.list()[1]
 service_agreement_id = nevermined.assets.order(asset_ddo.did, 0, consumer_account)
 
@@ -124,7 +124,7 @@ config_dict = {
         # points to the local database file used for storing temporary information (for instance, pending service agreements).
         'storage.path': 'sdk.db',
         # Where to store downloaded asset files
-        'downloads.path': 'consume-downloads'
+        'downloads.path': 'access-downloads'
     }
 }
 

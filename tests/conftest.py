@@ -59,12 +59,12 @@ def consumer_instance_no_init():
 
 @pytest.fixture
 def publisher_instance_gateway():
-    return get_publisher_instance(use_gateway_mock=False)
+    return get_publisher_instance(use_gateway_mock=False, use_ss_mock=False)
 
 
 @pytest.fixture
 def consumer_instance_gateway():
-    return get_consumer_instance(use_gateway_mock=False)
+    return get_consumer_instance(use_gateway_mock=False,  use_ss_mock=False)
 
 
 @pytest.fixture

@@ -28,11 +28,11 @@ class AssetConsumer:
         :return: Asset folder path, str
         """
         did = ddo.did
-        encrypted_files = ddo.metadata['encryptedFiles']
-        encrypted_files = (
-            encrypted_files if isinstance(encrypted_files, str)
-            else encrypted_files[0]
-        )
+        # encrypted_files = ddo.metadata['encryptedFiles']
+        # encrypted_files = (
+        #     encrypted_files if isinstance(encrypted_files, str)
+        #     else encrypted_files[0]
+        # )
         sa = ServiceAgreement.from_ddo(ServiceTypes.ASSET_ACCESS, ddo)
         consume_url = sa.service_endpoint
         if not consume_url:
@@ -41,19 +41,18 @@ class AssetConsumer:
             raise AssertionError(
                 'Consume asset failed, service definition is missing the "serviceEndpoint".')
 
-        if ddo.get_service('authorization'):
+        if ddo.get_service(ServiceTypes.AUTHORIZATION):
             secret_store_service = ddo.get_service(service_type=ServiceTypes.AUTHORIZATION)
             secret_store_url = secret_store_service.service_endpoint
             secret_store.set_secret_store_url(secret_store_url)
-
-        # decrypt the contentUrls
-        decrypted_content_urls = json.loads(
-            secret_store.decrypt_document(did_to_id(did), encrypted_files)
-        )
-
-        if isinstance(decrypted_content_urls, str):
-            decrypted_content_urls = [decrypted_content_urls]
-        logger.debug(f'got decrypted contentUrls: {decrypted_content_urls}')
+            # decrypt the contentUrls
+            # decrypted_content_urls = json.loads(
+            #     secret_store.decrypt_document(did_to_id(did), encrypted_files)
+            # )
+            #
+            # if isinstance(decrypted_content_urls, str):
+            #     decrypted_content_urls = [decrypted_content_urls]
+            # logger.debug(f'got decrypted contentUrls: {decrypted_content_urls}')
 
         if not os.path.isabs(destination):
             destination = os.path.abspath(destination)
@@ -67,14 +66,26 @@ class AssetConsumer:
         if index is not None:
             assert isinstance(index, int), logger.error('index has to be an integer.')
             assert index >= 0, logger.error('index has to be 0 or a positive integer.')
-            assert index < len(decrypted_content_urls), logger.error(
+            assert index < len(ddo.metadata['main']['files']), logger.error(
                 'index can not be bigger than the number of files')
-        gateway.consume_service(
-            service_agreement_id,
-            consume_url,
-            consumer_account,
-            decrypted_content_urls,
-            asset_folder,
-            index
-        )
+        if index is not None:
+            gateway.access_service(
+                did,
+                service_agreement_id,
+                consume_url,
+                consumer_account,
+                asset_folder,
+                index
+            )
+        else:
+            for i, _file in enumerate(ddo.metadata['main']['files']):
+                gateway.access_service(
+                    did,
+                    service_agreement_id,
+                    consume_url,
+                    consumer_account,
+                    asset_folder,
+                    i
+                )
+
         return asset_folder
