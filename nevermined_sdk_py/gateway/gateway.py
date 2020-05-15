@@ -3,11 +3,10 @@ import logging
 import os
 import re
 
-from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
 from common_utils_py.agreements.service_agreement import ServiceAgreement
-from common_utils_py.exceptions import (EncryptAssetUrlsError,
-                                    InitializeServiceAgreementError)
+from common_utils_py.exceptions import EncryptAssetUrlsError
 from common_utils_py.http_requests.requests_session import get_requests_session
+from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
 
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
 
@@ -19,9 +18,10 @@ class Gateway:
     `Gateway` is the name chosen for the asset service provider.
 
     The main functions available are:
-    - initialize_service_agreement
+    - Allow to get access to an asset data file
+    - encrypt a secret using different methods
     - consume_service
-    - run_compute_service (not implemented yet)
+    - run_compute_service
 
     """
     _http_client = get_requests_session()
@@ -32,7 +32,7 @@ class Gateway:
         Gateway._http_client = http_client
 
     @staticmethod
-    def encrypt_files_dict(files_dict, encrypt_endpoint, asset_id, account_address, signed_did):
+    def old_encrypt_files_dict(files_dict, encrypt_endpoint, asset_id, account_address, signed_did):
         payload = json.dumps({
             'documentId': asset_id,
             'signedDocumentId': signed_did,
@@ -58,49 +58,38 @@ class Gateway:
             return response.text
 
     @staticmethod
-    def initialize_service_agreement(did, agreement_id, service_index, signature,
-                                     account_address,
-                                     purchase_endpoint):
-        """
-        Send a request to the service provider (purchase_endpoint) to initialize the service
-        agreement for the asset identified by `did`.
-
-        :param did: id of the asset includes the `did:nv:` prefix, str
-        :param agreement_id: id of the agreement, hex str
-        :param service_index: identifier of the service inside the asset DDO, str
-        :param signature: signed agreement hash, hex str
-        :param account_address: ethereum address of the consumer signing this agreement, hex str
-        :param purchase_endpoint: url of the service provider, str
-        :return: bool
-        """
-        payload = Gateway._prepare_consume_payload(
-            did, agreement_id, service_index, signature, account_address
-        )
+    def encrypt_files_dict(files_dict, encrypt_endpoint, asset_id, method):
+        payload = json.dumps({
+            'did': asset_id,
+            'message': json.dumps(files_dict),
+            'method': method
+        })
         response = Gateway._http_client.post(
-            purchase_endpoint, data=payload,
+            encrypt_endpoint, data=payload,
             headers={'content-type': 'application/json'}
         )
         if response and hasattr(response, 'status_code'):
-            if response.status_code != 201:
-                msg = (f'Initialize service agreement failed at the purchaseEndpoint '
-                       f'{purchase_endpoint}, reason {response.text}, status {response.status_code}'
+            if response.status_code != 200:
+                msg = (f'Encrypt file urls failed at the encryptEndpoint '
+                       f'{encrypt_endpoint}, reason {response.text}, status {response.status_code}'
                        )
                 logger.error(msg)
-                raise InitializeServiceAgreementError(msg)
+                raise EncryptAssetUrlsError(msg)
 
             logger.info(
-                f'Service agreement initialized successfully, service agreement id {agreement_id},'
-                f' purchaseEndpoint {purchase_endpoint}')
-            return True
+                f'Asset urls encrypted successfully, encrypted urls str: {response.text},'
+                f' encryptedEndpoint {encrypt_endpoint}')
+
+            return json.loads(response.text)['hash']
 
     @staticmethod
-    def consume_service(service_agreement_id, service_endpoint, account, files,
+    def consume_service(did, service_agreement_id, service_endpoint, account, files,
                         destination_folder, index=None):
         """
         Call the Gateway endpoint to get access to the different files that form the asset.
 
         :param service_agreement_id: Service Agreement Id, str
-        :param service_endpoint: Url to consume, str
+        :param service_endpoint: Url to access, str
         :param account: Account instance of the consumer signing this agreement, hex-str
         :param files: List containing the files to be consumed, list
         :param index: Index of the document that is going to be downloaded, int
@@ -110,27 +99,45 @@ class Gateway:
         signature = Keeper.get_instance().sign_hash(
             add_ethereum_prefix_and_hash_msg(service_agreement_id),
             account)
+        headers = dict({
+            'X-Consumer-Address': account.address,
+            'X-Signature': signature,
+            'X-DID': did
+        })
 
         if index is not None:
             assert isinstance(index, int), logger.error('index has to be an integer.')
             assert index >= 0, logger.error('index has to be 0 or a positive integer.')
             assert index < len(files), logger.error(
                 'index can not be bigger than the number of files')
-            consume_url = Gateway._create_consume_url(service_endpoint, service_agreement_id, account,
-                                                      None, signature, index)
-            logger.info(f'invoke consume endpoint with this url: {consume_url}')
-            response = Gateway._http_client.get(consume_url, stream=True)
+            consume_url = Gateway._create_access_url(service_endpoint, service_agreement_id, index)
+            logger.info(f'invoke access endpoint with this url: {consume_url}')
+            response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
             file_name = Gateway._get_file_name(response)
             Gateway.write_file(response, destination_folder, file_name)
         else:
             for i, _file in enumerate(files):
-                consume_url = Gateway._create_consume_url(service_endpoint, service_agreement_id,
-                                                          account, _file,
-                                                          signature, i)
-                logger.info(f'invoke consume endpoint with this url: {consume_url}')
-                response = Gateway._http_client.get(consume_url, stream=True)
+                consume_url = Gateway._create_access_url(service_endpoint, service_agreement_id, i)
+                logger.info(f'invoke access endpoint with this url: {consume_url}')
+                response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
                 file_name = Gateway._get_file_name(response)
                 Gateway.write_file(response, destination_folder, file_name or f'file-{i}')
+
+    @staticmethod
+    def access_service(did, service_agreement_id, service_endpoint, account, destination_folder, index):
+        signature = Keeper.get_instance().sign_hash(
+            add_ethereum_prefix_and_hash_msg(service_agreement_id),
+            account)
+        headers = dict({
+            'X-Consumer-Address': account.address,
+            'X-Signature': signature,
+            'X-DID': did
+        })
+        consume_url = Gateway._create_access_url(service_endpoint, service_agreement_id, index)
+        response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
+        file_name = Gateway._get_file_name(response)
+        Gateway.write_file(response, destination_folder, file_name or f'file-{index}')
+        return response
 
     @staticmethod
     def execute_service(service_agreement_id, service_endpoint, account, workflow_ddo):
@@ -187,24 +194,24 @@ class Gateway:
         return f'{gateway_url}{gateway_path}'
 
     @staticmethod
-    def get_purchase_endpoint(config):
+    def get_access_endpoint(config):
         """
-        Return the endpoint to consume the asset.
+        Return the endpoint to access the asset.
 
         :param config:Config
         :return: Url, str
         """
-        return f'{Gateway.get_gateway_url(config)}/services/access/initialize'
+        return f'{Gateway.get_gateway_url(config)}/services/access'
 
     @staticmethod
     def get_consume_endpoint(config):
         """
-        Return the url to consume the asset.
+        Return the url to access the asset.
 
         :param config: Config
         :return: Url, str
         """
-        return f'{Gateway.get_gateway_url(config)}/services/consume'
+        return f'{Gateway.get_gateway_url(config)}/services/access'
 
     @staticmethod
     def get_execute_endpoint(config):
@@ -214,7 +221,7 @@ class Gateway:
         :param config: Config
         :return: Url, str
         """
-        return f'{Gateway.get_gateway_url(config)}/services/exec'
+        return f'{Gateway.get_gateway_url(config)}/services/execute'
 
     @staticmethod
     def get_encrypt_endpoint(config):
@@ -224,7 +231,37 @@ class Gateway:
         :param config: Config
         :return: Url, str
         """
+        return f'{Gateway.get_gateway_url(config)}/services/encrypt'
+
+    @staticmethod
+    def get_exec_endpoint(config):
+        """
+        Return the url to execute the asset.
+        This method has been deprecated.
+
+        :param config: Config
+        :return: Url, str
+        """
+        return f'{Gateway.get_gateway_url(config)}/services/exec'
+
+    @staticmethod
+    def get_publish_endpoint(config):
+        """
+        Return the url to encrypt the asset.
+        This method has been deprecated.
+
+        :param config: Config
+        :return: Url, str
+        """
         return f'{Gateway.get_gateway_url(config)}/services/publish'
+
+    @staticmethod
+    def get_rsa_public_key(config):
+        return Gateway._http_client.get(config.gateway_url).json()['rsa-public-key']
+
+    @staticmethod
+    def get_ecdsa_public_key(config):
+        return Gateway._http_client.get(config.gateway_url).json()['ecdsa-public-key']
 
     @staticmethod
     def _get_file_name(response):
@@ -249,7 +286,12 @@ class Gateway:
                     f.write(chunk)
             logger.info(f'Saved downloaded file in {f.name}')
         else:
-            logger.warning(f'consume failed: {response.reason}')
+            logger.warning(f'access failed: {response.reason}')
+
+    @staticmethod
+    def _create_access_url(service_endpoint, service_agreement_id, index=None):
+        """Return the url to get access to an asset."""
+        return f'{service_endpoint}/{service_agreement_id}/{index}'
 
     @staticmethod
     def _create_consume_url(service_endpoint, service_agreement_id, account, _file=None,

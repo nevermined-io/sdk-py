@@ -94,7 +94,7 @@ class ExampleConfig:
                 # "gateway.url": "http://172.15.0.17:8030",
                 "gateway.url": "http://localhost:8030",
                 "storage.path": "sdk.db",
-                "downloads.path": "consume-downloads"
+                "downloads.path": "access-downloads"
             }
         }
         return config

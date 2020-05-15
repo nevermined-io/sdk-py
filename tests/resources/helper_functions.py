@@ -8,7 +8,6 @@ from urllib.request import urlopen
 
 import coloredlogs
 import yaml
-from common_utils_py.agreements.service_types import ServiceAuthorizationTypes
 from common_utils_py.ddo.ddo import DDO
 from contracts_lib_py.utils import get_account
 
@@ -118,16 +117,27 @@ def get_registered_ddo(nevermined_instance, account):
     ddo = nevermined_instance.assets.create(metadata, account)
     return ddo
 
-def get_registered_with_psk(nevermined_instance, account):
+
+def get_registered_with_psk(nevermined_instance, account, auth_method):
     metadata = get_ddo_sample()
-    ddo = nevermined_instance.assets.create(metadata.metadata, account, authorization_type = ServiceAuthorizationTypes.PSK_RSA)
+    ddo = nevermined_instance.assets.create(metadata.metadata, account,
+                                            authorization_type=auth_method)
     return ddo
+
 
 def log_event(event_name):
     def _process_event(event):
         print(f'Received event {event_name}: {event}')
 
     return _process_event
+
+
+def get_rsa_private_key_file():
+    return os.getenv('RSA_PRIVKEY_FILE', '')
+
+
+def get_rsa_public_key_file():
+    return os.getenv('RSA_PUBKEY_FILE', '')
 
 
 def get_metadata():

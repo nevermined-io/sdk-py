@@ -128,7 +128,7 @@ def buy_asset():
 
     assert nevermined.agreements.is_access_granted(agreement_id, did, consumer_account.address)
 
-    nevermined.assets.consume(
+    nevermined.assets.access(
         agreement_id,
         did,
         sa.index,

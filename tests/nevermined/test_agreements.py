@@ -143,7 +143,7 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
     assert event, 'no event for EscrowReward.Fulfilled'
     publisher_instance.assets.retire(did)
 
-    # path = consumer_instance.assets.consume(
+    # path = consumer_instance.assets.access(
     #     agreement_id, did, service_definition_id,
     #     consumer_acc, ConfigProvider.get_config().downloads_path
     # )

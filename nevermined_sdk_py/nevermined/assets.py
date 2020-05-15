@@ -52,7 +52,7 @@ class Assets:
 
     def create(self, metadata, publisher_account,
                service_descriptors=None, providers=None,
-               authorization_type=ServiceAuthorizationTypes.SECRET_STORE):
+               authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False):
         """
         Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
 
@@ -63,14 +63,14 @@ class Assets:
             item is a dict of parameters and values required by the service
         :param providers: list of addresses of providers of this asset (a provider is
             an ethereum account that is authorized to provide asset services)
-        :param authorization_type: str indicate the authorization type that is going to be used to encrypt the urls.
+        :param authorization_type: str indicate the authorization type that is going to be used
+        to encrypt the urls.
             SecretStore, PSK-RSA and PSK-ECDSA are supported.
+        :param use_secret_store: bool indicate whether to use the secret store directly for
+            encrypting urls (Uses Gateway provider service if set to False)
         :return: DDO instance
         """
         assert isinstance(metadata, dict), f'Expected metadata of type dict, got {type(metadata)}'
-        # if not metadata or not Metadata.validate(metadata):
-        #     raise OceanInvalidMetadata('Metadata seems invalid. Please make sure'
-        #                                ' the required metadata values are filled in.')
 
         # copy metadata so we don't change the original
         metadata_copy = copy.deepcopy(metadata)
@@ -83,35 +83,58 @@ class Assets:
                                                                               ddo_service_endpoint)
         if metadata_copy['main']['type'] == 'dataset' or metadata_copy['main'][
             'type'] == 'algorithm':
-            access_service_attributes = self._build_access_service(metadata_copy, publisher_account)
+            access_service_attributes = self._build_access(metadata_copy, publisher_account)
             if not service_descriptors:
-                service_descriptors = [ServiceDescriptor.authorization_service_descriptor({
-                    'main': {
-                        'service': 'SecretStore',
-                        'publicKey': '0casd',
-                        'threshold': '1'}},
-                    self._config.secret_store_url
-                )]
+                if authorization_type == ServiceAuthorizationTypes.PSK_RSA:
+                    service_descriptors = [ServiceDescriptor.authorization_service_descriptor(
+                        self._build_authorization(authorization_type,
+                                                  public_key=gateway.get_rsa_public_key(self._config)),
+                        gateway.get_access_endpoint(self._config)
+                    )]
+                elif authorization_type == ServiceAuthorizationTypes.PSK_ECDSA:
+                    service_descriptors = [ServiceDescriptor.authorization_service_descriptor(
+                        self._build_authorization(authorization_type,
+                                                  public_key=gateway.get_ecdsa_public_key(self._config)),
+                        gateway.get_access_endpoint(self._config)
+                    )]
+                else:
+                    service_descriptors = [ServiceDescriptor.authorization_service_descriptor(
+                        self._build_authorization(authorization_type, threshold=0),
+                        self._config.secret_store_url
+                    )]
                 service_descriptors += [ServiceDescriptor.access_service_descriptor(
                     access_service_attributes,
-                    gateway.get_consume_endpoint(self._config)
+                    gateway.get_access_endpoint(self._config)
                 )]
             else:
                 service_types = set(map(lambda x: x[0], service_descriptors))
                 if ServiceTypes.AUTHORIZATION not in service_types:
-                    service_descriptors += [ServiceDescriptor.authorization_service_descriptor(
-                        {'main': {'service': 'SecretStore', 'publicKey': '0casd',
-                                  'threshold': '1'}},
-                        self._config.secret_store_url)]
+                    if authorization_type == ServiceAuthorizationTypes.PSK_RSA:
+                        service_descriptors += [ServiceDescriptor.authorization_service_descriptor(
+                            self._build_authorization(authorization_type,
+                                                      public_key=gateway.get_rsa_public_key(self._config)),
+                            gateway.get_access_endpoint(self._config)
+                        )]
+                    elif authorization_type == ServiceAuthorizationTypes.PSK_ECDSA:
+                        service_descriptors += [ServiceDescriptor.authorization_service_descriptor(
+                            self._build_authorization(authorization_type,
+                                                      public_key=gateway.get_ecdsa_public_key(self._config)),
+                            gateway.get_access_endpoint(self._config)
+                        )]
+                    else:
+                        service_descriptors += [ServiceDescriptor.authorization_service_descriptor(
+                            self._build_authorization(authorization_type, threshold=0),
+                            self._config.secret_store_url
+                        )]
                 else:
                     service_descriptors += [ServiceDescriptor.access_service_descriptor(
                         access_service_attributes,
-                        gateway.get_consume_endpoint(self._config)
+                        gateway.get_access_endpoint(self._config)
 
                     )]
         elif metadata_copy['main']['type'] == 'compute':
-            compute_service_attributes = self._build_compute_service(metadata_copy,
-                                                                     publisher_account)
+            compute_service_attributes = self._build_compute(metadata_copy,
+                                                             publisher_account)
             if not service_descriptors:
                 service_descriptors = [ServiceDescriptor.compute_service_descriptor(
                     compute_service_attributes, gateway.get_execute_endpoint(self._config))
@@ -151,7 +174,7 @@ class Assets:
             if service.type == ServiceTypes.ASSET_ACCESS:
                 access_service = ServiceFactory.complete_access_service(
                     did,
-                    gateway.get_consume_endpoint(self._config),
+                    gateway.get_access_endpoint(self._config),
                     access_service_attributes,
                     self._keeper.escrow_access_secretstore_template.address,
                     self._keeper.escrow_reward_condition.address)
@@ -187,36 +210,19 @@ class Assets:
             assert metadata_copy['main'][
                 'files'], 'files is required in the metadata main attributes.'
             logger.debug('Encrypting content urls in the metadata.')
-            if authorization_type == ServiceAuthorizationTypes.PSK_RSA:
-                encrypt_endpoint = gateway.get_publish_endpoint(self._config)
+            if not use_secret_store:
+                encrypt_endpoint = gateway.get_encrypt_endpoint(self._config)
                 files_encrypted = gateway.encrypt_files_dict(
                     metadata_copy['main']['files'],
                     encrypt_endpoint,
                     ddo.asset_id,
-                    publisher_account.address,
-                    self._keeper.sign_hash(add_ethereum_prefix_and_hash_msg(ddo.asset_id),
-                                           publisher_account)
-                )
-            elif authorization_type == ServiceAuthorizationTypes.SECRET_STORE:
+                    authorization_type)
+            else:
                 files_encrypted = self._get_secret_store(publisher_account) \
                     .encrypt_document(
                     did_to_id(did),
                     json.dumps(metadata_copy['main']['files']),
                 )
-            elif authorization_type == ServiceAuthorizationTypes.PSK_ECDSA:
-                encrypt_endpoint = gateway.get_publish_endpoint(self._config)
-                files_encrypted = gateway.encrypt_files_dict(
-                    metadata_copy['main']['files'],
-                    encrypt_endpoint,
-                    ddo.asset_id,
-                    publisher_account.address,
-                    self._keeper.sign_hash(add_ethereum_prefix_and_hash_msg(ddo.asset_id),
-                                           publisher_account)
-                )
-            else:
-                raise Exception(
-                    f'The ServiceAuthorizationType {authorization_type} is not supported')
-
             # only assign if the encryption worked
             if files_encrypted:
                 logger.debug(f'Content urls encrypted successfully {files_encrypted}')
@@ -361,15 +367,15 @@ class Assets:
         )
         return agreement_id
 
-    def consume(self, service_agreement_id, did, service_index, consumer_account,
-                destination, index=None):
+    def access(self, service_agreement_id, did, service_index, consumer_account,
+               destination, index=None):
         """
         Consume the asset data.
 
         Using the service endpoint defined in the ddo's service pointed to by service_definition_id.
         Consumer's permissions is checked implicitly by the secret-store during decryption
         of the contentUrls.
-        The service endpoint is expected to also verify the consumer's permissions to consume this
+        The service endpoint is expected to also verify the consumer's permissions to access this
         asset.
         This method downloads and saves the asset datafiles to disk.
 
@@ -511,7 +517,18 @@ class Assets:
         )
 
     @staticmethod
-    def _build_access_service(metadata, publisher_account):
+    def _build_authorization(authorization_type, public_key=None, threshold=None):
+        authorization = dict()
+        authorization['main'] = dict()
+        authorization['main']['service'] = authorization_type
+        if public_key:
+            authorization['main']['publicKey'] = public_key
+        if threshold:
+            authorization['main']['threshold'] = threshold
+        return authorization
+
+    @staticmethod
+    def _build_access(metadata, publisher_account):
         return {"main": {
             "name": "dataAssetAccessServiceAgreement",
             "creator": publisher_account.address,
@@ -520,7 +537,7 @@ class Assets:
             "datePublished": metadata[MetadataMain.KEY]['dateCreated']
         }}
 
-    def _build_compute_service(self, metadata, publisher_account):
+    def _build_compute(self, metadata, publisher_account):
         return {"main": {
             "name": "dataAssetComputeServiceAgreement",
             "creator": publisher_account.address,
