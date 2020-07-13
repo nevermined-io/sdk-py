@@ -26,7 +26,7 @@ else:
     ASYNC_DELAY = 1  # seconds
 
 
-def buy_asset():
+def buy_asset_new_flow():
     """
     Requires all Nevermined services running.
 
@@ -40,7 +40,7 @@ def buy_asset():
     # make nevermined instance
     nevermined = Nevermined()
     Diagnostics.verify_contracts()
-    acc = get_account(1)
+    acc = get_account(0)
     if not acc:
         acc = ([acc for acc in nevermined.accounts.list() if acc.password] or nevermined.accounts.list())[0]
 
@@ -51,7 +51,7 @@ def buy_asset():
         ddo = nevermined.assets.resolve(did)
         logging.info(f'using ddo: {did}')
     else:
-        ddo = nevermined.assets.create(example_metadata.metadata, acc, providers=[], authorization_type='SecretStore', use_secret_store=True)
+        ddo = nevermined.assets.create(example_metadata.metadata, acc, providers=[])
         assert ddo is not None, f'Registering asset on-chain failed.'
         did = ddo.did
         logging.info(f'registered ddo: {did}')
@@ -84,7 +84,7 @@ def buy_asset():
                      f'{keeper.did_registry.is_did_provider(ddo.asset_id, provider)}')
 
     nevermined_cons = Nevermined()
-    consumer_account = get_account(0)
+    consumer_account = get_account(1)
 
     # sign agreement using the registered asset did above
     service = ddo.get_service(service_type=ServiceTypes.ASSET_ACCESS)
@@ -93,28 +93,17 @@ def buy_asset():
     sa = ServiceAgreement.from_service_dict(service.as_dictionary())
     agreement_id = ''
     if not agreement_id:
-        # Use these 2 lines to request new agreement from Gateway
-        # agreement_id, signature = nevermined_cons.agreements.prepare(did, sa.service_definition_id,
-        # consumer_account)
-        # nevermined_cons.agreements.send(did, agreement_id, sa.service_definition_id, signature,
-        # consumer_account)
+        agreement_id = nevermined_cons.assets.order_direct(
+            did, sa.index, consumer_account, consumer_account)
 
-        # assets.order now creates agreement directly using consumer account.
-        agreement_id = nevermined_cons.assets.order(
-            did, sa.index, consumer_account)
-
-    logging.info('placed order: %s, %s', did, agreement_id)
-    event = keeper.escrow_access_secretstore_template.subscribe_agreement_created(
-        agreement_id, 60, None, (), wait=True
-    )
-    assert event, "Agreement event is not found, check the keeper node's logs"
-    logging.info(f'Got agreement event, next: lock reward condition')
-
-    event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
-        agreement_id, 60, None, (), wait=True
-    )
-    assert event, "Lock reward condition fulfilled event is not found, check the keeper node's logs"
-    logging.info('Got lock reward event, next: wait for the access condition..')
+    nevermined.assets.access(
+        agreement_id,
+        did,
+        sa.index,
+        consumer_account,
+        config.downloads_path,
+        index=0)
+    logging.info('Success buying asset.')
 
     event = keeper.access_secret_store_condition.subscribe_condition_fulfilled(
         agreement_id, 15, None, (), wait=True
@@ -127,15 +116,6 @@ def buy_asset():
         i += 1
 
     assert nevermined.agreements.is_access_granted(agreement_id, did, consumer_account.address)
-
-    nevermined.assets.access(
-        agreement_id,
-        did,
-        sa.index,
-        consumer_account,
-        config.downloads_path,
-        index=0)
-    logging.info('Success buying asset.')
 
     event = keeper.escrow_reward_condition.subscribe_condition_fulfilled(
         agreement_id,
@@ -150,4 +130,4 @@ def buy_asset():
 
 
 if __name__ == '__main__':
-    buy_asset()
+    buy_asset_new_flow()
