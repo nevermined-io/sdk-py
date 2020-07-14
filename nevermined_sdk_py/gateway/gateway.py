@@ -167,8 +167,7 @@ class Gateway:
             'X-Signature': signature,
             'X-DID': workflow_ddo.did
         })
-        execute_url = Gateway._create_compute_url(service_endpoint, service_agreement_id, account,
-                                                  workflow_ddo.did, signature)
+        execute_url = Gateway._create_compute_url(service_endpoint, service_agreement_id)
         response = Gateway._http_client.post(execute_url, headers= headers)
         return response
 
