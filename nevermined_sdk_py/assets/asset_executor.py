@@ -22,4 +22,4 @@ class AssetExecutor:
         service_endpoint = ServiceAgreement.from_ddo(ServiceTypes.CLOUD_COMPUTE,
                                                      compute_ddo).service_endpoint
 
-        gateway.execute_service(agreement_id, service_endpoint, consumer_account, workflow_ddo)
+        gateway.execute_compute_service(agreement_id, service_endpoint, consumer_account, workflow_ddo)
