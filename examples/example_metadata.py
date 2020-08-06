@@ -31,16 +31,29 @@ algo_metadata = {
           "license": "CC-BY",
           "name": "My workflow",
           "price": "1",
+          "files": [
+              {
+                  "index": 0,
+                  "contentType": "text/text",
+                  "checksum": str(uuid.uuid4()),
+                  "checksumType": "MD5",
+                  "contentLength": "12057507",
+                  "url": "https://raw.githubusercontent.com/keyko-io/nevermined-tools/master/README.md"
+              }
+          ],
           "type": "algorithm",
           "algorithm": {
-            "language": "scala",
-            "format": "jar",
+            "language": "python",
+            "format": "py",
             "version": "0.1",
-            "entrypoint": "nv-entrypoint.sh",
+            "entrypoint": "python word_count.py",
             "requirements": [
               {
-                "requirement": "java",
-                "version": "1.8"
+                "container": {
+                    "image": "python",
+                    "tag": "3.8-alpine",
+                    "checksum":"sha256:53ad3a03b2fb240b6c494339821e6638cd44c989bcf26ec4d51a6a52f7518c1d"
+                }
               }
             ]
           }
@@ -54,7 +67,6 @@ compute_ddo = {
     "author": "Mario",
     "license": "CC0: Public Domain",
     "price": "10",
-    "files": [],
     "type": "compute"
   }
 }

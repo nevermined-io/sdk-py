@@ -1,5 +1,6 @@
 import logging
 import time
+import json
 
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_types import ServiceTypes
@@ -9,6 +10,7 @@ from examples import example_metadata, ExampleConfig
 from nevermined_sdk_py import ConfigProvider, Nevermined
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
 
+logging.basicConfig(level=logging.INFO)
 
 def _log_event(event_name):
     def _process_event(event):
@@ -30,21 +32,25 @@ def compute_example():
             0]
     keeper = Keeper.get_instance()
     provider = '0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0'
+    print(f'provider: {provider}')
 
     ddo = nevermined.assets.create(example_metadata.metadata, acc, providers=[provider],
                                    authorization_type='SecretStore')
+    print(f'provider {provider}')
     assert ddo is not None, f'Registering asset on-chain failed.'
     did = ddo.did
     logging.info(f'registered ddo: {did}')
 
     compute_ddo = nevermined.assets.create(example_metadata.compute_ddo, acc, providers=[provider],
                                            authorization_type='SecretStore')
+    print(f'provider: {provider}')
     assert compute_ddo is not None, f'Registering asset on-chain failed.'
     compute_did = compute_ddo.did
     logging.info(f'registered ddo: {compute_did}')
 
     algo_ddo = nevermined.assets.create(example_metadata.algo_metadata, acc, providers=[provider],
                                         authorization_type='SecretStore')
+    print(f'provider: {provider}')
     assert algo_ddo is not None, f'Registering algorithm on-chain failed.'
     algo_did = algo_ddo.did
     logging.info(f'registered ddo: {algo_did}')
@@ -55,10 +61,19 @@ def compute_example():
     workflow_metadata['main']['workflow']['stages'][0]['transformation']['id'] = algo_did
     workflow_ddo = nevermined.assets.create(workflow_metadata, acc, providers=[provider],
                                             authorization_type='SecretStore')
+    print(f'provider: {provider}')
+
+    print("\n\nMetadata ddo:\n\n")
+    print(json.dumps(ddo.as_dictionary(), indent=2))
+    print("\n\nCompute ddo:\n\n")
+    print(json.dumps(compute_ddo.as_dictionary(), indent=2))
+    print("\n\nAlgo ddo:\n\n")
+    print(json.dumps(algo_ddo.as_dictionary(), indent=2))
+    print("\n\nWorkflow ddo:\n\n")
+    print(json.dumps(workflow_ddo.as_dictionary(), indent=2))
     assert workflow_ddo is not None, f'Registering algorithm on-chain failed.'
     workflow_did = workflow_ddo.did
     logging.info(f'registered ddo: {workflow_did}')
-
 
     nevermined_cons = Nevermined()
     consumer_account = get_account(1)

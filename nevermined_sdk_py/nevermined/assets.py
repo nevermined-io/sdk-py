@@ -206,7 +206,7 @@ class Assets:
 
         # Setup metadata service
         # First compute files_encrypted
-        if metadata_copy['main']['type'] == 'dataset':
+        if metadata_copy['main']['type'] in ['dataset', 'algorithm']:
             assert metadata_copy['main'][
                 'files'], 'files is required in the metadata main attributes.'
             logger.debug('Encrypting content urls in the metadata.')

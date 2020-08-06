@@ -14,7 +14,7 @@ def get_variable_value(variable):
 
 
 class ExampleConfig:
-    _local_metadata_url = "http://172.15.0.15:5000"
+    _local_metadata_url = "http://localhost:5000"
     _local_gateway_url = "http://localhost:8030"
     _duero_metadata_url = "https://metadata.compute.duero.dev-ocean.com"
     _duero_gateway_url = "https://gateway.compute.duero.dev-ocean.com"
@@ -83,16 +83,16 @@ class ExampleConfig:
     def get_base_config():
         config = {
             "keeper-contracts": {
-                "keeper.url": "http://localhost:8545",
+                "keeper.url": "http://172.17.0.1:8545",
                 "keeper.path": "artifacts",
-                "secret_store.url": "http://localhost:12001",
-                "parity.url": "http://localhost:8545",
+                "secret_store.url": "http://172.17.0.1:12001",
+                "parity.url": "http://172.17.0.1:8545",
             },
             "resources": {
-                "metadata.url": "http://172.15.0.15:5000",
+                "metadata.url": "http://172.17.0.1:5000",
                 # "metadata.url": "http://localhost:5000",
                 # "gateway.url": "http://172.15.0.17:8030",
-                "gateway.url": "http://localhost:8030",
+                "gateway.url": "http://172.17.0.1:8030",
                 "storage.path": "sdk.db",
                 "downloads.path": "access-downloads"
             }
