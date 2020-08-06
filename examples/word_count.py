@@ -11,8 +11,9 @@ def word_count():
 
     # read files and count words
     for file_path in Path(INPUTS_PATH).rglob("*"):
-        print(f"Processing input file: {file_path.as_posix()}")
-        word_counter += Counter(file_path.read_text().split())
+        if file_path.is_file():
+            print(f"Processing input file: {file_path.as_posix()}")
+            word_counter += Counter(file_path.read_text().split())
 
     # write the result to OUTPUTS_PATH
     output_file = Path(OUTPUTS_PATH) / "output.txt"
