@@ -38,7 +38,7 @@ algo_metadata = {
                   "checksum": str(uuid.uuid4()),
                   "checksumType": "MD5",
                   "contentLength": "12057507",
-                  "url": "https://raw.githubusercontent.com/keyko-io/nevermined-tools/master/README.md"
+                  "url": "https://raw.githubusercontent.com/keyko-io/nevermined-sdk-py/04b24c3f2404bc0f05061c16b79e3bae86035085/examples/word_count.py?token=AANVZI5NDJTNM3XT7572BBK7GWE7W"
               }
           ],
           "type": "algorithm",
@@ -46,16 +46,14 @@ algo_metadata = {
             "language": "python",
             "format": "py",
             "version": "0.1",
-            "entrypoint": "python word_count.py",
-            "requirements": [
-              {
+            "entrypoint": "python word_count.py*",
+            "requirements": {
                 "container": {
                     "image": "python",
                     "tag": "3.8-alpine",
                     "checksum":"sha256:53ad3a03b2fb240b6c494339821e6638cd44c989bcf26ec4d51a6a52f7518c1d"
                 }
-              }
-            ]
+            }
           }
         }
 }
