@@ -1,9 +1,9 @@
-[![banner](https://raw.githubusercontent.com/keyko-io/assets/master/images/logo/small/keyko_logo@2x-100.jpg)](https://keyko.io)
+[![banner](https://raw.githubusercontent.com/keyko-io/assets/master/images/logo/nevermined_logo_1.png)](https://nevermined.io)
 
 # Python API for Nevermined Data platform
 
-> 🦑 Python SDK for connecting with Nevermined Data Platform
-> [keyko.io](https://keyko.io)
+> Python SDK for connecting with Nevermined Data Platform
+> [nevermined.io](https://nevermined.io)
 
 [![PyPI](https://img.shields.io/pypi/v/nevermined-sdk-py.svg)](https://pypi.org/project/nevermined-sdk-py/)
 [![Python package](https://github.com/keyko-io/nevermined-sdk-py/workflows/Python%20package/badge.svg)](https://github.com/keyko-io/nevermined-sdk-py/actions)
