@@ -5,6 +5,7 @@ import json
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_types import ServiceTypes
 from contracts_lib_py.utils import get_account
+from contracts_lib_py.web3_provider import Web3Provider
 
 from examples import example_metadata, ExampleConfig
 from nevermined_sdk_py import ConfigProvider, Nevermined
@@ -18,6 +19,20 @@ def _log_event(event_name):
 
     return _process_event
 
+def wait_for_registry_event(keeper, owner, ddo, timeout=30):
+    # Wait for did registry event
+    event = keeper.did_registry.subscribe_to_event(
+        keeper.did_registry.DID_REGISTRY_EVENT_NAME,
+        30,
+        event_filter={
+            '_did': Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id)},
+        wait=True
+    )
+    if not event:
+        logging.warning(f'Failed to get the did registry event for asset with did {ddo.did}.')
+    assert keeper.did_registry.get_block_number_updated(ddo.asset_id) > 0, \
+        f'There is an issue in registering asset {ddo.did} on-chain.'
+    print(event)
 
 def compute_example():
     ConfigProvider.set_config(ExampleConfig.get_config())
@@ -33,11 +48,14 @@ def compute_example():
     keeper = Keeper.get_instance()
     provider = '0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0'
     print(f'provider: {provider}')
+    print(f'address: {acc.address}')
+    print(f'keyfile: {acc.key_file}')
 
     ddo = nevermined.assets.create(example_metadata.metadata, acc, providers=[provider],
                                    authorization_type='SecretStore')
     print(f'provider {provider}')
     assert ddo is not None, f'Registering asset on-chain failed.'
+    wait_for_registry_event(keeper, acc, ddo)
     did = ddo.did
     logging.info(f'registered ddo: {did}')
 
@@ -45,6 +63,7 @@ def compute_example():
                                            authorization_type='SecretStore')
     print(f'provider: {provider}')
     assert compute_ddo is not None, f'Registering asset on-chain failed.'
+    wait_for_registry_event(keeper, acc, compute_ddo)
     compute_did = compute_ddo.did
     logging.info(f'registered ddo: {compute_did}')
 
@@ -52,6 +71,7 @@ def compute_example():
                                         authorization_type='SecretStore')
     print(f'provider: {provider}')
     assert algo_ddo is not None, f'Registering algorithm on-chain failed.'
+    wait_for_registry_event(keeper, acc, algo_ddo)
     algo_did = algo_ddo.did
     logging.info(f'registered ddo: {algo_did}')
 
@@ -72,6 +92,8 @@ def compute_example():
     print("\n\nWorkflow ddo:\n\n")
     print(json.dumps(workflow_ddo.as_dictionary(), indent=2))
     assert workflow_ddo is not None, f'Registering algorithm on-chain failed.'
+    wait_for_registry_event(keeper, acc, workflow_ddo)
+    algo_did = algo_ddo.did
     workflow_did = workflow_ddo.did
     logging.info(f'registered ddo: {workflow_did}')
 
