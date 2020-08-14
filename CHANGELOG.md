@@ -1,6 +1,10 @@
 History
 =======
 
+0.4.0 (Aug, 2020)
+-------------------------
+* [#16](https://github.com/keyko-io/nevermined-sdk-py/pull/16) Upgrading to new contracts v0.4 
+
 0.3.0 (May, 2020)
 -------------------------
 * [#10](https://github.com/keyko-io/nevermined-sdk-py/pull/10) Support new authorization methods and use new gateway endpoint for access
