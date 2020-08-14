@@ -25,10 +25,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        docker login -u ${{ secrets.NEVERMINED_DOCKER_USERNAME }} -p ${{ secrets.NEVERMINED_DOCKER_TOKEN}}
         git clone https://github.com/keyko-io/nevermined-tools
         cd nevermined-tools
         rm -rf "${HOME}/.nevermined/nevermined-contracts/artifacts"
-        bash -x start_nevermined.sh --no-commons --no-faucet --no-dashboard --latest 2>&1 > start_nevermined.log &
+        bash -x start_nevermined.sh --no-commons --no-faucet --latest 2>&1 > start_nevermined.log &
         cd ..
         for i in $(seq 1 50); do
         sleep 5
