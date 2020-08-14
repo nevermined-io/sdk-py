@@ -49,12 +49,12 @@ def consumer_instance():
 
 @pytest.fixture
 def publisher_instance_no_init():
-    return get_publisher_instance(False, True, True)
+    return get_publisher_instance(False, False, False)
 
 
 @pytest.fixture
 def consumer_instance_no_init():
-    return get_consumer_instance(False, True, True)
+    return get_consumer_instance(False, False, False)
 
 
 @pytest.fixture
