@@ -21,7 +21,7 @@ install_requirements = [
     'PyJWT',  # not jwt
     'PyYAML==4.2b4',
     'common-utils-py==0.2.7',
-    'contracts-lib-py==0.2.3',
+    'contracts-lib-py==0.4.0',
     'ocean-secret-store-client==0.0.1',
     'requests==2.21.0',
     'deprecated',
@@ -73,7 +73,7 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
     ],
-    description="🐳 Nevermined/Web3py wrapper.",
+    description="🐳 Nevermined Python SDK.",
     extras_require={
         'test': test_requirements,
         'dev': dev_requirements + test_requirements + docs_requirements,
@@ -91,6 +91,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/keyko-io/nevermined-sdk-py',
-    version='0.3.0',
+    version='0.3.1',
     zip_safe=False,
 )

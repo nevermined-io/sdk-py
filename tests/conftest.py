@@ -81,7 +81,7 @@ def web3_instance():
 @pytest.fixture
 def asset1():
     asset = _get_asset(
-        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs'
+        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/docs/architecture/specs'
         '/examples/access/v0.1/ddo1.json')
     asset._did = DID.did(asset.proof['checksum'])
     yield asset
@@ -91,7 +91,7 @@ def asset1():
 @pytest.fixture
 def asset2():
     asset = _get_asset(
-        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs'
+        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/docs/architecture/specs'
         '/examples/access/v0.1/ddo2-update.json')
     asset._did = DID.did(asset.proof['checksum'])
     return asset
