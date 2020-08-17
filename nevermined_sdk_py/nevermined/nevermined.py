@@ -69,7 +69,7 @@ class Nevermined:
             'DIDRegistry',
             'Dispenser',
             'TemplateStoreManager',
-            'OceanToken',
+            'NeverminedToken',
             'ConditionStoreManager',
             'EscrowAccessSecretStoreTemplate',
             'AgreementStoreManager',

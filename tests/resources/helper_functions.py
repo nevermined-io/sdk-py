@@ -85,30 +85,30 @@ def get_assset_json_text(url):
 
 def get_ddo_sample():
     return _get_asset(
-        "https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs/examples/metadata/v0.1/ddo-example-access.json")
+        "https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/docs/architecture/specs/examples/metadata/v0.1/ddo-example-access.json")
 
 
 def get_algorithm_ddo():
     return json.loads(urlopen(
-        "https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs/examples/metadata/v0.1/ddo-example-algorithm.json").read().decode(
+        "https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/docs/architecture/specs/examples/metadata/v0.1/ddo-example-algorithm.json").read().decode(
         'utf-8'))
 
 
 def get_workflow_ddo():
     return json.loads(urlopen(
-        "https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs/examples/metadata/v0.1/ddo-example-workflow.json").read().decode(
+        "https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/docs/architecture/specs/examples/metadata/v0.1/ddo-example-workflow.json").read().decode(
         'utf-8'))
 
 
 def get_computing_metadata():
     return json.loads(urlopen(
-        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs/examples/metadata/v0.1/computing-metadata.json').read().decode(
+        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/docs/architecture/specs/examples/metadata/v0.1/computing-metadata.json').read().decode(
         'utf-8'))
 
 
 def get_computing_ddo():
     return _get_asset(
-        "https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs/examples/compute/v0.1/ddo.computing.json")
+        "https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/docs/architecture/specs/examples/compute/v0.1/ddo.computing.json")
 
 
 def get_registered_ddo(nevermined_instance, account):
@@ -142,7 +142,7 @@ def get_rsa_public_key_file():
 
 def get_metadata():
     return json.loads(urlopen(
-        "https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/architecture/specs"
+        "https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/docs/architecture/specs"
         "/examples/metadata/v0.1/metadata1.json").read().decode(
         'utf-8'))
 
