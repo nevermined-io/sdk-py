@@ -33,10 +33,7 @@ def buy_asset_new_flow():
     """
     ConfigProvider.set_config(ExampleConfig.get_config())
     config = ConfigProvider.get_config()
-    providers = {
-        'duero': '0xfEF2d5e1670342b9EF22eeeDcb287EC526B48095',
-        'nile': '0x4aaab179035dc57b35e2ce066919048686f82972'
-    }
+
     # make nevermined instance
     nevermined = Nevermined()
     Diagnostics.verify_contracts()
@@ -57,13 +54,7 @@ def buy_asset_new_flow():
         logging.info(f'registered ddo: {did}')
         # nevermined here will be used only to publish the asset. Handling the asset by the publisher
         # will be performed by the Gateway server running locally
-        test_net = os.environ.get('TEST_NET', '')
-        if test_net.startswith('nile'):
-            provider = keeper.did_registry.to_checksum_address(providers['nile'])
-        elif test_net.startswith('duero'):
-            provider = keeper.did_registry.to_checksum_address(providers['duero'])
-        else:
-            provider = '0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0'
+        provider = '0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0'
 
         # Wait for did registry event
         event = keeper.did_registry.subscribe_to_event(
