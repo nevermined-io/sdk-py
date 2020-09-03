@@ -155,6 +155,22 @@ class Gateway:
                                                   workflow_ddo.did, signature)
         logger.info(f'invoke execute endpoint with this url: {execute_url}')
         response = Gateway._http_client.post(execute_url)
+        return response
+
+    @staticmethod
+    def execute_compute_service(service_agreement_id, service_endpoint, account, workflow_ddo):
+        signature = Keeper.get_instance().sign_hash(
+            add_ethereum_prefix_and_hash_msg(service_agreement_id),
+            account)
+        headers = dict({
+            'X-Consumer-Address': account.address,
+            'X-Signature': signature,
+            'X-Workflow-DID': workflow_ddo.did
+        })
+        execute_url = Gateway._create_compute_url(service_endpoint, service_agreement_id)
+        response = Gateway._http_client.post(execute_url, headers= headers)
+        return response
+
 
     @staticmethod
     def _prepare_consume_payload(did, service_agreement_id, service_index, signature,
@@ -321,3 +337,7 @@ class Gateway:
                 f'&serviceAgreementId={service_agreement_id}'
                 f'&consumerAddress={account.address}'
                 f'&workflowDID={workflow_did}')
+
+    @staticmethod
+    def _create_compute_url(service_endpoint, service_agreement_id):
+        return f'{service_endpoint}/{service_agreement_id}'

@@ -20,7 +20,7 @@ install_requirements = [
     'pyopenssl',
     'PyJWT',  # not jwt
     'PyYAML==4.2b4',
-    'common-utils-py==0.2.7',
+    'common-utils-py==0.2.8',
     'contracts-lib-py==0.4.0',
     'ocean-secret-store-client==0.0.1',
     'requests==2.21.0',

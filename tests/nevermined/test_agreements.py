@@ -150,9 +150,7 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
     # print('All good, files are here: %s' % path)
 
 
-
-
-@pytest.mark.skip(reason="Failing some times with actions")
+# @pytest.mark.skip(reason="Failing some times with actions")
 def test_agreement_status(setup_agreements_enviroment, agreements):
     (
         keeper,
