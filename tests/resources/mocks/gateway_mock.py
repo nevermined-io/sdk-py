@@ -42,6 +42,10 @@ class GatewayMock(object):
         return True
 
     @staticmethod
+    def execute_compute_service(agreement_id, service_endpoint, consumer_account, workflow_ddo):
+        return True
+
+    @staticmethod
     def get_gateway_url(config):
         return Gateway.get_gateway_url(config)
 
