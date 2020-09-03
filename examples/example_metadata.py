@@ -38,7 +38,7 @@ algo_metadata = {
                   "checksum": str(uuid.uuid4()),
                   "checksumType": "MD5",
                   "contentLength": "12057507",
-                  "url": "https://raw.githubusercontent.com/keyko-io/nevermined-sdk-py/04b24c3f2404bc0f05061c16b79e3bae86035085/examples/word_count.py?token=AANVZI5NDJTNM3XT7572BBK7GWE7W"
+                  "url": "https://raw.githubusercontent.com/keyko-io/nevermined-sdk-py/ce8a73c5c2392df8ae45ac57d323d41c5e47f9a0/examples/word_count.py?token=AANVZI3RNAIEFA5JRVYWU5C7LH35O"
               }
           ],
           "type": "algorithm",
@@ -95,10 +95,6 @@ workflow_ddo = {
                     {
                         "index": 0,
                         "id": "did:nv:12345"
-                    },
-                    {
-                        "index": 1,
-                        "id": "did:nv:67890"
                     }
                 ],
                 "transformation": {

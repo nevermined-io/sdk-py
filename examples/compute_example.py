@@ -1,141 +1,151 @@
+import datetime
 import logging
-import time
-import json
+import os
+import sys
 
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_types import ServiceTypes
-from contracts_lib_py.utils import get_account
-from contracts_lib_py.web3_provider import Web3Provider
+from contracts_lib_py.account import Account
+from web3 import Web3
 
-from examples import example_metadata, ExampleConfig
+from examples import ExampleConfig, example_metadata
 from nevermined_sdk_py import ConfigProvider, Nevermined
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
 
-logging.basicConfig(level=logging.INFO)
+PROVIDER_ADDRESS = os.getenv("PROVIDER_ADDRESS")
+PROVIDER_PASSWORD = os.getenv("PROVIDER_PASSWORD")
+PROVIDER_KEYFILE = os.getenv("PROVIDER_KEYFILE")
 
-def _log_event(event_name):
-    def _process_event(event):
-        print(f'Received event {event_name}: {event}')
 
-    return _process_event
+# Disable warnings emitted by web3
+if not sys.warnoptions:
+    import warnings
 
-def wait_for_registry_event(keeper, owner, ddo, timeout=30):
-    # Wait for did registry event
-    event = keeper.did_registry.subscribe_to_event(
-        keeper.did_registry.DID_REGISTRY_EVENT_NAME,
-        30,
-        event_filter={
-            '_did': Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id)},
-        wait=True
+    warnings.simplefilter("ignore")
+
+
+# this is so that we can change the `dateCreated` field in the ddos so that we
+# avoid problems with duplicated ddos when running the demo
+def dates_generator():
+    now = datetime.datetime.utcnow()
+    delta = datetime.timedelta(seconds=1)
+    while True:
+        now += delta
+        yield now.isoformat(timespec="seconds") + "Z"
+
+
+def configure_logging():
+    level = os.getenv("LOGLEVEL", logging.INFO)
+    logging.basicConfig(
+        level=level,
+        format="[%(asctime)s] [%(levelname)s] (%(name)s) %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
-    if not event:
-        logging.warning(f'Failed to get the did registry event for asset with did {ddo.did}.')
-    assert keeper.did_registry.get_block_number_updated(ddo.asset_id) > 0, \
-        f'There is an issue in registering asset {ddo.did} on-chain.'
-    print(event)
 
-def compute_example():
+
+def compute_example(verbose=False):
+    print("Setting up...")
+
+    if verbose:
+        configure_logging()
+
+    date_created = dates_generator()
+
+    # Setup nevermined
     ConfigProvider.set_config(ExampleConfig.get_config())
     config = ConfigProvider.get_config()
-
-    # make nevermined instance
     nevermined = Nevermined()
-    acc = get_account(0)
-    if not acc:
-        acc = \
-        ([acc for acc in nevermined.accounts.list() if acc.password] or nevermined.accounts.list())[
-            0]
     keeper = Keeper.get_instance()
-    provider = '0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0'
-    print(f'provider: {provider}')
-    print(f'address: {acc.address}')
-    print(f'keyfile: {acc.key_file}')
+    provider = "0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0"
 
-    ddo = nevermined.assets.create(example_metadata.metadata, acc, providers=[provider],
-                                   authorization_type='SecretStore')
-    print(f'provider {provider}')
-    assert ddo is not None, f'Registering asset on-chain failed.'
-    wait_for_registry_event(keeper, acc, ddo)
-    did = ddo.did
-    logging.info(f'registered ddo: {did}')
+    # Setup accounts
+    acc = Account(
+        Web3.toChecksumAddress(PROVIDER_ADDRESS), PROVIDER_PASSWORD, PROVIDER_KEYFILE
+    )
+    nevermined.accounts.request_tokens(acc, 10)
+    provider_acc = acc
+    consumer_acc = acc
 
-    compute_ddo = nevermined.assets.create(example_metadata.compute_ddo, acc, providers=[provider],
-                                           authorization_type='SecretStore')
-    print(f'provider: {provider}')
-    assert compute_ddo is not None, f'Registering asset on-chain failed.'
-    wait_for_registry_event(keeper, acc, compute_ddo)
-    compute_did = compute_ddo.did
-    logging.info(f'registered ddo: {compute_did}')
+    # Publish assets
+    example_metadata.metadata["main"]["dateCreated"] = next(date_created)
+    ddo_data = nevermined.assets.create(
+        example_metadata.metadata, provider_acc, providers=[provider]
+    )
 
-    algo_ddo = nevermined.assets.create(example_metadata.algo_metadata, acc, providers=[provider],
-                                        authorization_type='SecretStore')
-    print(f'provider: {provider}')
-    assert algo_ddo is not None, f'Registering algorithm on-chain failed.'
-    wait_for_registry_event(keeper, acc, algo_ddo)
-    algo_did = algo_ddo.did
-    logging.info(f'registered ddo: {algo_did}')
+    assert ddo_data is not None, "Creating data asset on-chain failed."
+    print(f"[PROVIDER --> NEVERMINED] Publishing data asset: {ddo_data.did}")
 
+    # Publish compute
+    example_metadata.compute_ddo["main"]["dateCreated"] = next(date_created)
+    ddo_compute = nevermined.assets.create(
+        example_metadata.compute_ddo, provider_acc, providers=[provider]
+    )
+    assert ddo_compute is not None, "Creating compute asset on-chain failed."
+    print(
+        f"[PROVIDER --> NEVERMINED] Publishing compute to the data asset: {ddo_compute.did}"
+    )
+
+    # Publish algorithm
+    example_metadata.algo_metadata["main"]["dateCreated"] = next(date_created)
+    ddo_transformation = nevermined.assets.create(
+        example_metadata.algo_metadata, consumer_acc, providers=[provider]
+    )
+    assert (
+        ddo_transformation is not None
+    ), "Creating asset transformation on-chain failed."
+    print(
+        f"[CONSUMER --> NEVERMINED] Publishing algorithm asset: {ddo_transformation.did}"
+    )
+
+    # Publish workflows
     workflow_metadata = example_metadata.workflow_ddo
-    workflow_metadata['main']['workflow']['stages'][0]['input'][0]['id'] = did
-    workflow_metadata['main']['workflow']['stages'][0]['input'][1]['id'] = compute_did
-    workflow_metadata['main']['workflow']['stages'][0]['transformation']['id'] = algo_did
-    workflow_ddo = nevermined.assets.create(workflow_metadata, acc, providers=[provider],
-                                            authorization_type='SecretStore')
-    print(f'provider: {provider}')
+    workflow_metadata["main"]["workflow"]["stages"][0]["input"][0]["id"] = ddo_data.did
+    workflow_metadata["main"]["workflow"]["stages"][0]["transformation"][
+        "id"
+    ] = ddo_transformation.did
 
-    print("\n\nMetadata ddo:\n\n")
-    print(json.dumps(ddo.as_dictionary(), indent=2))
-    print("\n\nCompute ddo:\n\n")
-    print(json.dumps(compute_ddo.as_dictionary(), indent=2))
-    print("\n\nAlgo ddo:\n\n")
-    print(json.dumps(algo_ddo.as_dictionary(), indent=2))
-    print("\n\nWorkflow ddo:\n\n")
-    print(json.dumps(workflow_ddo.as_dictionary(), indent=2))
-    assert workflow_ddo is not None, f'Registering algorithm on-chain failed.'
-    wait_for_registry_event(keeper, acc, workflow_ddo)
-    algo_did = algo_ddo.did
-    workflow_did = workflow_ddo.did
-    logging.info(f'registered ddo: {workflow_did}')
+    ddo_workflow = nevermined.assets.create(
+        workflow_metadata, consumer_acc, providers=[provider]
+    )
+    assert ddo_workflow is not None, "Creating asset workflow on-chain failed."
+    print(f"[CONSUMER --> NEVERMINED] Publishing compute workflow: {ddo_workflow.did}")
 
-    nevermined_cons = Nevermined()
-    consumer_account = get_account(1)
-
-    service = compute_ddo.get_service(service_type=ServiceTypes.CLOUD_COMPUTE)
-    nevermined_cons.accounts.request_tokens(consumer_account, 10)
-    sa = ServiceAgreement.from_service_dict(service.as_dictionary())
-    agreement_id = ''
-    if not agreement_id:
-        agreement_id = nevermined_cons.assets.order(
-            compute_did, sa.index, consumer_account)
-
-    logging.info('placed order: %s, %s', did, agreement_id)
+    # Order computation
+    service = ddo_compute.get_service(service_type=ServiceTypes.CLOUD_COMPUTE)
+    service_agreement = ServiceAgreement.from_service_dict(service.as_dictionary())
+    agreement_id = nevermined.assets.order(
+        ddo_compute.did, service_agreement.index, consumer_acc
+    )
+    print(
+        f"[CONSUMER --> PROVIDER] Requesting an agreement for compute to the data: {agreement_id}"
+    )
 
     event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
         agreement_id, 60, None, (), wait=True
     )
-    assert event, "Lock reward condition fulfilled event is not found, check the keeper node's logs"
-    logging.info('Got lock reward event, next: wait for the access condition..')
+    assert event is not None, "Reward condition is not found"
 
     event = keeper.compute_execution_condition.subscribe_condition_fulfilled(
-        agreement_id, 15, None, (), wait=True
+        agreement_id, 60, None, (), wait=True
     )
-    logging.info(f'Got access event {event}')
+    assert event is not None, "Execution condition not found"
 
-    nevermined_cons.assets.execute(agreement_id, compute_did, sa.index, consumer_account,
-                                   workflow_did)
-    logging.info('Success executing workflow.')
+    # Execute workflow
+    nevermined.assets.execute(
+        agreement_id,
+        ddo_compute.did,
+        service_agreement.index,
+        consumer_acc,
+        ddo_workflow.did,
+    )
+    print("[CONSUMER --> PROVIDER] Requesting execution of the compute workflow")
 
     event = keeper.escrow_reward_condition.subscribe_condition_fulfilled(
-        agreement_id,
-        30,
-        None,
-        (),
-        wait=True
+        agreement_id, 60, None, (), wait=True
     )
-    assert event, 'no event for EscrowReward.Fulfilled'
-    logging.info(f'got EscrowReward.FULFILLED event: {event}')
-    logging.info('Done buy asset.')
+    assert event is not None, "Escrow Reward condition not found"
+    print("Workflow successfully executed")
 
 
-if __name__ == '__main__':
-    compute_example()
+if __name__ == "__main__":
+    compute_example(verbose=False)
