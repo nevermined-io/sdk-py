@@ -135,6 +135,8 @@ class Gateway:
         })
         consume_url = Gateway._create_access_url(service_endpoint, service_agreement_id, index)
         response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
+        if response.status_code != 200:
+            raise ValueError(response.text)
         file_name = Gateway._get_file_name(response)
         Gateway.write_file(response, destination_folder, file_name or f'file-{index}')
         return response
@@ -164,6 +166,8 @@ class Gateway:
         }
         consume_url = Gateway._create_download_url(config, index)
         response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
+        if response.status_code != 200:
+            raise ValueError(response.text)
         file_name = Gateway._get_file_name(response)
         Gateway.write_file(response, destination_folder, file_name or f'file-{index}')
         return response

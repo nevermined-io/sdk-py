@@ -132,19 +132,6 @@ class Assets:
                         gateway.get_access_endpoint(self._config)
 
                     )]
-        elif metadata_copy['main']['type'] == 'compute':
-            compute_service_attributes = self._build_compute(metadata_copy,
-                                                             publisher_account)
-            if not service_descriptors:
-                service_descriptors = [ServiceDescriptor.compute_service_descriptor(
-                    compute_service_attributes, gateway.get_execute_endpoint(self._config))
-                ]
-            else:
-                service_descriptors += [ServiceDescriptor.compute_service_descriptor(
-                    compute_service_attributes,
-                    gateway.get_execute_endpoint(self._config)
-
-                )]
         else:
             if not service_descriptors:
                 service_descriptors = []
@@ -269,6 +256,24 @@ class Assets:
     def create_compute(self, metadata, publisher_account,
                service_descriptors=None, providers=None,
                authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False):
+        """
+        Register a compute to the data asset in both the keeper's DIDRegistry (on-chain) and in
+        the Metadata store.
+
+        :param metadata: dict conforming to the Metadata accepted by Nevermined Protocol.
+        :param publisher_account: Account of the publisher registering this asset
+        :param service_descriptors: list of ServiceDescriptor tuples of length 2.
+            The first item must be one of ServiceTypes and the second
+            item is a dict of parameters and values required by the service
+        :param providers: list of addresses of providers of this asset (a provider is
+            an ethereum account that is authorized to provide asset services)
+        :param authorization_type: str indicate the authorization type that is going to be used
+        to encrypt the urls.
+            SecretStore, PSK-RSA and PSK-ECDSA are supported.
+        :param use_secret_store: bool indicate whether to use the secret store directly for
+            encrypting urls (Uses Gateway provider service if set to False)
+        :return: DDO instance
+        """
 
         metadata_copy = copy.deepcopy(metadata)
         gateway = GatewayProvider.get_gateway()

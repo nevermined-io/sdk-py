@@ -12,6 +12,8 @@ from common_utils_py.ddo.ddo import DDO
 from contracts_lib_py.utils import get_account
 
 from nevermined_sdk_py.gateway.gateway_provider import GatewayProvider
+from nevermined_sdk_py.gateway.gateway import Gateway
+from nevermined_sdk_py.secret_store.secret_store import SecretStore
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
 from nevermined_sdk_py.nevermined.nevermined import Nevermined
 from nevermined_sdk_py.secret_store.secret_store_provider import SecretStoreProvider
@@ -55,8 +57,12 @@ def get_publisher_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=
         init_ocn_tokens(nevermined, nevermined.main_account)
     if use_ss_mock:
         SecretStoreProvider.set_secret_store_class(SecretStoreMock)
+    else:
+        SecretStoreProvider.set_secret_store_class(SecretStore)
     if use_gateway_mock:
         GatewayProvider.set_gateway_class(GatewayMock)
+    else:
+        GatewayProvider.set_gateway_class(Gateway)
 
     return nevermined
 
