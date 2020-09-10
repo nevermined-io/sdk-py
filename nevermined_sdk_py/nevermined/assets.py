@@ -186,8 +186,8 @@ class Assets:
             elif service.type == ServiceTypes.CLOUD_COMPUTE:
                 compute_service = ServiceFactory.complete_compute_service(
                     did,
-                    gateway.get_execute_endpoint(self._config),
-                    compute_service_attributes,
+                    service.service_endpoint,
+                    service.attributes,
                     self._keeper.compute_execution_condition.address,
                     self._keeper.escrow_reward_condition.address
                 )
@@ -265,6 +265,22 @@ class Assets:
         if not response:
             return None
         return ddo
+
+    def create_compute(self, metadata, publisher_account,
+               service_descriptors=None, providers=None,
+               authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False):
+
+        metadata_copy = copy.deepcopy(metadata)
+        gateway = GatewayProvider.get_gateway()
+
+        compute_service_attributes = self._build_compute(metadata_copy, publisher_account)
+        service_descriptor = ServiceDescriptor.compute_service_descriptor(
+            compute_service_attributes, gateway.get_execute_endpoint(self._config))
+
+        return self.create(metadata, publisher_account, service_descriptors=[service_descriptor],
+            providers=providers, authorization_type=authorization_type,
+            use_secret_store=use_secret_store)
+
 
     def retire(self, did):
         """
@@ -391,7 +407,7 @@ class Assets:
         if index is not None:
             assert isinstance(index, int), logger.error('index has to be an integer.')
             assert index >= 0, logger.error('index has to be 0 or a positive integer.')
-        return self._asset_consumer.download(
+        return self._asset_consumer.access(
             service_agreement_id,
             service_index,
             ddo,
@@ -399,6 +415,39 @@ class Assets:
             destination,
             GatewayProvider.get_gateway(),
             self._get_secret_store(consumer_account),
+            index
+        )
+
+    def download(self, did, service_index, owner_account, destination, index=None):
+        """
+        Download the asset data.
+
+        Using the service endpoint defined in the ddo's service pointed to by service_definition_id.
+        Consumer's permissions is checked implicitly by the secret-store during decryption
+        of the contentUrls.
+        The service endpoint is expected to also verify that `owner_account` is the actual owner
+        of the asset.
+        This method downloads and saves the asset datafiles to disk.
+
+        :param did: DID, str
+        :param service_index: identifier of the service inside the asset DDO, str
+        :param owner_account: Account instance of the owner
+        :param destination: str path
+        :param index: Index of the document that is going to be downloaded, int
+        :return: str path to saved files
+        """
+        ddo = self.resolve(did)
+        if index is not None:
+            assert isinstance(index, int), logger.error('index has to be an integer.')
+            assert index >= 0, logger.error('index has to be 0 or a positive integer.')
+        return self._asset_consumer.download(
+            service_index,
+            ddo,
+            owner_account,
+            destination,
+            GatewayProvider.get_gateway(),
+            self._get_secret_store(owner_account),
+            self._config,
             index
         )
 

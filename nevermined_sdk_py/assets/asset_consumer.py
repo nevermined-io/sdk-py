@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class AssetConsumer:
 
     @staticmethod
-    def download(service_agreement_id, service_index, ddo, consumer_account, destination,
+    def access(service_agreement_id, service_index, ddo, consumer_account, destination,
                  gateway, secret_store, index=None):
         """
         Download asset data files or result files from a compute job.
@@ -86,6 +86,62 @@ class AssetConsumer:
                     consumer_account,
                     asset_folder,
                     i
+                )
+
+        return asset_folder
+
+    @staticmethod
+    def download(service_index, ddo, owner_account, destination,
+                 gateway, secret_store, config, index=None):
+        """
+        Allows the onwer of and asset to download the data files.
+
+        :param service_index: identifier of the service inside the asset DDO, str
+        :param ddo: DDO
+        :param owner_account: Account instance of the owner
+        :param destination: Path, str
+        :param gateway: Gateway instance
+        :param secret_store: SecretStore instance
+        :param config: Sdk configuration instance
+        :param index: Index of the document that is going to be downloaded, int
+        :return: Asset folder path, str
+        """
+        did = ddo.did
+        if ddo.get_service(ServiceTypes.AUTHORIZATION):
+            secret_store_service = ddo.get_service(service_type=ServiceTypes.AUTHORIZATION)
+            secret_store_url = secret_store_service.service_endpoint
+            secret_store.set_secret_store_url(secret_store_url)
+
+        if not os.path.isabs(destination):
+            destination = os.path.abspath(destination)
+        if not os.path.exists(destination):
+            os.mkdir(destination)
+
+        asset_folder = os.path.join(destination,
+                                    f'datafile.{did_to_id(did)}.{service_index}')
+        if not os.path.exists(asset_folder):
+            os.mkdir(asset_folder)
+        if index is not None:
+            assert isinstance(index, int), logger.error('index has to be an integer.')
+            assert index >= 0, logger.error('index has to be 0 or a positive integer.')
+            assert index < len(ddo.metadata['main']['files']), logger.error(
+                'index can not be bigger than the number of files')
+        if index is not None:
+            gateway.download(
+                did,
+                owner_account,
+                asset_folder,
+                index,
+                config
+            )
+        else:
+            for i, _file in enumerate(ddo.metadata['main']['files']):
+                gateway.download(
+                    did,
+                    owner_account,
+                    asset_folder,
+                    i,
+                    config
                 )
 
         return asset_folder

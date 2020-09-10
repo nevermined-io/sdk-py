@@ -96,7 +96,7 @@ def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
         sa.index,
         consumer_account,
         config.downloads_path,
-        2
+        1
     )
     assert len(os.listdir(config.downloads_path)) == downloads_path_elements + 1
 
