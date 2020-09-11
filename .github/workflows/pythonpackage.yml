@@ -48,4 +48,4 @@ jobs:
         export PARITY_PASSWORD1=secret
         export PARITY_KEYFILE1=tests/resources/data/key_file_1.json
         pip install pytest
-        pytest
+        pytest -v

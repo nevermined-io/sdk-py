@@ -135,6 +135,39 @@ class Gateway:
         })
         consume_url = Gateway._create_access_url(service_endpoint, service_agreement_id, index)
         response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
+        if response.status_code != 200:
+            raise ValueError(response.text)
+        file_name = Gateway._get_file_name(response)
+        Gateway.write_file(response, destination_folder, file_name or f'file-{index}')
+        return response
+
+    @staticmethod
+    def download(did, account, destination_folder, index, config):
+        """Allows an asset data file if the account is the owner or provider of the asset
+
+        Args:
+            did (str): The did of the asset.
+            account (:py:class:`contracts_lib_py.account.Account`): The account
+                that should be the owner or provider of the asset.
+            destination_folder (str): The destination where the downloaded file should be put.
+            index (int): Index of the file.
+            config (:py:class:`nevermined_sdk_py.config.Config`): nevermined-sdk config instance.
+
+        Returns:
+            :py:class:`requests.Response`: HTTP server response
+
+        """
+        signature = Keeper.get_instance().sign_hash(
+            add_ethereum_prefix_and_hash_msg(did), account)
+        headers = {
+            'X-Consumer-Address': account.address,
+            'X-Signature': signature,
+            'X-DID': did
+        }
+        consume_url = Gateway._create_download_url(config, index)
+        response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
+        if response.status_code != 200:
+            raise ValueError(response.text)
         file_name = Gateway._get_file_name(response)
         Gateway.write_file(response, destination_folder, file_name or f'file-{index}')
         return response
@@ -218,6 +251,16 @@ class Gateway:
         :return: Url, str
         """
         return f'{Gateway.get_gateway_url(config)}/services/access'
+
+    @staticmethod
+    def get_download_endpoint(config):
+        """
+        Return he endpoint to download the asset.
+
+        :param config:Config
+        :return: Url, str
+        """
+        return f'{Gateway.get_gateway_url(config)}/services/download'
 
     @staticmethod
     def get_consume_endpoint(config):
@@ -308,6 +351,11 @@ class Gateway:
     def _create_access_url(service_endpoint, service_agreement_id, index=None):
         """Return the url to get access to an asset."""
         return f'{service_endpoint}/{service_agreement_id}/{index}'
+
+    @staticmethod
+    def _create_download_url(config, index=None):
+        """Return the url to download an asset."""
+        return f'{Gateway.get_download_endpoint(config)}/{index}'
 
     @staticmethod
     def _create_consume_url(service_endpoint, service_agreement_id, account, _file=None,

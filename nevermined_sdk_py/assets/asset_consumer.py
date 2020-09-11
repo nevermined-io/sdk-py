@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class AssetConsumer:
 
     @staticmethod
-    def download(service_agreement_id, service_index, ddo, consumer_account, destination,
+    def access(service_agreement_id, service_index, ddo, consumer_account, destination,
                  gateway, secret_store, index=None):
         """
         Download asset data files or result files from a compute job.
@@ -28,11 +28,6 @@ class AssetConsumer:
         :return: Asset folder path, str
         """
         did = ddo.did
-        # encrypted_files = ddo.metadata['encryptedFiles']
-        # encrypted_files = (
-        #     encrypted_files if isinstance(encrypted_files, str)
-        #     else encrypted_files[0]
-        # )
         sa = ServiceAgreement.from_ddo(ServiceTypes.ASSET_ACCESS, ddo)
         consume_url = sa.service_endpoint
         if not consume_url:
@@ -45,24 +40,9 @@ class AssetConsumer:
             secret_store_service = ddo.get_service(service_type=ServiceTypes.AUTHORIZATION)
             secret_store_url = secret_store_service.service_endpoint
             secret_store.set_secret_store_url(secret_store_url)
-            # decrypt the contentUrls
-            # decrypted_content_urls = json.loads(
-            #     secret_store.decrypt_document(did_to_id(did), encrypted_files)
-            # )
-            #
-            # if isinstance(decrypted_content_urls, str):
-            #     decrypted_content_urls = [decrypted_content_urls]
-            # logger.debug(f'got decrypted contentUrls: {decrypted_content_urls}')
 
-        if not os.path.isabs(destination):
-            destination = os.path.abspath(destination)
-        if not os.path.exists(destination):
-            os.mkdir(destination)
+        asset_folder = create_asset_folder(did, service_index, destination)
 
-        asset_folder = os.path.join(destination,
-                                    f'datafile.{did_to_id(did)}.{service_index}')
-        if not os.path.exists(asset_folder):
-            os.mkdir(asset_folder)
         if index is not None:
             assert isinstance(index, int), logger.error('index has to be an integer.')
             assert index >= 0, logger.error('index has to be 0 or a positive integer.')
@@ -89,3 +69,74 @@ class AssetConsumer:
                 )
 
         return asset_folder
+
+    @staticmethod
+    def download(service_index, ddo, owner_account, destination,
+                 gateway, secret_store, config, index=None):
+        """
+        Allows the onwer of and asset to download the data files.
+
+        :param service_index: identifier of the service inside the asset DDO, str
+        :param ddo: DDO
+        :param owner_account: Account instance of the owner
+        :param destination: Path, str
+        :param gateway: Gateway instance
+        :param secret_store: SecretStore instance
+        :param config: Sdk configuration instance
+        :param index: Index of the document that is going to be downloaded, int
+        :return: Asset folder path, str
+        """
+        did = ddo.did
+        if ddo.get_service(ServiceTypes.AUTHORIZATION):
+            secret_store_service = ddo.get_service(service_type=ServiceTypes.AUTHORIZATION)
+            secret_store_url = secret_store_service.service_endpoint
+            secret_store.set_secret_store_url(secret_store_url)
+
+        asset_folder = create_asset_folder(did, service_index, destination)
+
+        if index is not None:
+            assert isinstance(index, int), logger.error('index has to be an integer.')
+            assert index >= 0, logger.error('index has to be 0 or a positive integer.')
+            assert index < len(ddo.metadata['main']['files']), logger.error(
+                'index can not be bigger than the number of files')
+        if index is not None:
+            gateway.download(
+                did,
+                owner_account,
+                asset_folder,
+                index,
+                config
+            )
+        else:
+            for i, _file in enumerate(ddo.metadata['main']['files']):
+                gateway.download(
+                    did,
+                    owner_account,
+                    asset_folder,
+                    i,
+                    config
+                )
+
+        return asset_folder
+
+
+def create_asset_folder(did, service_index, destination):
+    """
+    Creates the asset folder to download the assets
+
+    :param did: the identifier of the asset ddo.
+    :param service_index: identifier of the service inside the asset DDO, str
+    :param destination: Path, str
+    :return: Asset folder path, str
+    """
+    if not os.path.isabs(destination):
+        destination = os.path.abspath(destination)
+    if not os.path.exists(destination):
+        os.mkdir(destination)
+
+    asset_folder = os.path.join(destination,
+                                f'datafile.{did_to_id(did)}.{service_index}')
+    if not os.path.exists(asset_folder):
+        os.mkdir(asset_folder)
+
+    return asset_folder

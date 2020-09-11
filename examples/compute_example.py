@@ -1,3 +1,4 @@
+import json
 import datetime
 import logging
 import os
@@ -66,19 +67,10 @@ def compute_example(verbose=False):
     provider_acc = acc
     consumer_acc = acc
 
-    # Publish assets
-    example_metadata.metadata["main"]["dateCreated"] = next(date_created)
-    ddo_data = nevermined.assets.create(
-        example_metadata.metadata, provider_acc, providers=[provider]
-    )
-
-    assert ddo_data is not None, "Creating data asset on-chain failed."
-    print(f"[PROVIDER --> NEVERMINED] Publishing data asset: {ddo_data.did}")
-
     # Publish compute
     example_metadata.compute_ddo["main"]["dateCreated"] = next(date_created)
-    ddo_compute = nevermined.assets.create(
-        example_metadata.compute_ddo, provider_acc, providers=[provider]
+    ddo_compute = nevermined.assets.create_compute(
+        example_metadata.metadata, provider_acc, providers=[provider]
     )
     assert ddo_compute is not None, "Creating compute asset on-chain failed."
     print(
@@ -99,7 +91,7 @@ def compute_example(verbose=False):
 
     # Publish workflows
     workflow_metadata = example_metadata.workflow_ddo
-    workflow_metadata["main"]["workflow"]["stages"][0]["input"][0]["id"] = ddo_data.did
+    workflow_metadata["main"]["workflow"]["stages"][0]["input"][0]["id"] = ddo_compute.did
     workflow_metadata["main"]["workflow"]["stages"][0]["transformation"][
         "id"
     ] = ddo_transformation.did
