@@ -122,8 +122,9 @@ def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
 
     # decrypt the contentUrls using the publisher account instead of consumer account.
     # if the secret store is working and ACL check is enabled, this should fail
-    # since SecretStore decrypt will fail the checkPermissions check
-    try:
+    # since SecretStore decrypt will fail the checkPermissions check and the gateway will return
+    # an http error code back
+    with pytest.raises(ValueError) as e:
         consumer_instance_no_init.assets.access(
             agreement_id,
             ddo.did,
@@ -131,19 +132,7 @@ def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
             pub_acc,
             config.downloads_path
         )
-    except RPCError:
-        print('hooray, secret store is working as expected.')
-
-    event = keeper.escrow_reward_condition.subscribe_condition_fulfilled(
-        agreement_id,
-        event_wait_time,
-        log_event(keeper.escrow_reward_condition.FULFILLED_EVENT),
-        (),
-        wait=True
-    )
-    assert event, 'no event for EscrowReward.Fulfilled'
-
-    assert w3.toHex(event.args['_agreementId']) == agreement_id
+        print(e)
 
 
 @pytest.mark.skip(reason="Run in local with the gateway up")
