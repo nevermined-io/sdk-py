@@ -456,6 +456,40 @@ class Assets:
             index
         )
 
+    def compute_logs(self, service_agreement_id, execution_id, account):
+        """
+        Get the logs of a compute workflow.
+
+        :param service_agreement_id: The id of the service agreement that ordered the compute job, str
+        :param execution_id: The id of the compute job, str
+        :param account: Account instance that ordered the execution of the compute job
+        :return: list, compute logs
+        """
+        return self._asset_consumer.compute_logs(
+            service_agreement_id,
+            execution_id,
+            account,
+            GatewayProvider.get_gateway(),
+            self._config,
+        )
+
+    def compute_status(self, service_agreement_id, execution_id, account):
+        """
+        Get the status of a compute workflow.
+
+        :param service_agreement_id: The id of the service agreement that ordered the compute job, str
+        :param execution_id: The id of the compute job, str
+        :param account: Account instance that ordered the execution of the compute job
+        :return: str compute status
+        """
+        return self._asset_consumer.compute_status(
+            service_agreement_id,
+            execution_id,
+            account,
+            GatewayProvider.get_gateway(),
+            self._config,
+        )
+
     def validate(self, metadata):
         """
         Validate that the metadata is ok to be stored in Metadata.

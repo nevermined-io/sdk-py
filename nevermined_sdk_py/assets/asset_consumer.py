@@ -119,6 +119,33 @@ class AssetConsumer:
 
         return asset_folder
 
+    @staticmethod
+    def compute_logs(service_agreement_id, execution_id, account, gateway, config):
+        """
+        Get the logs of a compute workflow.
+
+        :param service_agreement_id: The id of the service agreement that ordered the compute job, str
+        :param execution_id: The id of the compute job, str
+        :param account: Account instance that ordered the execution of the compute job
+        :param gateway: Gateway instance
+        :param config: Sdk configuration instance
+        :return: list, compute logs
+        """
+        return gateway.compute_logs(service_agreement_id, execution_id, account, config).json()
+
+    @staticmethod
+    def compute_status(service_agreement_id, execution_id, account, gateway, config):
+        """
+        Get the status of a compute workflow.
+
+        :param service_agreement_id: The id of the service agreement that ordered the compute job, str
+        :param execution_id: The id of the compute job, str
+        :param account: Account instance that ordered the execution of the compute job
+        :param gateway: Gateway instance
+        :param config: Sdk configuration instance
+        :return: dict, compute logs
+        """
+        return gateway.compute_status(service_agreement_id, execution_id, account, config).json()
 
 def create_asset_folder(did, service_index, destination):
     """
