@@ -142,6 +142,62 @@ class Gateway:
         return response
 
     @staticmethod
+    def compute_logs(service_agreement_id, execution_id, account, config):
+        """Get the logs of a compute workflow.
+
+        Args:
+            service_agreement_id (str): The id of the service agreement.
+            execution_id (str): The id of the workflow execution.
+            account (:py:class:`contracts_lib_py.account.Account`): The account that ordered
+                the execution of the workflow.
+            config (:py:class:`nevermined_sdk_py.config.Config`): nevermined-sdk config instance.
+
+        Returns:
+            :py:class:`requests.Response`: HTTP server response
+
+        """
+        signature = Keeper.get_instance().sign_hash(
+            add_ethereum_prefix_and_hash_msg(execution_id),
+            account)
+        headers = {
+            'X-Consumer-Address': account.address,
+            'X-Signature': signature,
+        }
+        consume_url = Gateway._create_compute_logs_url(config, service_agreement_id, execution_id)
+        response = Gateway._http_client.get(consume_url, headers=headers)
+        if response.status_code != 200:
+            raise ValueError(response.text)
+        return response
+
+    @staticmethod
+    def compute_status(service_agreement_id, execution_id, account, config):
+        """Get the status of a compute workflow.
+
+        Args:
+            service_agreement_id (str): The id of the service agreement.
+            execution_id (str): The id of the workflow execution.
+            account (:py:class:`contracts_lib_py.account.Account`): The account that ordered
+                the execution of the workflow.
+            config (:py:class:`nevermined_sdk_py.config.Config`): nevermined-sdk config instance.
+
+        Returns:
+            :py:class:`requests.Response`: HTTP server response
+
+        """
+        signature = Keeper.get_instance().sign_hash(
+            add_ethereum_prefix_and_hash_msg(execution_id),
+            account)
+        headers = {
+            'X-Consumer-Address': account.address,
+            'X-Signature': signature,
+        }
+        consume_url = Gateway._create_compute_status_url(config, service_agreement_id, execution_id)
+        response = Gateway._http_client.get(consume_url, headers=headers)
+        if response.status_code != 200:
+            raise ValueError(response.text)
+        return response
+
+    @staticmethod
     def download(did, account, destination_folder, index, config):
         """Allows an asset data file if the account is the owner or provider of the asset
 
@@ -263,6 +319,26 @@ class Gateway:
         return f'{Gateway.get_gateway_url(config)}/services/download'
 
     @staticmethod
+    def get_compute_logs_endpoint(config):
+        """
+        Return he endpoint to get the logs of a compute workflow.
+
+        :param config:Config
+        :return: Url, str
+        """
+        return f'{Gateway.get_gateway_url(config)}/services/compute/logs'
+
+    @staticmethod
+    def get_compute_status_endpoint(config):
+        """
+        Return he endpoint to get the status of a compute workflow.
+
+        :param config:Config
+        :return: Url, str
+        """
+        return f'{Gateway.get_gateway_url(config)}/services/compute/status'
+
+    @staticmethod
     def get_consume_endpoint(config):
         """
         Return the url to access the asset.
@@ -356,6 +432,16 @@ class Gateway:
     def _create_download_url(config, index=None):
         """Return the url to download an asset."""
         return f'{Gateway.get_download_endpoint(config)}/{index}'
+
+    @staticmethod
+    def _create_compute_logs_url(config, service_agreement_id, execution_id):
+        """Return the url to get the execution logs of a compute workflow."""
+        return f'{Gateway.get_compute_logs_endpoint(config)}/{service_agreement_id}/{execution_id}'
+
+    @staticmethod
+    def _create_compute_status_url(config, service_agreement_id, execution_id):
+        """Return the url to get the status of a compute workflow."""
+        return f'{Gateway.get_compute_status_endpoint(config)}/{service_agreement_id}/{execution_id}'
 
     @staticmethod
     def _create_consume_url(service_endpoint, service_agreement_id, account, _file=None,
