@@ -588,7 +588,7 @@ class Assets:
         :param consumer_account: Account instance of the consumer ordering the service
         :param workflow_did: the asset did (of `workflow` type) which consist of `did:nv:` and
         the assetId hex str (without `0x` prefix), str
-        :return: local path on the file system where the asset data files are downloaded, str
+        :return: the id of the compute job, str
         """
         workflow_ddo = self.resolve(workflow_did)
         compute_ddo = self.resolve(did)
