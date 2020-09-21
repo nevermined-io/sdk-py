@@ -403,7 +403,7 @@ class Gateway:
     @staticmethod
     def _get_file_name(response):
         try:
-            return re.match(r'attachment;filename=(.+)',
+            return re.match(r'attachment;filename=(.+?)($|\?)',
                             response.headers.get('content-disposition'))[1]
         except Exception as e:
             logger.warning(f'It was not possible to get the file name. {e}')
