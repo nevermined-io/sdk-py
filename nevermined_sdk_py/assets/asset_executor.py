@@ -17,9 +17,11 @@ class AssetExecutor:
         :param workflow_ddo:
         :param consumer_account:
         :param index:
-        :return:
+        :return: the id of the compute job
         """
         service_endpoint = ServiceAgreement.from_ddo(ServiceTypes.CLOUD_COMPUTE,
                                                      compute_ddo).service_endpoint
+        response = gateway.execute_compute_service(agreement_id, service_endpoint,
+                                                   consumer_account, workflow_ddo)
 
-        gateway.execute_compute_service(agreement_id, service_endpoint, consumer_account, workflow_ddo)
+        return response.json()["workflowId"]

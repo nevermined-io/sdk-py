@@ -258,6 +258,8 @@ class Gateway:
         })
         execute_url = Gateway._create_compute_url(service_endpoint, service_agreement_id)
         response = Gateway._http_client.post(execute_url, headers= headers)
+        if response.status_code != 200:
+            raise ValueError(response.text)
         return response
 
 
