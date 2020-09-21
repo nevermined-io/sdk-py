@@ -1,5 +1,7 @@
 import os
 
+from requests import Response
+
 from nevermined_sdk_py.gateway.gateway import Gateway
 
 
@@ -43,7 +45,9 @@ class GatewayMock(object):
 
     @staticmethod
     def execute_compute_service(agreement_id, service_endpoint, consumer_account, workflow_ddo):
-        return True
+        r = Response()
+        r._content = b'{"workflowId": "nevermined-compute-h4trr"}'
+        return r
 
     @staticmethod
     def get_gateway_url(config):
