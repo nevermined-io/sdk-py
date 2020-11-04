@@ -64,8 +64,8 @@ for d, _, _ in os.walk('nevermined_sdk_py'):
         packages.append(d.replace(os.path.sep, '.'))
 
 setup(
-    author="keyko-io",
-    author_email='root@keyko.io',
+    author="nevermined-io",
+    author_email='root@nevermined.io',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -90,7 +90,7 @@ setup(
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/keyko-io/nevermined-sdk-py',
+    url='https://github.com/nevermined-io/sdk-py',
     version='0.4.2',
     zip_safe=False,
 )

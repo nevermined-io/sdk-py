@@ -335,7 +335,7 @@ class Assets:
         Search an asset in oceanDB using search query.
 
         :param query: dict with query parameters
-            (e.g.) https://github.com/keyko-io/nevermined-metadata/blob/develop/docs
+            (e.g.) https://github.com/nevermined-io/metadata-api/blob/develop/docs
             /for_api_users/API.md
         :param sort: Dictionary to choose order main in some value
         :param offset: Number of elements shows by page

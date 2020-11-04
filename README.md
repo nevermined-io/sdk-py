@@ -1,4 +1,4 @@
-[![banner](https://raw.githubusercontent.com/keyko-io/assets/master/images/logo/nevermined_logo_1.png)](https://nevermined.io)
+[![banner](https://raw.githubusercontent.com/nevermined-io/assets/main/images/logo/banner_logo.png)](https://nevermined.io)
 
 # Python API for Nevermined Data platform
 
@@ -6,7 +6,7 @@
 > [nevermined.io](https://nevermined.io)
 
 [![PyPI](https://img.shields.io/pypi/v/nevermined-sdk-py.svg)](https://pypi.org/project/nevermined-sdk-py/)
-[![Python package](https://github.com/keyko-io/nevermined-sdk-py/workflows/Python%20package/badge.svg)](https://github.com/keyko-io/nevermined-sdk-py/actions)
+[![Python package](https://github.com/nevermined-io/sdk-py/workflows/Python%20package/badge.svg)](https://github.com/nevermined-io/sdk-py/actions)
 ---
 
 ## Table of Contents
@@ -152,7 +152,7 @@ In addition to the configuration file, you may use the following environment var
     pip install -r requirements_dev.txt
     ```
 
-1. Create the local testing environment using [nevermined-tools](https://github.com/keyko-io/nevermined-tools). Once cloned that repository, you can start the cluster running:
+1. Create the local testing environment using [nevermined-tools](https://github.com/nevermined-io/tools). Once cloned that repository, you can start the cluster running:
 
     ```
     ./start_nevermined.sh --latest --no-gateway --no-common --local-spree-node

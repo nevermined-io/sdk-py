@@ -16,7 +16,7 @@ metadata = {
                 "checksum": str(uuid.uuid4()),
                 "checksumType": "MD5",
                 "contentLength": "12057507",
-                "url": "https://raw.githubusercontent.com/keyko-io/nevermined-tools/master/README.md"
+                "url": "https://raw.githubusercontent.com/nevermined-io/tools/master/README.md"
             }
         ],
         "type": "dataset"
@@ -38,7 +38,7 @@ algo_metadata = {
                   "checksum": str(uuid.uuid4()),
                   "checksumType": "MD5",
                   "contentLength": "12057507",
-                  "url": "https://raw.githubusercontent.com/keyko-io/nevermined-sdk-py/5bde9ae823bbd3717fc86ef161690064e0e4c95b/examples/word_count.py?token=AANVZIYOQDJMBKUJABHEZ2C7NJHQE"
+                  "url": "https://raw.githubusercontent.com/nevermined-io/docs/master/resources/word_count.py"
               }
           ],
           "type": "algorithm",

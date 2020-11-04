@@ -11,7 +11,7 @@
 - Wait for all the tests to pass!
 - Merge the pull request into the `develop` branch.
 - To make a GitHub release (which creates a Git tag):
-  - Go to the nevermined-sdk-py repo's Releases page [https://github.com/keyko-io/nevermined-sdk-py/releases](https://github.com/keyko-io/nevermined-sdk-py/releases)
+  - Go to the nevermined-sdk-py repo's Releases page [https://github.com/nevermined-io/sdk-py/releases](https://github.com/nevermined-io/sdk-py/releases)
   - Click "Draft a new release".
   - For tag version, put something like `v0.2.5`
   - For release title, put the same value (like `v0.2.5`).
