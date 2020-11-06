@@ -20,9 +20,9 @@ install_requirements = [
     'pyopenssl',
     'PyJWT',  # not jwt
     'PyYAML==4.2b4',
-    'common-utils-py==0.2.8',
-    'contracts-lib-py==0.4.0',
-    'ocean-secret-store-client==0.0.1',
+    'common-utils-py==0.3.0',
+    'contracts-lib-py==0.5.0',
+    'ocean-secret-store-client==0.0.2',
     'requests==2.21.0',
     'deprecated',
     'pycryptodomex',
@@ -91,6 +91,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/nevermined-io/sdk-py',
-    version='0.4.2',
+    version='0.5.0',
     zip_safe=False,
 )
