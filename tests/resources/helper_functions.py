@@ -103,7 +103,7 @@ def get_ddo_sample():
 
 def get_algorithm_ddo():
     return json.loads(urlopen(
-        "https://raw.githubusercontent.com/nevermined-io/docs/263678ffe35839e335a7e96f7ba2268fcd860762/docs/architecture/specs/examples/metadata/v0.1/ddo-example-algorithm.json").read().decode(
+        "https://raw.githubusercontent.com/nevermined-io/docs/1a853613bd9e9d633474e571d3225378a37b6451/docs/architecture/specs/examples/metadata/v0.1/ddo-example-algorithm.json").read().decode(
         'utf-8'))
 
 
