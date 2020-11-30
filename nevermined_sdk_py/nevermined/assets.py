@@ -420,6 +420,7 @@ class Assets:
             destination,
             GatewayProvider.get_gateway(),
             self._get_secret_store(consumer_account),
+            self._config,
             index
         )
 
