@@ -6,7 +6,7 @@ import re
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.exceptions import EncryptAssetUrlsError
 from common_utils_py.http_requests.requests_session import get_requests_session
-from common_utils_py.oauth2.token import NeverminedJWTBearerGrant, generate_access_grant_token
+from common_utils_py.oauth2.token import NeverminedJWTBearerGrant, generate_access_grant_token, generate_download_grant_token
 from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
 
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
@@ -102,7 +102,7 @@ class Gateway:
         headers = {"Authorization": f"Bearer {access_token}"}
 
         response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
-        if response.status_code != 200:
+        if not response.ok:
             raise ValueError(response.text)
 
         file_name = Gateway._get_file_name(response)
@@ -182,19 +182,24 @@ class Gateway:
             :py:class:`requests.Response`: HTTP server response
 
         """
-        signature = Keeper.get_instance().sign_hash(
-            add_ethereum_prefix_and_hash_msg(did), account)
-        headers = {
-            'X-Consumer-Address': account.address,
-            'X-Signature': signature,
-            'X-DID': did
-        }
+        cache_key = Gateway._generate_cache_key(account.address, did)
+        if cache_key not in Gateway._tokens_cache:
+            grant_token = generate_download_grant_token(account, did)
+            access_token = Gateway.fetch_token(grant_token, config)
+            Gateway._tokens_cache[cache_key] = access_token
+        else:
+            access_token = Gateway._tokens_cache[cache_key]
+
+        headers = {"Authorization": f"Bearer {access_token}"}
         consume_url = Gateway._create_download_url(config, index)
+
         response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
-        if response.status_code != 200:
+        if not response.ok:
             raise ValueError(response.text)
+
         file_name = Gateway._get_file_name(response)
         Gateway.write_file(response, destination_folder, file_name or f'file-{index}')
+
         return response
 
     @staticmethod
