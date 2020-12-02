@@ -128,16 +128,19 @@ class Gateway:
             :py:class:`requests.Response`: HTTP server response
 
         """
-        signature = Keeper.get_instance().sign_hash(
-            add_ethereum_prefix_and_hash_msg(execution_id),
-            account)
-        headers = {
-            'X-Consumer-Address': account.address,
-            'X-Signature': signature,
-        }
+        cache_key = Gateway._generate_cache_key(account.address, service_agreement_id, execution_id)
+        if cache_key not in Gateway._tokens_cache:
+            grant_token = generate_compute_grant_token(account, service_agreement_id, execution_id)
+            access_token = Gateway.fetch_token(grant_token, config)
+            Gateway._tokens_cache[cache_key] = access_token
+        else:
+            access_token = Gateway._tokens_cache[cache_key]
+
+        headers = {"Authorization": f"Bearer {access_token}"}
         consume_url = Gateway._create_compute_logs_url(config, service_agreement_id, execution_id)
+
         response = Gateway._http_client.get(consume_url, headers=headers)
-        if response.status_code != 200:
+        if not response.ok:
             raise ValueError(response.text)
         return response
 

@@ -373,8 +373,50 @@ def test_compute_status(publisher_instance_no_init, consumer_instance_no_init):
     assert status
 
     publisher_instance_no_init.assets.retire(ddo_computing.did)
+    publisher_instance_no_init.assets.retire(ddo_algorithm.did)
     publisher_instance_no_init.assets.retire(workflow_ddo.did)
 
+
+def test_compute_logs(publisher_instance_no_init, consumer_instance_no_init):
+    consumer = publisher_instance_no_init.main_account
+    publisher = consumer_instance_no_init.main_account
+
+    # publish compute
+    metadata = get_metadata()
+    ddo_computing = publisher_instance_no_init.assets.create_compute(metadata, publisher)
+
+    # publish algorithm
+    metadata = get_algorithm_ddo()['service'][0]
+    ddo_algorithm = consumer_instance_no_init.assets.create(metadata['attributes'], consumer)
+
+    metadata = get_workflow_ddo()['service'][0]
+    metadata['attributes']['main']['workflow']['stages'][0]['input'][0]['id'] = ddo_computing.did
+    metadata['attributes']['main']['workflow']['stages'][0]['transformation']['id'] = ddo_algorithm.did
+    workflow_ddo = consumer_instance_no_init.assets.create(metadata['attributes'], publisher)
+    assert workflow_ddo
+
+    # order compute asset
+    service = ddo_computing.get_service(service_type=ServiceTypes.CLOUD_COMPUTE)
+    sa = ServiceAgreement.from_service_dict(service.as_dictionary())
+    agreement_id = consumer_instance_no_init.assets.order(ddo_computing.did, sa.index, consumer)
+
+    keeper = Keeper.get_instance()
+    event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
+        agreement_id, 60, None, (), wait=True
+    )
+    assert event is not None, "Reward condition is not found"
+
+    # execute workflow
+    execution_id = consumer_instance_no_init.assets.execute(agreement_id, ddo_computing.did, sa.index, consumer,
+        workflow_ddo.did)
+
+    # get logs
+    logs = consumer_instance_no_init.assets.compute_logs(agreement_id, execution_id, consumer)
+    assert logs
+
+    publisher_instance_no_init.assets.retire(ddo_computing.did)
+    publisher_instance_no_init.assets.retire(ddo_algorithm.did)
+    publisher_instance_no_init.assets.retire(workflow_ddo.did)
 
 def test_agreement_direct(publisher_instance, consumer_instance, metadata):
     publisher_account = publisher_instance.main_account
