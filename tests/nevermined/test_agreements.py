@@ -1,3 +1,4 @@
+import uuid
 from unittest.mock import MagicMock, Mock
 
 import pytest
@@ -22,6 +23,7 @@ def agreements():
     w3 = Web3Provider.get_web3()
     did_resolver = Mock()
     ddo = get_ddo_sample()
+    ddo.metadata['main']['files'][0]['checksum'] = str(uuid.uuid4())
     service = ddo.get_service(ServiceTypes.ASSET_ACCESS)
     service.update_value(
         ServiceAgreementTemplate.TEMPLATE_ID_KEY,

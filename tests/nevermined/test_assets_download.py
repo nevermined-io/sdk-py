@@ -3,15 +3,13 @@ import pytest
 from examples import ExampleConfig
 from tests.resources.helper_functions import (get_algorithm_ddo,
                                               get_consumer_instance,
-                                              get_metadata,
                                               get_publisher_instance)
 
 
-def test_publisher_download_compute():
+def test_publisher_download_compute(metadata):
     config = ExampleConfig.get_config()
     publisher_instance = get_publisher_instance(True, False, False)
     publisher = publisher_instance.main_account
-    metadata = get_metadata()
     ddo = publisher_instance.assets.create_compute(metadata, publisher)
     assert ddo
 
@@ -22,13 +20,12 @@ def test_publisher_download_compute():
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_consumer_download_compute():
+def test_consumer_download_compute(metadata):
     config = ExampleConfig.get_config()
     publisher_instance = get_publisher_instance(True, False, False)
     publisher = publisher_instance.main_account
     consumer_instance = get_consumer_instance(True, False, False)
     consumer = consumer_instance.main_account
-    metadata = get_metadata()
 
     # publisher creates compute asset
     ddo = publisher_instance.assets.create_compute(metadata, publisher)
@@ -48,11 +45,11 @@ def test_consumer_download_compute():
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_publisher_download_algorithm():
+def test_publisher_download_algorithm(ddo_algorithm):
     config = ExampleConfig.get_config()
     publisher_instance = get_publisher_instance(True, False, False)
     publisher = publisher_instance.main_account
-    metadata = get_algorithm_ddo()["service"][0]
+    metadata = ddo_algorithm["service"][0]
     ddo = publisher_instance.assets.create(metadata["attributes"], publisher)
     assert ddo
 
@@ -63,13 +60,13 @@ def test_publisher_download_algorithm():
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_provider_download_algorithm():
+def test_provider_download_algorithm(ddo_algorithm):
     config = ExampleConfig.get_config()
     publisher_instance = get_publisher_instance(True, False, False)
     provider = publisher_instance.main_account
     consumer_instance = get_consumer_instance(True, False, False)
     consumer = consumer_instance.main_account
-    metadata = get_algorithm_ddo()["service"][0]
+    metadata = ddo_algorithm["service"][0]
 
     # consumer creates algorithm asset (for a compute job)
     ddo = consumer_instance.assets.create(

@@ -17,6 +17,7 @@ from nevermined_sdk_py.nevermined.secret_store import SecretStore
 from nevermined_sdk_py.nevermined.services import Services
 from nevermined_sdk_py.nevermined.templates import Templates
 from nevermined_sdk_py.nevermined.tokens import Tokens
+from nevermined_sdk_py.nevermined.provenance import Provenance
 
 CONFIG_FILE_ENVIRONMENT_NAME = 'CONFIG_FILE'
 
@@ -103,6 +104,7 @@ class Nevermined:
         self.services = Services()
         self.providers = Providers(self._keeper, self._did_resolver, self._config)
         self.auth = Auth(self._keeper, self._config.storage_path)
+        self.provenance = Provenance(self._keeper, self._config)
 
         logger.debug('Nevermined instance initialized: ')
         logger.debug(f'\tOther accounts: {sorted([a.address for a in self.accounts.list()])}')

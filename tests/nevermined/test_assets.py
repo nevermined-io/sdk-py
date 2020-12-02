@@ -8,8 +8,7 @@ from common_utils_py.did import DID
 from contracts_lib_py.exceptions import DIDNotFound
 from contracts_lib_py.web3_provider import Web3Provider
 
-from tests.resources.helper_functions import (get_algorithm_ddo, get_workflow_ddo,
-                                              log_event, get_metadata)
+from tests.resources.helper_functions import log_event
 
 
 def create_asset(publisher_instance, ddo_sample):
@@ -54,7 +53,7 @@ def test_resolve_did(publisher_instance, metadata):
     # metadata = Metadata.get_example()
     publisher = publisher_instance.main_account
     # happy path
-    original_ddo = publisher_instance.assets.create(metadata, publisher)
+    original_ddo = publisher_instance.assets.create(metadata, publisher, activity_id=publisher.address, attributes='test123')
     did = original_ddo.did
     ddo = publisher_instance.assets.resolve(did).as_dictionary()
     original = original_ddo.as_dictionary()
@@ -244,31 +243,26 @@ def test_assets_search(publisher_instance, metadata):
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_assets_validate(publisher_instance, metadata):
-    assert publisher_instance.assets.validate(metadata)
-
-
-def test_assets_algorithm(publisher_instance):
+def test_assets_algorithm(publisher_instance, ddo_sample):
     # Allow publish an algorithm
     publisher = publisher_instance.main_account
-    metadata = get_algorithm_ddo()['service'][0]
-    ddo = publisher_instance.assets.create(metadata['attributes'], publisher)
+    metadata = ddo_sample.services[0]
+    ddo = publisher_instance.assets.create(metadata.attributes, publisher)
     assert ddo
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_assets_workflow(publisher_instance):
+def test_assets_workflow(publisher_instance, ddo_workflow):
     # Allow publish an workflow
     publisher = publisher_instance.main_account
-    metadata = get_workflow_ddo()['service'][0]
+    metadata = ddo_workflow['service'][0]
     ddo = publisher_instance.assets.create(metadata['attributes'], publisher)
     assert ddo
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_assets_compute(publisher_instance):
+def test_assets_compute(publisher_instance, metadata):
     publisher = publisher_instance.main_account
-    metadata = get_metadata()
     ddo = publisher_instance.assets.create_compute(metadata, publisher)
     assert ddo
     publisher_instance.assets.retire(ddo.did)
@@ -296,13 +290,13 @@ def test_grant_permissions(publisher_instance, metadata, consumer_instance):
     assert not publisher_instance.assets.get_permissions(ddo.did, consumer.address)
 
 
-def test_execute_workflow(publisher_instance, consumer_instance):
+def test_execute_workflow(publisher_instance, consumer_instance, ddo_workflow, metadata):
     publisher = publisher_instance.main_account
     consumer = consumer_instance.main_account
-    metadata = get_workflow_ddo()['service'][0]
-    workflow_ddo = publisher_instance.assets.create(metadata['attributes'], publisher)
+    metadata_workflow = ddo_workflow['service'][0]
+    workflow_ddo = publisher_instance.assets.create(metadata_workflow['attributes'], publisher)
     assert workflow_ddo
-    metadata = get_metadata()
+
     ddo_computing = publisher_instance.assets.create_compute(metadata, publisher)
     assert ddo_computing
     service = ddo_computing.get_service(service_type=ServiceTypes.CLOUD_COMPUTE)

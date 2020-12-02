@@ -21,8 +21,8 @@ install_requirements = [
     'PyJWT',  # not jwt
     'PyYAML==4.2b4',
     'common-utils-py==0.3.0',
-    'contracts-lib-py==0.5.0',
-    'ocean-secret-store-client==0.0.2',
+    'contracts-lib-py==0.5.2',
+    'nevermined-secret-store>=0.1.0',
     'requests==2.21.0',
     'deprecated',
     'pycryptodomex',
