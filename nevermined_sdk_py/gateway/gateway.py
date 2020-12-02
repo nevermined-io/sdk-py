@@ -6,7 +6,7 @@ import re
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.exceptions import EncryptAssetUrlsError
 from common_utils_py.http_requests.requests_session import get_requests_session
-from common_utils_py.oauth2.token import NeverminedJWTBearerGrant, generate_access_grant_token, generate_download_grant_token
+from common_utils_py.oauth2.token import NeverminedJWTBearerGrant, generate_access_grant_token, generate_download_grant_token, generate_execute_grant_token
 from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
 
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
@@ -221,18 +221,20 @@ class Gateway:
         return response
 
     @staticmethod
-    def execute_compute_service(service_agreement_id, service_endpoint, account, workflow_ddo):
-        signature = Keeper.get_instance().sign_hash(
-            add_ethereum_prefix_and_hash_msg(service_agreement_id),
-            account)
-        headers = dict({
-            'X-Consumer-Address': account.address,
-            'X-Signature': signature,
-            'X-Workflow-DID': workflow_ddo.did
-        })
+    def execute_compute_service(service_agreement_id, service_endpoint, account, workflow_ddo, config):
+        cache_key = Gateway._generate_cache_key(account.address, service_agreement_id, workflow_ddo.did)
+        if cache_key not in Gateway._tokens_cache:
+            grant_token = generate_execute_grant_token(account, service_agreement_id, workflow_ddo.did)
+            access_token = Gateway.fetch_token(grant_token, config)
+            Gateway._tokens_cache[cache_key] = access_token
+        else:
+            access_token = Gateway._tokens_cache[cache_key]
+
+        headers = {"Authorization": f"Bearer {access_token}"}
         execute_url = Gateway._create_compute_url(service_endpoint, service_agreement_id)
-        response = Gateway._http_client.post(execute_url, headers= headers)
-        if response.status_code != 200:
+
+        response = Gateway._http_client.post(execute_url, headers=headers)
+        if not response.ok:
             raise ValueError(response.text)
         return response
 

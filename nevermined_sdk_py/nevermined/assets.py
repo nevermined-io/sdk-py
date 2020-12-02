@@ -602,7 +602,8 @@ class Assets:
             workflow_ddo,
             consumer_account,
             GatewayProvider.get_gateway(),
-            index
+            index,
+            self._config
         )
 
     @staticmethod

@@ -1,4 +1,5 @@
 import logging
+from contracts_lib_py.keeper import Keeper
 
 import pytest
 from common_utils_py.agreements.service_agreement import ServiceAgreement
@@ -296,22 +297,42 @@ def test_grant_permissions(publisher_instance, metadata, consumer_instance):
     assert not publisher_instance.assets.get_permissions(ddo.did, consumer.address)
 
 
-def test_execute_workflow(publisher_instance, consumer_instance):
-    publisher = publisher_instance.main_account
-    consumer = consumer_instance.main_account
-    metadata = get_workflow_ddo()['service'][0]
-    workflow_ddo = publisher_instance.assets.create(metadata['attributes'], publisher)
-    assert workflow_ddo
+def test_execute_workflow(publisher_instance_no_init, consumer_instance_no_init):
+    consumer = publisher_instance_no_init.main_account
+    publisher = consumer_instance_no_init.main_account
+
+    # publish compute
     metadata = get_metadata()
-    ddo_computing = publisher_instance.assets.create_compute(metadata, publisher)
-    assert ddo_computing
+    ddo_computing = publisher_instance_no_init.assets.create_compute(metadata, publisher)
+
+    # publish algorithm
+    metadata = get_algorithm_ddo()['service'][0]
+    ddo_algorithm = consumer_instance_no_init.assets.create(metadata['attributes'], consumer)
+
+    metadata = get_workflow_ddo()['service'][0]
+    metadata['attributes']['main']['workflow']['stages'][0]['input'][0]['id'] = ddo_computing.did
+    metadata['attributes']['main']['workflow']['stages'][0]['transformation']['id'] = ddo_algorithm.did
+    workflow_ddo = consumer_instance_no_init.assets.create(metadata['attributes'], publisher)
+    assert workflow_ddo
+
+    # order compute asset
     service = ddo_computing.get_service(service_type=ServiceTypes.CLOUD_COMPUTE)
     sa = ServiceAgreement.from_service_dict(service.as_dictionary())
-    agreement_id = consumer_instance.assets.order(ddo_computing.did, sa.index, consumer)
-    consumer_instance.assets.execute(agreement_id, ddo_computing.did, sa.index, consumer,
-                                     workflow_ddo.did)
-    publisher_instance.assets.retire(ddo_computing.did)
-    publisher_instance.assets.retire(workflow_ddo.did)
+    agreement_id = consumer_instance_no_init.assets.order(ddo_computing.did, sa.index, consumer)
+
+    keeper = Keeper.get_instance()
+    event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
+        agreement_id, 60, None, (), wait=True
+    )
+    assert event is not None, "Reward condition is not found"
+
+    # execute workflow
+    execution_id = consumer_instance_no_init.assets.execute(agreement_id, ddo_computing.did, sa.index, consumer,
+        workflow_ddo.did)
+    assert execution_id
+
+    publisher_instance_no_init.assets.retire(ddo_computing.did)
+    publisher_instance_no_init.assets.retire(workflow_ddo.did)
 
 
 def test_agreement_direct(publisher_instance, consumer_instance, metadata):
