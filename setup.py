@@ -22,7 +22,7 @@ install_requirements = [
     'PyYAML==4.2b4',
     'common-utils-py==0.3.0',
     'contracts-lib-py==0.5.2',
-    'nevermined-secret-store>=0.1.0',
+    'nevermined-secret-store==0.1.0',
     'requests==2.21.0',
     'deprecated',
     'pycryptodomex',
@@ -38,8 +38,6 @@ setup_requirements = ['pytest-runner', ]
 
 test_requirements = [
     'coverage',
-    'docker',
-    'mccabe',
     'pylint',
     'pytest',
     'pytest-watch',

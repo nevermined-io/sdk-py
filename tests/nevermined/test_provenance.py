@@ -1,4 +1,3 @@
-import logging
 import uuid
 
 
@@ -7,8 +6,6 @@ def new_did():
 
 
 def test_get_provenance(publisher_instance, ddo_sample):
-    logging.debug("".format())
-
     publisher = publisher_instance.main_account
     activity_id = new_did()
     provenance_id = new_did()
@@ -38,8 +35,6 @@ def test_get_provenance(publisher_instance, ddo_sample):
 
 
 def test_delegate_provenance(publisher_instance, consumer_instance, ddo_sample):
-    logging.debug("".format())
-
     publisher = publisher_instance.main_account
     delegated = consumer_instance.main_account
 
@@ -60,8 +55,6 @@ def test_delegate_provenance(publisher_instance, consumer_instance, ddo_sample):
 
 
 def test_search_multiple_provenance_event_tests(publisher_instance, ddo_sample):
-    logging.debug("".format())
-
     publisher = publisher_instance.main_account
     activity_id = new_did()
     provenance_id = new_did()
@@ -106,8 +99,6 @@ def test_search_multiple_provenance_event_tests(publisher_instance, ddo_sample):
 
 
 def test_calling_twice_provenance(publisher_instance, ddo_sample):
-    logging.debug("".format())
-
     publisher = publisher_instance.main_account
     activity_id = new_did()
     provenance_id = new_did()
