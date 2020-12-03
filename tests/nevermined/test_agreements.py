@@ -1,42 +1,10 @@
-from unittest.mock import MagicMock, Mock
-
-import pytest
 from common_utils_py.agreements.service_agreement import ServiceAgreement
-from common_utils_py.agreements.service_agreement_template import ServiceAgreementTemplate
 from common_utils_py.agreements.service_types import ServiceTypes, ServiceTypesIndices
-from contracts_lib_py.web3_provider import Web3Provider
 
-from nevermined_sdk_py import ConfigProvider
-from nevermined_sdk_py.assets.asset_consumer import AssetConsumer
-from nevermined_sdk_py.assets.asset_executor import AssetExecutor
 from nevermined_sdk_py.gateway.gateway import Gateway
-from nevermined_sdk_py.nevermined.agreements import Agreements
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
-from tests.resources.helper_functions import (get_ddo_sample, log_event)
+from tests.resources.helper_functions import log_event
 from tests.resources.mocks.gateway_mock import GatewayMock
-
-
-@pytest.fixture
-def agreements():
-    keeper = Keeper.get_instance()
-    w3 = Web3Provider.get_web3()
-    did_resolver = Mock()
-    ddo = get_ddo_sample()
-    service = ddo.get_service(ServiceTypes.ASSET_ACCESS)
-    service.update_value(
-        ServiceAgreementTemplate.TEMPLATE_ID_KEY,
-        w3.toChecksumAddress("0x00bd138abd70e2f00903268f3db08f2d25677c9e")
-    )
-    did_resolver.resolve = MagicMock(return_value=ddo)
-    # consumer_class = Mock
-    # consumer_class.download = MagicMock(return_value='')
-    return Agreements(
-        keeper,
-        did_resolver,
-        AssetConsumer,
-        AssetExecutor,
-        ConfigProvider.get_config()
-    )
 
 
 def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):

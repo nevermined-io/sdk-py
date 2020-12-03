@@ -9,8 +9,7 @@ from common_utils_py.did import DID
 from contracts_lib_py.exceptions import DIDNotFound
 from contracts_lib_py.web3_provider import Web3Provider
 
-from tests.resources.helper_functions import (get_algorithm_ddo, get_workflow_ddo,
-                                              log_event, get_metadata)
+from tests.resources.helper_functions import log_event
 
 
 def create_asset(publisher_instance, ddo_sample):
@@ -249,27 +248,26 @@ def test_assets_validate(publisher_instance, metadata):
     assert publisher_instance.assets.validate(metadata)
 
 
-def test_assets_algorithm(publisher_instance):
+def test_assets_algorithm(publisher_instance, algorithm_ddo):
     # Allow publish an algorithm
     publisher = publisher_instance.main_account
-    metadata = get_algorithm_ddo()['service'][0]
+    metadata = algorithm_ddo['service'][0]
     ddo = publisher_instance.assets.create(metadata['attributes'], publisher)
     assert ddo
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_assets_workflow(publisher_instance):
+def test_assets_workflow(publisher_instance, workflow_ddo):
     # Allow publish an workflow
     publisher = publisher_instance.main_account
-    metadata = get_workflow_ddo()['service'][0]
+    metadata = workflow_ddo['service'][0]
     ddo = publisher_instance.assets.create(metadata['attributes'], publisher)
     assert ddo
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_assets_compute(publisher_instance):
+def test_assets_compute(publisher_instance, metadata):
     publisher = publisher_instance.main_account
-    metadata = get_metadata()
     ddo = publisher_instance.assets.create_compute(metadata, publisher)
     assert ddo
     publisher_instance.assets.retire(ddo.did)
@@ -290,26 +288,28 @@ def test_grant_permissions(publisher_instance, metadata, consumer_instance):
     publisher = publisher_instance.main_account
     consumer = consumer_instance.main_account
     ddo = publisher_instance.assets.create(metadata, publisher)
+
     assert not publisher_instance.assets.get_permissions(ddo.did, consumer.address)
     publisher_instance.assets.delegate_persmission(ddo.did, consumer.address, publisher)
     assert publisher_instance.assets.get_permissions(ddo.did, consumer.address)
     publisher_instance.assets.revoke_permissions(ddo.did, consumer.address, publisher)
     assert not publisher_instance.assets.get_permissions(ddo.did, consumer.address)
 
+    publisher_instance.assets.retire(ddo.did)
 
-def test_execute_workflow(publisher_instance_no_init, consumer_instance_no_init):
-    publisher = publisher_instance_no_init.main_account
-    consumer = consumer_instance_no_init.main_account
+
+def test_execute_workflow(publisher_instance_no_init, consumer_instance_no_init, metadata, algorithm_ddo, workflow_ddo):
+    consumer = publisher_instance_no_init.main_account
+    publisher = consumer_instance_no_init.main_account
 
     # publish compute
-    metadata = get_metadata()
     ddo_computing = publisher_instance_no_init.assets.create_compute(metadata, publisher)
 
     # publish algorithm
-    metadata = get_algorithm_ddo()['service'][0]
+    metadata = algorithm_ddo['service'][0]
     ddo_algorithm = consumer_instance_no_init.assets.create(metadata['attributes'], consumer)
 
-    metadata = get_workflow_ddo()['service'][0]
+    metadata = workflow_ddo['service'][0]
     metadata['attributes']['main']['workflow']['stages'][0]['input'][0]['id'] = ddo_computing.did
     metadata['attributes']['main']['workflow']['stages'][0]['transformation']['id'] = ddo_algorithm.did
     workflow_ddo = consumer_instance_no_init.assets.create(metadata['attributes'], publisher)
@@ -336,19 +336,18 @@ def test_execute_workflow(publisher_instance_no_init, consumer_instance_no_init)
     publisher_instance_no_init.assets.retire(workflow_ddo.did)
 
 
-def test_compute_status(publisher_instance_no_init, consumer_instance_no_init):
-    publisher = publisher_instance_no_init.main_account
-    consumer = consumer_instance_no_init.main_account
+def test_compute_status(publisher_instance_no_init, consumer_instance_no_init, metadata, algorithm_ddo, workflow_ddo):
+    consumer = publisher_instance_no_init.main_account
+    publisher = consumer_instance_no_init.main_account
 
     # publish compute
-    metadata = get_metadata()
     ddo_computing = publisher_instance_no_init.assets.create_compute(metadata, publisher)
 
     # publish algorithm
-    metadata = get_algorithm_ddo()['service'][0]
+    metadata = algorithm_ddo['service'][0]
     ddo_algorithm = consumer_instance_no_init.assets.create(metadata['attributes'], consumer)
 
-    metadata = get_workflow_ddo()['service'][0]
+    metadata = workflow_ddo['service'][0]
     metadata['attributes']['main']['workflow']['stages'][0]['input'][0]['id'] = ddo_computing.did
     metadata['attributes']['main']['workflow']['stages'][0]['transformation']['id'] = ddo_algorithm.did
     workflow_ddo = consumer_instance_no_init.assets.create(metadata['attributes'], publisher)
@@ -378,19 +377,18 @@ def test_compute_status(publisher_instance_no_init, consumer_instance_no_init):
     publisher_instance_no_init.assets.retire(workflow_ddo.did)
 
 
-def test_compute_logs(publisher_instance_no_init, consumer_instance_no_init):
-    publisher = publisher_instance_no_init.main_account
-    consumer = consumer_instance_no_init.main_account
+def test_compute_logs(publisher_instance_no_init, consumer_instance_no_init, metadata, algorithm_ddo, workflow_ddo):
+    consumer = publisher_instance_no_init.main_account
+    publisher = consumer_instance_no_init.main_account
 
     # publish compute
-    metadata = get_metadata()
     ddo_computing = publisher_instance_no_init.assets.create_compute(metadata, publisher)
 
     # publish algorithm
-    metadata = get_algorithm_ddo()['service'][0]
+    metadata = algorithm_ddo['service'][0]
     ddo_algorithm = consumer_instance_no_init.assets.create(metadata['attributes'], consumer)
 
-    metadata = get_workflow_ddo()['service'][0]
+    metadata = workflow_ddo['service'][0]
     metadata['attributes']['main']['workflow']['stages'][0]['input'][0]['id'] = ddo_computing.did
     metadata['attributes']['main']['workflow']['stages'][0]['transformation']['id'] = ddo_algorithm.did
     workflow_ddo = consumer_instance_no_init.assets.create(metadata['attributes'], publisher)

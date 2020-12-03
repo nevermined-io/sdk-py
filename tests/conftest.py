@@ -1,7 +1,8 @@
 import uuid
+from unittest.mock import Mock, MagicMock
 
 import pytest
-from common_utils_py.agreements.service_agreement import ServiceAgreement
+from common_utils_py.agreements.service_agreement import ServiceAgreement, ServiceAgreementTemplate
 from common_utils_py.agreements.service_types import ServiceTypes
 from common_utils_py.did import DID
 from common_utils_py.metadata.metadata import Metadata
@@ -11,10 +12,13 @@ from contracts_lib_py.web3_provider import Web3Provider
 from examples import ExampleConfig
 from nevermined_sdk_py import ConfigProvider
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
-from tests.resources.helper_functions import (_get_asset, get_consumer_account,
+from nevermined_sdk_py.assets.asset_executor import AssetExecutor
+from nevermined_sdk_py.assets.asset_consumer import AssetConsumer
+from nevermined_sdk_py.nevermined.agreements import Agreements
+from tests.resources.helper_functions import (_get_asset, get_algorithm_ddo, get_consumer_account,
                                               get_consumer_instance, get_ddo_sample,
                                               get_metadata, get_publisher_account,
-                                              get_publisher_instance, get_registered_ddo,
+                                              get_publisher_instance, get_registered_ddo, get_workflow_ddo,
                                               setup_logging)
 from tests.resources.mocks.secret_store_mock import SecretStoreMock
 
@@ -110,6 +114,19 @@ def metadata():
 
 
 @pytest.fixture
+def algorithm_ddo():
+    ddo = get_algorithm_ddo()
+    ddo['service'][0]['attributes']['main']['checksum'] = str(uuid.uuid4())
+    return ddo
+
+
+@pytest.fixture
+def workflow_ddo():
+    ddo = get_workflow_ddo()
+    ddo['service'][0]['attributes']['main']['checksum'] = str(uuid.uuid4())
+    return ddo
+
+@pytest.fixture
 def setup_agreements_enviroment(ddo_sample):
     consumer_acc = get_consumer_account()
     publisher_acc = get_publisher_account()
@@ -144,4 +161,27 @@ def setup_agreements_enviroment(ddo_sample):
         price,
         service_agreement,
         (lock_cond_id, access_cond_id, escrow_cond_id),
+    )
+
+
+@pytest.fixture
+def agreements():
+    publisher_acc = get_publisher_account()
+    keeper = Keeper.get_instance()
+    w3 = Web3Provider.get_web3()
+    did_resolver = Mock()
+    ddo = get_ddo_sample()
+    service = ddo.get_service(ServiceTypes.ASSET_ACCESS)
+    service.update_value(
+        ServiceAgreementTemplate.TEMPLATE_ID_KEY,
+        w3.toChecksumAddress(publisher_acc.address)
+    )
+    did_resolver.resolve = MagicMock(return_value=ddo)
+
+    return Agreements(
+        keeper,
+        did_resolver,
+        AssetConsumer,
+        AssetExecutor,
+        ConfigProvider.get_config()
     )
