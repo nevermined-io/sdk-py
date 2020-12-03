@@ -298,8 +298,8 @@ def test_grant_permissions(publisher_instance, metadata, consumer_instance):
 
 
 def test_execute_workflow(publisher_instance_no_init, consumer_instance_no_init):
-    consumer = publisher_instance_no_init.main_account
-    publisher = consumer_instance_no_init.main_account
+    publisher = publisher_instance_no_init.main_account
+    consumer = consumer_instance_no_init.main_account
 
     # publish compute
     metadata = get_metadata()
@@ -332,12 +332,13 @@ def test_execute_workflow(publisher_instance_no_init, consumer_instance_no_init)
     assert execution_id
 
     publisher_instance_no_init.assets.retire(ddo_computing.did)
+    publisher_instance_no_init.assets.retire(ddo_algorithm.did)
     publisher_instance_no_init.assets.retire(workflow_ddo.did)
 
 
 def test_compute_status(publisher_instance_no_init, consumer_instance_no_init):
-    consumer = publisher_instance_no_init.main_account
-    publisher = consumer_instance_no_init.main_account
+    publisher = publisher_instance_no_init.main_account
+    consumer = consumer_instance_no_init.main_account
 
     # publish compute
     metadata = get_metadata()
@@ -378,8 +379,8 @@ def test_compute_status(publisher_instance_no_init, consumer_instance_no_init):
 
 
 def test_compute_logs(publisher_instance_no_init, consumer_instance_no_init):
-    consumer = publisher_instance_no_init.main_account
-    publisher = consumer_instance_no_init.main_account
+    publisher = publisher_instance_no_init.main_account
+    consumer = consumer_instance_no_init.main_account
 
     # publish compute
     metadata = get_metadata()
