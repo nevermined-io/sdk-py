@@ -52,7 +52,8 @@ class Assets:
 
     def create(self, metadata, publisher_account,
                service_descriptors=None, providers=None,
-               authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False):
+               authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False,
+               activity_id=None, attributes=None):
         """
         Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
 
@@ -68,6 +69,8 @@ class Assets:
             SecretStore, PSK-RSA and PSK-ECDSA are supported.
         :param use_secret_store: bool indicate whether to use the secret store directly for
             encrypting urls (Uses Gateway provider service if set to False)
+        :param activity_id: identifier of the activity creating the new entity
+        :param attributes: attributes associated with the action
         :return: DDO instance
         """
         assert isinstance(metadata, dict), f'Expected metadata of type dict, got {type(metadata)}'
@@ -235,7 +238,9 @@ class Assets:
             checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
             url=ddo_service_endpoint,
             account=publisher_account,
-            providers=providers
+            providers=providers,
+            activity_id=activity_id,
+            attributes=attributes
         )
         if registered_on_chain is False:
             logger.warning(f'Registering {did} on-chain failed.')
@@ -490,15 +495,6 @@ class Assets:
             GatewayProvider.get_gateway(),
             self._config,
         )
-
-    def validate(self, metadata):
-        """
-        Validate that the metadata is ok to be stored in Metadata.
-
-        :param metadata: dict conforming to the Metadata accepted by Nevermined Protocol.
-        :return: bool
-        """
-        return self._get_metadata_provider(self._metadata_url).validate_metadata(metadata)
 
     def owner(self, did):
         """

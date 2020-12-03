@@ -54,7 +54,7 @@ def test_resolve_did(publisher_instance, metadata):
     # metadata = Metadata.get_example()
     publisher = publisher_instance.main_account
     # happy path
-    original_ddo = publisher_instance.assets.create(metadata, publisher)
+    original_ddo = publisher_instance.assets.create(metadata, publisher, activity_id=publisher.address, attributes='test123')
     did = original_ddo.did
     ddo = publisher_instance.assets.resolve(did).as_dictionary()
     original = original_ddo.as_dictionary()
