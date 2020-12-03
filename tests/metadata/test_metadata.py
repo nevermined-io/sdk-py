@@ -111,13 +111,13 @@ def test_query_search(asset1, asset2):
     num_matches = 0
     metadata_provider.publish_asset_ddo(asset1)
 
-    assert len(metadata_provider.query_search(search_query={"query": {"type": ["access"]}},
+    assert len(metadata_provider.query_search(search_query={"query": {"type": ["dataset"]}},
                                               offset=10000)['results']) == (
                    num_matches + 1)
 
     metadata_provider.publish_asset_ddo(asset2)
 
-    assert len(metadata_provider.query_search(search_query={"query": {"type": ["access"]}},
+    assert len(metadata_provider.query_search(search_query={"query": {"type": ["dataset"]}},
                                               offset=10000)['results']) == (
                    num_matches + 2)
     metadata_provider.retire_asset_ddo(asset1.did)
@@ -145,11 +145,3 @@ def test_retire_all_ddos(asset1):
 def test_retire_not_published_did():
     with pytest.raises(Exception):
         metadata_provider.retire_asset_ddo('did:nv:not_registered')
-
-
-def test_validate_metadata(metadata):
-    assert metadata_provider.validate_metadata(metadata)
-
-
-def test_validate_invalid_metadata():
-    assert not metadata_provider.validate_metadata({})

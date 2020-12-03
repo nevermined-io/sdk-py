@@ -37,7 +37,7 @@ jobs:
         done
         ls -la "${HOME}/.nevermined/nevermined-contracts/artifacts/"
         ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
-        python -m pip install --upgrade pip
+        python -m pip install pip==20.2.4
         pip install -r requirements_dev.txt
     - name: Test with pytest
       run: |

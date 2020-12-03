@@ -11,11 +11,10 @@ from contracts_lib_py.web3_provider import Web3Provider
 from examples import ExampleConfig
 from nevermined_sdk_py import ConfigProvider
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
-from tests.resources.helper_functions import (_get_asset, get_consumer_account,
-                                              get_consumer_instance, get_ddo_sample,
-                                              get_metadata, get_publisher_account,
-                                              get_publisher_instance, get_registered_ddo,
-                                              setup_logging)
+from tests.resources.helper_functions import (_get_asset, get_algorithm_ddo, get_consumer_account,
+                                              get_consumer_instance, get_ddo_sample, get_metadata,
+                                              get_publisher_account, get_publisher_instance,get_workflow_ddo,
+                                              get_registered_ddo, setup_logging)
 from tests.resources.mocks.secret_store_mock import SecretStoreMock
 
 setup_logging()
@@ -64,7 +63,7 @@ def publisher_instance_gateway():
 
 @pytest.fixture
 def consumer_instance_gateway():
-    return get_consumer_instance(use_gateway_mock=False,  use_ss_mock=False)
+    return get_consumer_instance(use_gateway_mock=False, use_ss_mock=False)
 
 
 @pytest.fixture
@@ -99,7 +98,23 @@ def asset2():
 
 @pytest.fixture
 def ddo_sample():
-    return get_ddo_sample()
+    ddo = get_ddo_sample()
+    ddo.metadata['main']['files'][0]['checksum'] = str(uuid.uuid4())
+    return ddo
+
+
+@pytest.fixture
+def ddo_algorithm():
+    ddo = get_algorithm_ddo()
+    ddo['service'][0]['attributes']['main']['files'][0]['checksum'] = str(uuid.uuid4())
+    return ddo
+
+
+@pytest.fixture
+def ddo_workflow():
+    ddo = get_workflow_ddo()
+    ddo['service'][0]['attributes']['main']['name'] = str(uuid.uuid4())
+    return ddo
 
 
 @pytest.fixture
@@ -116,7 +131,6 @@ def setup_agreements_enviroment(ddo_sample):
     keeper = Keeper.get_instance()
 
     ddo = ddo_sample
-    ddo._did = DID.did({'0': '0x987654321'})
     keeper.did_registry.register(
         ddo.asset_id,
         checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
