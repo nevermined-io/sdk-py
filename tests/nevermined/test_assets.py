@@ -244,10 +244,6 @@ def test_assets_search(publisher_instance, metadata):
     publisher_instance.assets.retire(ddo.did)
 
 
-def test_assets_validate(publisher_instance, metadata):
-    assert publisher_instance.assets.validate(metadata)
-
-
 def test_assets_algorithm(publisher_instance, algorithm_ddo):
     # Allow publish an algorithm
     publisher = publisher_instance.main_account
