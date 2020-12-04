@@ -425,6 +425,7 @@ class Assets:
             destination,
             GatewayProvider.get_gateway(),
             self._get_secret_store(consumer_account),
+            self._config,
             index
         )
 
@@ -597,7 +598,8 @@ class Assets:
             workflow_ddo,
             consumer_account,
             GatewayProvider.get_gateway(),
-            index
+            index,
+            self._config
         )
 
     @staticmethod

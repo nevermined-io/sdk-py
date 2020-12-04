@@ -6,8 +6,12 @@ import re
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.exceptions import EncryptAssetUrlsError
 from common_utils_py.http_requests.requests_session import get_requests_session
+from common_utils_py.oauth2.token import (NeverminedJWTBearerGrant,
+                                          generate_access_grant_token,
+                                          generate_download_grant_token,
+                                          generate_execute_grant_token,
+                                          generate_compute_grant_token)
 from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
-
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
 
 logger = logging.getLogger(__name__)
@@ -25,6 +29,11 @@ class Gateway:
 
     """
     _http_client = get_requests_session()
+    _tokens_cache = {}
+
+    @staticmethod
+    def _generate_cache_key(*args):
+        return ''.join(args)
 
     @staticmethod
     def set_http_client(http_client):
@@ -83,62 +92,25 @@ class Gateway:
             return json.loads(response.text)['hash']
 
     @staticmethod
-    def consume_service(did, service_agreement_id, service_endpoint, account, files,
-                        destination_folder, index=None):
-        """
-        Call the Gateway endpoint to get access to the different files that form the asset.
-
-        :param service_agreement_id: Service Agreement Id, str
-        :param service_endpoint: Url to access, str
-        :param account: Account instance of the consumer signing this agreement, hex-str
-        :param files: List containing the files to be consumed, list
-        :param index: Index of the document that is going to be downloaded, int
-        :param destination_folder: Path, str
-        :return: True if was downloaded, bool
-        """
-        signature = Keeper.get_instance().sign_hash(
-            add_ethereum_prefix_and_hash_msg(service_agreement_id),
-            account)
-        headers = dict({
-            'X-Consumer-Address': account.address,
-            'X-Signature': signature,
-            'X-DID': did
-        })
-
-        if index is not None:
-            assert isinstance(index, int), logger.error('index has to be an integer.')
-            assert index >= 0, logger.error('index has to be 0 or a positive integer.')
-            assert index < len(files), logger.error(
-                'index can not be bigger than the number of files')
-            consume_url = Gateway._create_access_url(service_endpoint, service_agreement_id, index)
-            logger.info(f'invoke access endpoint with this url: {consume_url}')
-            response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
-            file_name = Gateway._get_file_name(response)
-            Gateway.write_file(response, destination_folder, file_name)
+    def access_service(did, service_agreement_id, service_endpoint, account, destination_folder, config, index):
+        cache_key = Gateway._generate_cache_key(account.address, service_agreement_id, did)
+        if cache_key not in Gateway._tokens_cache:
+            grant_token = generate_access_grant_token(account, service_agreement_id, did)
+            access_token = Gateway.fetch_token(grant_token, config)
+            Gateway._tokens_cache[cache_key] = access_token
         else:
-            for i, _file in enumerate(files):
-                consume_url = Gateway._create_access_url(service_endpoint, service_agreement_id, i)
-                logger.info(f'invoke access endpoint with this url: {consume_url}')
-                response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
-                file_name = Gateway._get_file_name(response)
-                Gateway.write_file(response, destination_folder, file_name or f'file-{i}')
+            access_token = Gateway._tokens_cache[cache_key]
 
-    @staticmethod
-    def access_service(did, service_agreement_id, service_endpoint, account, destination_folder, index):
-        signature = Keeper.get_instance().sign_hash(
-            add_ethereum_prefix_and_hash_msg(service_agreement_id),
-            account)
-        headers = dict({
-            'X-Consumer-Address': account.address,
-            'X-Signature': signature,
-            'X-DID': did
-        })
         consume_url = Gateway._create_access_url(service_endpoint, service_agreement_id, index)
+        headers = {"Authorization": f"Bearer {access_token}"}
+
         response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
-        if response.status_code != 200:
+        if not response.ok:
             raise ValueError(response.text)
+
         file_name = Gateway._get_file_name(response)
         Gateway.write_file(response, destination_folder, file_name or f'file-{index}')
+
         return response
 
     @staticmethod
@@ -156,16 +128,19 @@ class Gateway:
             :py:class:`requests.Response`: HTTP server response
 
         """
-        signature = Keeper.get_instance().sign_hash(
-            add_ethereum_prefix_and_hash_msg(execution_id),
-            account)
-        headers = {
-            'X-Consumer-Address': account.address,
-            'X-Signature': signature,
-        }
+        cache_key = Gateway._generate_cache_key(account.address, service_agreement_id, execution_id)
+        if cache_key not in Gateway._tokens_cache:
+            grant_token = generate_compute_grant_token(account, service_agreement_id, execution_id)
+            access_token = Gateway.fetch_token(grant_token, config)
+            Gateway._tokens_cache[cache_key] = access_token
+        else:
+            access_token = Gateway._tokens_cache[cache_key]
+
+        headers = {"Authorization": f"Bearer {access_token}"}
         consume_url = Gateway._create_compute_logs_url(config, service_agreement_id, execution_id)
+
         response = Gateway._http_client.get(consume_url, headers=headers)
-        if response.status_code != 200:
+        if not response.ok:
             raise ValueError(response.text)
         return response
 
@@ -184,14 +159,17 @@ class Gateway:
             :py:class:`requests.Response`: HTTP server response
 
         """
-        signature = Keeper.get_instance().sign_hash(
-            add_ethereum_prefix_and_hash_msg(execution_id),
-            account)
-        headers = {
-            'X-Consumer-Address': account.address,
-            'X-Signature': signature,
-        }
+        cache_key = Gateway._generate_cache_key(account.address, service_agreement_id, execution_id)
+        if cache_key not in Gateway._tokens_cache:
+            grant_token = generate_compute_grant_token(account, service_agreement_id, execution_id)
+            access_token = Gateway.fetch_token(grant_token, config)
+            Gateway._tokens_cache[cache_key] = access_token
+        else:
+            access_token = Gateway._tokens_cache[cache_key]
+
+        headers = {"Authorization": f"Bearer {access_token}"}
         consume_url = Gateway._create_compute_status_url(config, service_agreement_id, execution_id)
+
         response = Gateway._http_client.get(consume_url, headers=headers)
         if response.status_code != 200:
             raise ValueError(response.text)
@@ -213,19 +191,24 @@ class Gateway:
             :py:class:`requests.Response`: HTTP server response
 
         """
-        signature = Keeper.get_instance().sign_hash(
-            add_ethereum_prefix_and_hash_msg(did), account)
-        headers = {
-            'X-Consumer-Address': account.address,
-            'X-Signature': signature,
-            'X-DID': did
-        }
+        cache_key = Gateway._generate_cache_key(account.address, did)
+        if cache_key not in Gateway._tokens_cache:
+            grant_token = generate_download_grant_token(account, did)
+            access_token = Gateway.fetch_token(grant_token, config)
+            Gateway._tokens_cache[cache_key] = access_token
+        else:
+            access_token = Gateway._tokens_cache[cache_key]
+
+        headers = {"Authorization": f"Bearer {access_token}"}
         consume_url = Gateway._create_download_url(config, index)
+
         response = Gateway._http_client.get(consume_url, headers=headers, stream=True)
-        if response.status_code != 200:
+        if not response.ok:
             raise ValueError(response.text)
+
         file_name = Gateway._get_file_name(response)
         Gateway.write_file(response, destination_folder, file_name or f'file-{index}')
+
         return response
 
     @staticmethod
@@ -247,21 +230,33 @@ class Gateway:
         return response
 
     @staticmethod
-    def execute_compute_service(service_agreement_id, service_endpoint, account, workflow_ddo):
-        signature = Keeper.get_instance().sign_hash(
-            add_ethereum_prefix_and_hash_msg(service_agreement_id),
-            account)
-        headers = dict({
-            'X-Consumer-Address': account.address,
-            'X-Signature': signature,
-            'X-Workflow-DID': workflow_ddo.did
-        })
+    def execute_compute_service(service_agreement_id, service_endpoint, account, workflow_ddo, config):
+        cache_key = Gateway._generate_cache_key(account.address, service_agreement_id, workflow_ddo.did)
+        if cache_key not in Gateway._tokens_cache:
+            grant_token = generate_execute_grant_token(account, service_agreement_id, workflow_ddo.did)
+            access_token = Gateway.fetch_token(grant_token, config)
+            Gateway._tokens_cache[cache_key] = access_token
+        else:
+            access_token = Gateway._tokens_cache[cache_key]
+
+        headers = {"Authorization": f"Bearer {access_token}"}
         execute_url = Gateway._create_compute_url(service_endpoint, service_agreement_id)
-        response = Gateway._http_client.post(execute_url, headers= headers)
-        if response.status_code != 200:
+
+        response = Gateway._http_client.post(execute_url, headers=headers)
+        if not response.ok:
             raise ValueError(response.text)
         return response
 
+    @staticmethod
+    def fetch_token(grant_token, config):
+        fetch_token_url = Gateway.get_fetch_token_endpoint(config)
+        response = Gateway._http_client.post(fetch_token_url, data={
+            "grant_type": NeverminedJWTBearerGrant.GRANT_TYPE,
+            "assertion": grant_token
+        })
+        if not response.ok:
+            raise ValueError(response.text)
+        return response.json()["access_token"]
 
     @staticmethod
     def _prepare_consume_payload(did, service_agreement_id, service_index, signature,
@@ -391,6 +386,16 @@ class Gateway:
         :return: Url, str
         """
         return f'{Gateway.get_gateway_url(config)}/services/publish'
+
+    @staticmethod
+    def get_fetch_token_endpoint(config):
+        """
+        Return the url to fetch an access token.
+
+        :param config: Config
+        :return: Url, str
+        """
+        return f'{Gateway.get_gateway_url(config)}/services/oauth/token'
 
     @staticmethod
     def get_rsa_public_key(config):

@@ -13,7 +13,7 @@ class AssetConsumer:
 
     @staticmethod
     def access(service_agreement_id, service_index, ddo, consumer_account, destination,
-                 gateway, secret_store, index=None):
+                 gateway, secret_store, config, index=None):
         """
         Download asset data files or result files from a compute job.
 
@@ -24,6 +24,7 @@ class AssetConsumer:
         :param destination: Path, str
         :param gateway: Gateway instance
         :param secret_store: SecretStore instance
+        :param config: Sdk configuration instance
         :param index: Index of the document that is going to be downloaded, int
         :return: Asset folder path, str
         """
@@ -55,6 +56,7 @@ class AssetConsumer:
                 consume_url,
                 consumer_account,
                 asset_folder,
+                config,
                 index
             )
         else:
@@ -65,6 +67,7 @@ class AssetConsumer:
                     consume_url,
                     consumer_account,
                     asset_folder,
+                    config,
                     i
                 )
 
