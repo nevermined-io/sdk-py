@@ -1,6 +1,6 @@
 import logging
 
-from common_utils_py.did import did_to_id, id_to_did
+from common_utils_py.did import id_to_did, convert_to_bytes
 from contracts_lib_py.web3_provider import Web3Provider
 from eth_utils import add_0x_prefix
 
@@ -29,10 +29,10 @@ class Provenance:
         """
         try:
             receipt = self._keeper.did_registry.used(
-                self._convert_to_hex(provenance_id),
-                self._convert_to_hex(did),
-                self._convert_to_hex(agent_id),
-                self._convert_to_hex(activity_id),
+                convert_to_bytes(provenance_id),
+                convert_to_bytes(did),
+                convert_to_bytes(agent_id),
+                convert_to_bytes(activity_id),
                 signature, account, attributes)
             return bool(receipt and receipt.status == 1)
         except Exception as e:
@@ -56,11 +56,11 @@ class Provenance:
         """
         try:
             receipt = self._keeper.did_registry.was_derived_from(
-                self._convert_to_hex(provenance_id),
-                self._convert_to_hex(new_entity_did),
-                self._convert_to_hex(used_entity_did),
-                self._convert_to_hex(agent_id),
-                self._convert_to_hex(activity_id),
+                convert_to_bytes(provenance_id),
+                convert_to_bytes(new_entity_did),
+                convert_to_bytes(used_entity_did),
+                convert_to_bytes(agent_id),
+                convert_to_bytes(activity_id),
                 account, attributes)
             return bool(receipt and receipt.status == 1)
         except Exception as e:
@@ -82,10 +82,10 @@ class Provenance:
         """
         try:
             receipt = self._keeper.did_registry.was_associated_with(
-                self._convert_to_hex(provenance_id),
-                self._convert_to_hex(did),
-                self._convert_to_hex(agent_id),
-                self._convert_to_hex(activity_id),
+                convert_to_bytes(provenance_id),
+                convert_to_bytes(did),
+                convert_to_bytes(agent_id),
+                convert_to_bytes(activity_id),
                 account,
                 attributes)
             return bool(receipt and receipt.status == 1)
@@ -111,13 +111,13 @@ class Provenance:
         """
         try:
 
-            receipt = self._keeper.did_registry.acted_on_behalf(self._convert_to_hex(provenance_id),
-                                                                self._convert_to_hex(did),
-                                                                self._convert_to_hex(
+            receipt = self._keeper.did_registry.acted_on_behalf(convert_to_bytes(provenance_id),
+                                                                convert_to_bytes(did),
+                                                                convert_to_bytes(
                                                                     delegate_agent_id),
-                                                                self._convert_to_hex(
+                                                                convert_to_bytes(
                                                                     responsible_agent_id),
-                                                                self._convert_to_hex(activity_id),
+                                                                convert_to_bytes(activity_id),
                                                                 signature,
                                                                 account, attributes)
             return bool(receipt and receipt.status == 1)
@@ -133,7 +133,7 @@ class Provenance:
         :return: information on-chain related with the provenance
         """
         provenance_entry = self._keeper.did_registry.get_provenance_entry(
-            self._convert_to_hex(provenance_id))
+            convert_to_bytes(provenance_id))
         provenance_entry['did'] = id_to_did(provenance_entry['did'])
         provenance_entry['related_did'] = id_to_did(provenance_entry['related_did'])
         return provenance_entry
@@ -145,7 +145,7 @@ class Provenance:
         :param delegate: delegate address of the delegate
         :return: true if the address is a provenance delegate
         """
-        return self._keeper.did_registry.is_provenance_delegate(self._convert_to_hex(did), delegate)
+        return self._keeper.did_registry.is_provenance_delegate(convert_to_bytes(did), delegate)
 
     def add_did_provenance_delegate(self, did, delegated_address, account):
         """
@@ -155,7 +155,7 @@ class Provenance:
         :param account: Account making the call
         :return: true if the address is a provenance delegate
         """
-        return self._keeper.did_registry.add_did_provenance_delegate(self._convert_to_hex(did),
+        return self._keeper.did_registry.add_did_provenance_delegate(convert_to_bytes(did),
                                                                      delegated_address, account)
 
     def remove_did_provenance_delegate(self, did, delegated_address, account):
@@ -166,7 +166,7 @@ class Provenance:
         :param account: Account making the call
         :return: true if the address is a provenance delegate
         """
-        return self._keeper.did_registry.remove_did_provenance_delegate(self._convert_to_hex(did),
+        return self._keeper.did_registry.remove_did_provenance_delegate(convert_to_bytes(did),
                                                                         delegated_address, account)
 
     def get_provenance_owner(self, provenance_id):
@@ -176,7 +176,7 @@ class Provenance:
 
         :return: String with the address owning the provenance entry
         """
-        return self._keeper.did_registry.get_provenance_owner(self._convert_to_hex(provenance_id))
+        return self._keeper.did_registry.get_provenance_owner(convert_to_bytes(provenance_id))
 
     def get_did_provenance_events(self, did):
         """
@@ -186,7 +186,7 @@ class Provenance:
         :return: list of provenance events.
         """
         return self._keeper.did_registry.get_did_provenance_events(
-            self._convert_to_hex(did))
+            convert_to_bytes(did))
 
     def get_did_provenance_methods_events(self, method, did):
         """
@@ -199,16 +199,5 @@ class Provenance:
 
         """
         return self._keeper.did_registry.get_provenance_method_events(method,
-                                                                      self._convert_to_hex(did))
+                                                                      convert_to_bytes(did))
 
-    @staticmethod
-    def _convert_to_hex(i):
-        if isinstance(i, str):
-            if i.startswith('did:nv'):
-                return Web3Provider.get_web3().toBytes(hexstr=add_0x_prefix(did_to_id(i)))
-            else:
-                return Web3Provider.get_web3().toBytes(hexstr=add_0x_prefix(i))
-        elif isinstance(i, bytes):
-            return i
-        else:
-            raise ValueError(f'The id {i} is not in a valid format.')
