@@ -88,3 +88,24 @@ class Templates:
 
             logger.warning(f'Only template admin or owner can revoke a template: {err}')
             return False
+
+    def get_list_size(self):
+        """
+        Return the number of templates approved.
+        """
+        return self._keeper.template_manager.get_num_templates()
+
+    def get_template(self, template_id):
+        """
+        Get the template for a given template id.
+
+        :param template_id: id of the template, str
+        """
+        return self._keeper.template_manager.get_template(template_id)
+
+    def is_template_approved(self, template_address):
+        """
+        Return true is the template is approved
+        :param template_address: Address of the template contract, str
+        """
+        return self._keeper.template_manager.is_template_approved(template_address)
