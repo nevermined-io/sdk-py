@@ -1,3 +1,5 @@
+import pytest
+
 def test_accounts(publisher_instance):
     for account in publisher_instance.accounts.list():
         print(account)
@@ -24,3 +26,10 @@ def test_token_request(publisher_instance):
     # TODO Review representation of amounts.
     assert publisher_instance.accounts.balance(
         receiver_account).ocn == start_ocean + (amount * 1000000000000000000)
+
+
+@pytest.mark.skip(reason="It is only possible request once per 24hours")
+def test_request_eht_from_faucet(consumer_instance):
+    receiver_account = consumer_instance.main_account
+
+    assert consumer_instance.accounts.request_eth_from_faucet(receiver_account.address)
