@@ -29,7 +29,7 @@ def test_token_request(publisher_instance):
 
 
 @pytest.mark.skip(reason="It is only possible request once per 24hours")
-def test_request_eht_from_faucet(consumer_instance):
+def test_request_eth_from_faucet(consumer_instance):
     receiver_account = consumer_instance.main_account
 
     assert consumer_instance.accounts.request_eth_from_faucet(receiver_account.address)

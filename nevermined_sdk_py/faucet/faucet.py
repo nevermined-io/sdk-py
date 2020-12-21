@@ -9,21 +9,13 @@ logger = logging.getLogger(__name__)
 
 class Faucet:
     """
-    `Gateway` is the name chosen for the asset service provider.
+    `Faucet`.
 
     The main functions available are:
-    - Allow to get access to an asset data file
-    - encrypt a secret using different methods
-    - consume_service
-    - run_compute_service
+    - Request eht for an account
 
     """
     _http_client = get_requests_session()
-    _tokens_cache = {}
-
-    @staticmethod
-    def _generate_cache_key(*args):
-        return ''.join(args)
 
     @staticmethod
     def set_http_client(http_client):
