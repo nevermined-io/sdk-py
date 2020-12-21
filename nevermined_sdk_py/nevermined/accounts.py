@@ -60,4 +60,8 @@ class Accounts:
         return self._nevermined_tokens.request(account, amount)
 
     def request_eth_from_faucet(self, address):
+        """
+        Requests Network ETH to the faucet for paying the transactions gas
+        :param address: eth address requesting, hex str
+        """
         return self._faucet.get_eth_from_faucet(self._config, address)
