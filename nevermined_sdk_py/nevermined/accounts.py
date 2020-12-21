@@ -8,10 +8,11 @@ Balance = namedtuple('Balance', ('eth', 'ocn'))
 class Accounts:
     """Nevermined accounts class."""
 
-    def __init__(self, keeper, config, ocean_tokens):
+    def __init__(self, keeper, config, nevermined_tokens, faucet):
         self._keeper = keeper
         self._config = config
-        self._ocean_tokens = ocean_tokens
+        self._nevermined_tokens = nevermined_tokens
+        self._faucet = faucet
         self._accounts = [Account(account_address) for account_address in self._keeper.accounts]
         if config.parity_address and config.parity_password:
             address = config.parity_address.lower()
@@ -21,7 +22,7 @@ class Accounts:
                     break
 
     @property
-    def accounts_addresses(self):
+    def _accounts_addresses(self):
         """
         Return a list with the account addresses.
 
@@ -56,4 +57,11 @@ class Accounts:
         :raises OceanInvalidTransaction: if transaction fails
         :return: bool
         """
-        return self._ocean_tokens.request(account, amount)
+        return self._nevermined_tokens.request(account, amount)
+
+    def request_eth_from_faucet(self, address):
+        """
+        Requests Network ETH to the faucet for paying the transactions gas
+        :param address: eth address requesting, hex str
+        """
+        return self._faucet.get_eth_from_faucet(self._config, address)
