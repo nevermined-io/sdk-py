@@ -95,12 +95,13 @@ class Templates:
         """
         return self._keeper.template_manager.get_num_templates()
 
-    def get_template(self, template_address):
+    def get_template(self, template_id):
         """
-        Return a template.
-        :param template_address: Address of the template contract, str
+        Get the template for a given template id.
+
+        :param template_id: id of the template, str
         """
-        return self._keeper.template_manager.get_template(template_address)
+        return self._keeper.template_manager.get_template(template_id)
 
     def is_template_approved(self, template_address):
         """
