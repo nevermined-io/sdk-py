@@ -34,7 +34,7 @@ def test_consumer_download_compute(metadata):
     # consumer orders compute asset
     service_agreement = ddo.get_service("compute")
     _agreement_id = consumer_instance.assets.order(
-        ddo.did, service_agreement.index, consumer
+        ddo.did, service_agreement.index, consumer, consumer
     )
 
     # consumer tries to download the asset
