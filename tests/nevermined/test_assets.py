@@ -206,7 +206,7 @@ def test_assets_consumed(publisher_instance, consumer_instance, ddo_sample):
             agr_id, did, cons_address, account)
 
     agreement_id = consumer_instance.assets.order(
-        asset.did, sa.index, acct)
+        asset.did, sa.index, acct, acct)
     keeper.lock_reward_condition.subscribe_condition_fulfilled(
         agreement_id,
         15,
@@ -314,7 +314,7 @@ def test_execute_workflow(publisher_instance_no_init, consumer_instance_no_init,
     # order compute asset
     service = ddo_computing.get_service(service_type=ServiceTypes.CLOUD_COMPUTE)
     sa = ServiceAgreement.from_service_dict(service.as_dictionary())
-    agreement_id = consumer_instance_no_init.assets.order(ddo_computing.did, sa.index, consumer)
+    agreement_id = consumer_instance_no_init.assets.order(ddo_computing.did, sa.index, consumer, consumer)
 
     keeper = Keeper.get_instance()
     event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
@@ -352,7 +352,7 @@ def test_compute_status(publisher_instance_no_init, consumer_instance_no_init, m
     # order compute asset
     service = ddo_computing.get_service(service_type=ServiceTypes.CLOUD_COMPUTE)
     sa = ServiceAgreement.from_service_dict(service.as_dictionary())
-    agreement_id = consumer_instance_no_init.assets.order(ddo_computing.did, sa.index, consumer)
+    agreement_id = consumer_instance_no_init.assets.order(ddo_computing.did, sa.index, consumer, consumer)
 
     keeper = Keeper.get_instance()
     event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
@@ -393,7 +393,7 @@ def test_compute_logs(publisher_instance_no_init, consumer_instance_no_init, met
     # order compute asset
     service = ddo_computing.get_service(service_type=ServiceTypes.CLOUD_COMPUTE)
     sa = ServiceAgreement.from_service_dict(service.as_dictionary())
-    agreement_id = consumer_instance_no_init.assets.order(ddo_computing.did, sa.index, consumer)
+    agreement_id = consumer_instance_no_init.assets.order(ddo_computing.did, sa.index, consumer, consumer)
 
     keeper = Keeper.get_instance()
     event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
@@ -413,6 +413,7 @@ def test_compute_logs(publisher_instance_no_init, consumer_instance_no_init, met
     publisher_instance_no_init.assets.retire(ddo_algorithm.did)
     publisher_instance_no_init.assets.retire(workflow_ddo.did)
 
+
 def test_agreement_direct(publisher_instance, consumer_instance, metadata):
     publisher_account = publisher_instance.main_account
     consumer_account = consumer_instance.main_account
@@ -420,7 +421,7 @@ def test_agreement_direct(publisher_instance, consumer_instance, metadata):
                                                    providers=[
                                                        '0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0'])
 
-    agreement_id = consumer_instance.assets.order_direct(ddo.did,
+    agreement_id = consumer_instance.assets.order(ddo.did,
                                                                  ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
                                                                  consumer_account,
                                                                  consumer_account

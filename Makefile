@@ -23,6 +23,12 @@ for line in sys.stdin:
 		print("%-20s %s" % (target, help))
 endef
 export PRINT_HELP_PYSCRIPT
+export PARITY_ADDRESS=0x00bd138abd70e2f00903268f3db08f2d25677c9e
+export PARITY_PASSWORD=node0
+export PARITY_KEYFILE=tests/resources/data/key_file_2.json
+export PARITY_ADDRESS1=0x068ed00cf0441e4829d9784fcbe7b9e26d4bd8d0
+export PARITY_PASSWORD1=secret
+export PARITY_KEYFILE1=tests/resources/data/key_file_1.json
 
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)

@@ -153,8 +153,7 @@ def setup_agreements_enviroment(ddo_sample):
         ddo.asset_id,
         checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
         url='metadata:5000',
-        account=publisher_acc,
-        providers=None
+        account=publisher_acc
     )
 
     registered_ddo = ddo
@@ -180,12 +179,12 @@ def setup_agreements_enviroment(ddo_sample):
 
 
 @pytest.fixture
-def agreements():
+def agreements(ddo_sample):
     publisher_acc = get_publisher_account()
     keeper = Keeper.get_instance()
     w3 = Web3Provider.get_web3()
     did_resolver = Mock()
-    ddo = get_ddo_sample()
+    ddo = ddo_sample
     service = ddo.get_service(ServiceTypes.ASSET_ACCESS)
     service.update_value(
         ServiceAgreementTemplate.TEMPLATE_ID_KEY,
