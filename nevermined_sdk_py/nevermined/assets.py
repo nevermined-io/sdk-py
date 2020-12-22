@@ -354,32 +354,6 @@ class Assets:
         return [DDO(dictionary=ddo_dict) for ddo_dict in
                 metadata_provider.query_search(query, sort, offset, page)['results']]
 
-    # def order(self, did, index, consumer_account, auto_consume=False):
-    #     """
-    #     Place order by directly creating an SEA (agreement) on-chain.
-    #
-    #     :param did: str starting with the prefix `did:nv:` and followed by the asset id which is
-    #     a hex str
-    #     :param index: str the service definition id identifying a specific
-    #     service in the DDO (DID document)
-    #     :param consumer_account: Account instance of the consumer
-    #     :param auto_consume: boolean
-    #     :return: agreement_id the service agreement id (can be used to query
-    #         the nevermined-contracts for the status of the service agreement)
-    #     """
-    #     agreement_id = ServiceAgreement.create_new_agreement_id()
-    #     logger.debug(f'about to request create agreement: {agreement_id}')
-    #     self._agreements.create(
-    #         did,
-    #         index,
-    #         agreement_id,
-    #         None,
-    #         consumer_account.address,
-    #         consumer_account,
-    #         auto_consume=auto_consume
-    #     )
-    #     return agreement_id
-
     def order(self, did, index, consumer_account, account):
         agreement_id = ServiceAgreement.create_new_agreement_id()
         logger.debug(f'about to request create agreement: {agreement_id}')
@@ -513,9 +487,6 @@ class Assets:
         :param owner_address: ethereum address of owner/publisher, hex-str
         :return: list of dids
         """
-        # return [k for k, v in self._get_metadata_provider(self._metadata_url).list_assets_ddo(
-        # ).items() if
-        #         v['proof']['creator'] == owner_address]
         return self._keeper.did_registry.get_owner_asset_ids(owner_address)
 
     def consumer_assets(self, consumer_address):

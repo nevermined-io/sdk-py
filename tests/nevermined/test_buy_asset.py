@@ -46,15 +46,6 @@ def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
         ddo.did, sa.index, consumer_account, consumer_account)
 
     event_wait_time = 10
-    event = keeper.escrow_access_secretstore_template.subscribe_agreement_created(
-        agreement_id,
-        event_wait_time,
-        log_event(keeper.escrow_access_secretstore_template.AGREEMENT_CREATED_EVENT),
-        (),
-        wait=True
-    )
-    assert event, 'no event for EscrowAccessSecretStoreTemplate.AgreementCreated'
-
     event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
         agreement_id,
         event_wait_time,
