@@ -32,32 +32,6 @@ class Agreements:
         self._config = config
         self.conditions = Conditions(self._keeper)
 
-    def _sign(self, agreement_id, did, consumer_account, service_index):
-        """
-        Sign a service agreement.
-
-        :param agreement_id: 32 bytes identifier created by the consumer and will be used
-         on-chain for the executed agreement.
-        :param did: str representation fo the asset DID. Use this to retrieve the asset DDO.
-        :param consumer_account: Account instance of the consumer
-        :param service_index: int identifies the specific service in
-         the ddo to use in this agreement.
-        :return: signature
-        """
-        asset = self._asset_resolver.resolve(did)
-        service_agreement = asset.get_service_by_index(service_index)
-
-        publisher_address = self._keeper.did_registry.get_did_owner(asset.asset_id)
-        agreement_hash = service_agreement.get_service_agreement_hash(
-            agreement_id, asset.asset_id, consumer_account.address, publisher_address, self._keeper
-        )
-        signature = self._keeper.sign_hash(add_ethereum_prefix_and_hash_msg(agreement_hash),
-                                           consumer_account)
-        address = self._keeper.personal_ec_recover(agreement_hash, signature)
-        assert address == consumer_account.address
-        logger.debug(f'agreement-signature={signature}, agreement-hash={agreement_hash}')
-        return signature
-
     def prepare(self, did, consumer_account, service_index):
         """
 
@@ -71,9 +45,7 @@ class Agreements:
         signature = self._sign(agreement_id, did, consumer_account, service_index)
         return agreement_id, signature
 
-    def create(self, did, index, agreement_id,
-               service_agreement_signature, consumer_address,
-               account):
+    def create(self, did, index, agreement_id, consumer_address, account):
         """
         Execute the service agreement on-chain using keeper's ServiceAgreement contract.
 
@@ -88,12 +60,10 @@ class Agreements:
          the ddo to use in this agreement.
         :param agreement_id: 32 bytes identifier created by the consumer and will be used
          on-chain for the executed agreement.
-        :param service_agreement_signature: str the signed agreement message hash which includes
          conditions and their parameters values and other details of the agreement.
         :param consumer_address: ethereum account address of consumer, hex str
         :param account: Account instance creating the agreement. Can be either the
             consumer, publisher or provider
-        :param auto_consume: bool
         :return: dict the `executeAgreement` transaction receipt
         """
         assert consumer_address and Web3Provider.get_web3().isChecksumAddress(
@@ -132,18 +102,6 @@ class Agreements:
             raise ServiceAgreementExists(
                 f'Service agreement {agreement_id} already exists, cannot reuse '
                 f'the same agreement id.')
-
-        if consumer_address != account.address:
-            if not self._verify_service_agreement_signature(
-                    did, agreement_id, index,
-                    consumer_address, service_agreement_signature,
-                    ddo=asset
-            ):
-                raise InvalidServiceAgreementSignature(
-                    f'Verifying consumer signature failed: '
-                    f'signature {service_agreement_signature}, '
-                    f'consumerAddress {consumer_address}'
-                )
 
         publisher_address = Web3Provider.get_web3().toChecksumAddress(asset.publisher)
         condition_ids = service_agreement.generate_agreement_condition_ids(
@@ -215,6 +173,32 @@ class Agreements:
         return self._keeper.access_secret_store_condition.check_permissions(
             document_id, consumer_address
         )
+
+    def _sign(self, agreement_id, did, consumer_account, service_index):
+        """
+        Sign a service agreement.
+
+        :param agreement_id: 32 bytes identifier created by the consumer and will be used
+         on-chain for the executed agreement.
+        :param did: str representation fo the asset DID. Use this to retrieve the asset DDO.
+        :param consumer_account: Account instance of the consumer
+        :param service_index: int identifies the specific service in
+         the ddo to use in this agreement.
+        :return: signature
+        """
+        asset = self._asset_resolver.resolve(did)
+        service_agreement = asset.get_service_by_index(service_index)
+
+        publisher_address = self._keeper.did_registry.get_did_owner(asset.asset_id)
+        agreement_hash = service_agreement.get_service_agreement_hash(
+            agreement_id, asset.asset_id, consumer_account.address, publisher_address, self._keeper
+        )
+        signature = self._keeper.sign_hash(add_ethereum_prefix_and_hash_msg(agreement_hash),
+                                           consumer_account)
+        address = self._keeper.personal_ec_recover(agreement_hash, signature)
+        assert address == consumer_account.address
+        logger.debug(f'agreement-signature={signature}, agreement-hash={agreement_hash}')
+        return signature
 
     def _is_condition_fulfilled(self, agreement_id, condition_type):
         # TODO move this method to the contracts-lib-py

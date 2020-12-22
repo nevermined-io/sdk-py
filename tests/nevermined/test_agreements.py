@@ -34,7 +34,6 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
         did,
         ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
         agreement_id,
-        signature,
         consumer_acc.address,
         publisher_acc
     )

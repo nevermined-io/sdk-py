@@ -361,7 +361,6 @@ class Assets:
             did,
             index,
             agreement_id,
-            None,
             consumer_account.address,
             account
         )
