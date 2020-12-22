@@ -34,20 +34,10 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
         did,
         ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
         agreement_id,
-        signature,
         consumer_acc.address,
         publisher_acc
     )
     assert success, 'createAgreement failed.'
-
-    event = keeper.escrow_access_secretstore_template.subscribe_agreement_created(
-        agreement_id,
-        10,
-        log_event(keeper.escrow_access_secretstore_template.AGREEMENT_CREATED_EVENT),
-        (),
-        wait=True
-    )
-    assert event, 'no event for AgreementCreated '
 
     # Verify condition types (condition contracts)
     agreement_values = keeper.agreement_manager.get_agreement(agreement_id)
@@ -56,27 +46,13 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
     for i, cond_id in enumerate(agreement_values.condition_ids):
         cond = keeper.condition_manager.get_condition(cond_id)
         assert cond.type_ref == cond_types[i]
-        assert int(cond.state) == 1
 
     access_cond_id, lock_cond_id, escrow_cond_id = agreement_values.condition_ids
-    # Fulfill lock_reward_condition
-    starting_balance = keeper.token.get_token_balance(keeper.escrow_reward_condition.address)
-    keeper.token.token_approve(keeper.lock_reward_condition.address, price, consumer_acc)
-    tx_hash = keeper.lock_reward_condition.fulfill(
-        agreement_id, keeper.escrow_reward_condition.address, price, consumer_acc
-    )
-    keeper.lock_reward_condition.get_tx_receipt(tx_hash)
-    assert keeper.token.get_token_balance(
-        keeper.escrow_reward_condition.address) == (price + starting_balance), ''
-    assert keeper.condition_manager.get_condition_state(lock_cond_id) == 2, ''
-    event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
-        agreement_id,
-        10,
-        log_event(keeper.lock_reward_condition.FULFILLED_EVENT),
-        (),
-        wait=True
-    )
-    assert event, 'no event for LockRewardCondition.Fulfilled'
+
+    # Fulfill lock_reward_condition is done automatically when create agreement is done correctly
+    assert 2 == keeper.condition_manager.get_condition_state(lock_cond_id), ''
+    assert 1 == keeper.condition_manager.get_condition_state(access_cond_id), ''
+    assert 1 == keeper.condition_manager.get_condition_state(escrow_cond_id), ''
 
     # Fulfill access_secret_store_condition
     tx_hash = keeper.access_secret_store_condition.fulfill(
@@ -110,12 +86,6 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
     )
     assert event, 'no event for EscrowReward.Fulfilled'
     publisher_instance.assets.retire(did)
-
-    # path = consumer_instance.assets.access(
-    #     agreement_id, did, service_definition_id,
-    #     consumer_acc, ConfigProvider.get_config().downloads_path
-    # )
-    # print('All good, files are here: %s' % path)
 
 
 # @pytest.mark.skip(reason="Failing some times with actions")
@@ -157,12 +127,9 @@ def test_agreement_status(setup_agreements_enviroment, agreements):
                                                               "escrowReward": 1
                                                               }
                                                }
-    # keeper.dispenser.request_vodkas(price, consumer_acc)
 
-    # keeper.token.token_approve(keeper.lock_reward_condition.address, price, consumer_acc)
     agreements.conditions.lock_reward(agreement_id, price, consumer_acc)
-    # keeper.lock_reward_condition.fulfill(
-    #     agreement_id, keeper.escrow_reward_condition.address, price, consumer_acc)
+
     event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
         agreement_id,
         10,

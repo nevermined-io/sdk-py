@@ -43,18 +43,9 @@ def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
     # This will send the access request to Gateway which in turn will execute the agreement on-chain
     consumer_instance_no_init.accounts.request_tokens(consumer_account, 100)
     agreement_id = consumer_instance_no_init.assets.order(
-        ddo.did, sa.index, consumer_account, auto_consume=False)
+        ddo.did, sa.index, consumer_account, consumer_account)
 
     event_wait_time = 10
-    event = keeper.escrow_access_secretstore_template.subscribe_agreement_created(
-        agreement_id,
-        event_wait_time,
-        log_event(keeper.escrow_access_secretstore_template.AGREEMENT_CREATED_EVENT),
-        (),
-        wait=True
-    )
-    assert event, 'no event for EscrowAccessSecretStoreTemplate.AgreementCreated'
-
     event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
         agreement_id,
         event_wait_time,
@@ -165,7 +156,7 @@ def test_buy_asset_no_secret_store(publisher_instance_gateway, consumer_instance
         # This will send the access request to Gateway which in turn will execute the agreement on-chain
         consumer_instance_gateway.accounts.request_tokens(consumer_account, 100)
         agreement_id = consumer_instance_gateway.assets.order(
-            ddo.did, sa.index, consumer_account, auto_consume=False)
+            ddo.did, sa.index, consumer_account, consumer_account)
 
         event_wait_time = 10
         event = keeper.escrow_access_secretstore_template.subscribe_agreement_created(

@@ -152,7 +152,7 @@ def setup_agreements_enviroment(ddo_sample):
     keeper.did_registry.register(
         ddo.asset_id,
         checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
-        url='metadata:5000',
+        url='localhost:5000',
         account=publisher_acc,
         providers=None
     )
