@@ -20,8 +20,8 @@ install_requirements = [
     'pyopenssl',
     'PyJWT',  # not jwt
     'PyYAML==4.2b4',
-    'common-utils-py==0.4.2',
-    'contracts-lib-py==0.5.3',
+    'common-utils-py==0.4.6',
+    'contracts-lib-py==0.5.5',
     'nevermined-secret-store==0.1.0',
     'requests~=2.21.0',
     'deprecated',
@@ -65,7 +65,7 @@ setup(
     author="nevermined-io",
     author_email='root@nevermined.io',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
@@ -89,6 +89,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/nevermined-io/sdk-py',
-    version='0.7.0',
+    version='0.8.0',
     zip_safe=False,
 )
