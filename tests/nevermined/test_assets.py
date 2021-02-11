@@ -264,7 +264,11 @@ def test_assets_workflow(publisher_instance, workflow_ddo):
 
 def test_assets_compute(publisher_instance, metadata):
     publisher = publisher_instance.main_account
-    ddo = publisher_instance.assets.create_compute(metadata, publisher)
+    asset_rewards = {
+        "_amounts": ["10", "2"],
+        "_receivers": ["0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e", "0x068ed00cf0441e4829d9784fcbe7b9e26d4bd8d0"]
+    }
+    ddo = publisher_instance.assets.create_compute(metadata, publisher, asset_rewards=asset_rewards)
     assert ddo
     publisher_instance.assets.retire(ddo.did)
 

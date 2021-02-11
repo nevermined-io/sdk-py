@@ -42,6 +42,7 @@ def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
     sa = ServiceAgreement.from_service_dict(service.as_dictionary())
     # This will send the access request to Gateway which in turn will execute the agreement on-chain
     consumer_instance_no_init.accounts.request_tokens(consumer_account, 100)
+
     agreement_id = consumer_instance_no_init.assets.order(
         ddo.did, sa.index, consumer_account, consumer_account)
 
@@ -68,8 +69,11 @@ def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
     assert event, 'no event for AccessSecretStoreCondition.Fulfilled'
     assert consumer_instance_no_init.agreements.is_access_granted(agreement_id, ddo.did, consumer_account.address)
 
+    amounts = list(map(int, service.get_param_value_by_name('_amounts')))
+    receivers = service.get_param_value_by_name('_receivers')
+
     publisher_instance_no_init.agreements.conditions.release_reward(
-        agreement_id, sa.get_price(), pub_acc)
+        agreement_id, amounts, receivers, pub_acc)
 
     assert consumer_instance_no_init.assets.access(
         agreement_id,

@@ -1,6 +1,6 @@
-from eth_utils import add_0x_prefix
-from contracts_lib_py.web3_provider import Web3Provider
 from common_utils_py.did import did_to_id
+from common_utils_py.utils.utilities import to_checksum_addresses
+from eth_utils import add_0x_prefix
 
 
 class Conditions:
@@ -42,13 +42,14 @@ class Conditions:
         receipt = self._keeper.access_secret_store_condition.get_tx_receipt(tx_hash)
         return bool(receipt and receipt.status == 1)
 
-    def release_reward(self, agreement_id, amount, account):
+    def release_reward(self, agreement_id, amounts, receivers, account):
         """
         Release reward condition.
 
         :param agreement_id: id of the agreement, hex str
-        :param amount: Amount of tokens, int
-        :param account: Account
+        :param amounts: Amounts of tokens, int[]
+        :param receivers: Token receivers, str[]
+        :param account sending the transaction
         :return:
         """
         agreement_values = self._keeper.agreement_manager.get_agreement(agreement_id)
@@ -58,9 +59,9 @@ class Conditions:
         access_id, lock_id = agreement_values.condition_ids[:2]
         tx_hash = self._keeper.escrow_reward_condition.fulfill(
             agreement_id,
-            amount,
-            Web3Provider.get_web3().toChecksumAddress(owner),
-            consumer,
+            amounts,
+            to_checksum_addresses(receivers),
+            owner,
             lock_id,
             access_id,
             account
@@ -68,13 +69,14 @@ class Conditions:
         receipt = self._keeper.escrow_reward_condition.get_tx_receipt(tx_hash)
         return bool(receipt and receipt.status == 1)
 
-    def refund_reward(self, agreement_id, amount, account):
+    def refund_reward(self, agreement_id, amounts, receivers, account):
         """
         Refund reaward condition.
 
         :param agreement_id: id of the agreement, hex str
-        :param amount: Amount of tokens, int
-        :param account: Account
+        :param amounts: Amounts of tokens, int[]
+        :param receivers: Token receivers, str[]
+        :param account sending the transaction
         :return:
         """
-        return self.release_reward(agreement_id, amount, account)
+        return self.release_reward(agreement_id, amounts, receivers, account)

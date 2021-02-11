@@ -54,7 +54,7 @@ class Assets:
     def create(self, metadata, publisher_account,
                service_descriptors=None, providers=None,
                authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False,
-               activity_id=None, attributes=None):
+               activity_id=None, attributes=None, asset_rewards={"_amounts": [], "_receivers": []}):
         """
         Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
 
@@ -72,6 +72,7 @@ class Assets:
             encrypting urls (Uses Gateway provider service if set to False)
         :param activity_id: identifier of the activity creating the new entity
         :param attributes: attributes associated with the action
+        :param asset_rewards: rewards distribution including the amounts and the receivers
         :return: DDO instance
         """
         assert isinstance(metadata, dict), f'Expected metadata of type dict, got {type(metadata)}'
@@ -87,7 +88,7 @@ class Assets:
                                                                               ddo_service_endpoint)
         if metadata_copy['main']['type'] == 'dataset' or metadata_copy['main'][
             'type'] == 'algorithm':
-            access_service_attributes = self._build_access(metadata_copy, publisher_account)
+            access_service_attributes = self._build_access(metadata_copy, publisher_account, asset_rewards)
             if not service_descriptors:
                 if authorization_type == ServiceAuthorizationTypes.PSK_RSA:
                     service_descriptors = [ServiceDescriptor.authorization_service_descriptor(
@@ -259,7 +260,7 @@ class Assets:
             return None
         return ddo
 
-    def create_compute(self, metadata, publisher_account,
+    def create_compute(self, metadata, publisher_account, asset_rewards={"_amounts": [], "_receivers": []},
                service_descriptors=None, providers=None,
                authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False):
         """
@@ -268,6 +269,7 @@ class Assets:
 
         :param metadata: dict conforming to the Metadata accepted by Nevermined Protocol.
         :param publisher_account: Account of the publisher registering this asset
+        :param asset_rewards: Asset rewards distribution including amounts and receivers
         :param service_descriptors: list of ServiceDescriptor tuples of length 2.
             The first item must be one of ServiceTypes and the second
             item is a dict of parameters and values required by the service
@@ -284,7 +286,7 @@ class Assets:
         metadata_copy = copy.deepcopy(metadata)
         gateway = GatewayProvider.get_gateway()
 
-        compute_service_attributes = self._build_compute(metadata_copy, publisher_account)
+        compute_service_attributes = self._build_compute(metadata_copy, publisher_account, asset_rewards)
         service_descriptor = ServiceDescriptor.compute_service_descriptor(
             compute_service_attributes, gateway.get_execute_endpoint(self._config))
 
@@ -623,23 +625,27 @@ class Assets:
         return authorization
 
     @staticmethod
-    def _build_access(metadata, publisher_account):
+    def _build_access(metadata, publisher_account, asset_rewards):
         return {"main": {
             "name": "dataAssetAccessServiceAgreement",
             "creator": publisher_account.address,
             "price": metadata[MetadataMain.KEY]['price'],
             "timeout": 3600,
-            "datePublished": metadata[MetadataMain.KEY]['dateCreated']
+            "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
+            "_amounts": asset_rewards["_amounts"],
+            "_receivers": asset_rewards["_receivers"]
         }}
 
-    def _build_compute(self, metadata, publisher_account):
+    def _build_compute(self, metadata, publisher_account, asset_rewards):
         return {"main": {
             "name": "dataAssetComputeServiceAgreement",
             "creator": publisher_account.address,
             "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
             "price": metadata[MetadataMain.KEY]['price'],
             "timeout": 86400,
-            "provider": self._build_provider_config()
+            "provider": self._build_provider_config(),
+            "_amounts": asset_rewards["_amounts"],
+            "_receivers": asset_rewards["_receivers"]
         }
         }
 

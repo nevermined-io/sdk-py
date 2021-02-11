@@ -59,6 +59,11 @@ def compute_example(verbose=False):
     keeper = Keeper.get_instance()
     provider = "0x068Ed00cF0441e4829D9784fCBe7b9e26D4BD8d0"
 
+    asset_rewards = {
+        "_amounts": ["10", "2"],
+        "_receivers": ["0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e", "0x068ed00cf0441e4829d9784fcbe7b9e26d4bd8d0"]
+    }
+
     # Setup accounts
     acc = Account(
         Web3.toChecksumAddress(PROVIDER_ADDRESS), PROVIDER_PASSWORD, PROVIDER_KEYFILE
@@ -70,7 +75,7 @@ def compute_example(verbose=False):
     # Publish compute
     example_metadata.compute_ddo["main"]["dateCreated"] = next(date_created)
     ddo_compute = nevermined.assets.create_compute(
-        example_metadata.metadata, provider_acc, providers=[provider]
+        example_metadata.metadata, provider_acc, asset_rewards, providers=[provider]
     )
     assert ddo_compute is not None, "Creating compute asset on-chain failed."
     print(
