@@ -34,13 +34,6 @@ jobs:
       run : |
           docker system prune --all --volumes -f
 
-    - uses: actions/cache@v2
-      with:
-        path: /var/lib/docker
-        key: dockerenv-${{ hashFiles('**/.reset_dockerenv') }}
-        restore-keys: |
-          dockerenv-
-
     - name: Start Nevermined
       run: |
         docker login -u ${{ secrets.NEVERMINED_DOCKER_USERNAME }} -p ${{ secrets.NEVERMINED_DOCKER_TOKEN}}
@@ -60,7 +53,6 @@ jobs:
       run: |
         pip install pip==20.2.4
         pip install -r requirements_dev.txt
-
     - name: Test with pytest
       run: |
         export PARITY_ADDRESS=0x00bd138abd70e2f00903268f3db08f2d25677c9e
@@ -72,4 +64,3 @@ jobs:
 
         pip install pytest
         pytest -v
-
