@@ -32,9 +32,7 @@ jobs:
 
     - name: Reclaim some disk space
       run : |
-          #docker system prune --all --volumes -f
-          images=$(docker images | grep -v keyko | grep -v nevermined | tail -n+2 | tr -s ' ' | cut -d' ' -f3 | uniq | tr '\n' ' ')
-          docker rmi "$images"
+          docker system prune --all --volumes -f
 
     - uses: actions/cache@v2
       with:
