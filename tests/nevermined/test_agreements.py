@@ -1,5 +1,6 @@
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_types import ServiceTypes, ServiceTypesIndices
+from common_utils_py.utils.utilities import to_checksum_addresses
 
 from nevermined_sdk_py.gateway.gateway import Gateway
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
@@ -70,9 +71,12 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
     assert event, 'no event for AccessSecretStoreCondition.Fulfilled'
 
     # Fulfill escrow_reward_condition
+    amounts = list(map(int, service_agreement.get_param_value_by_name('_amounts')))
+    receivers = to_checksum_addresses(service_agreement.get_param_value_by_name('_receivers'))
+
     tx_hash = keeper.escrow_reward_condition.fulfill(
-        agreement_id, price, publisher_acc.address,
-        consumer_acc.address, lock_cond_id,
+        agreement_id, amounts, receivers,
+        publisher_acc.address, lock_cond_id,
         access_cond_id, publisher_acc
     )
     keeper.escrow_reward_condition.get_tx_receipt(tx_hash)
@@ -161,9 +165,13 @@ def test_agreement_status(setup_agreements_enviroment, agreements):
                                                               "escrowReward": 1
                                                               }
                                                }
+
+    amounts = list(map(int, service_agreement.get_param_value_by_name('_amounts')))
+    receivers = to_checksum_addresses(service_agreement.get_param_value_by_name('_receivers'))
+
     tx_hash = keeper.escrow_reward_condition.fulfill(
-        agreement_id, price, publisher_acc.address,
-        consumer_acc.address, lock_cond_id,
+        agreement_id, amounts, to_checksum_addresses(receivers),
+        publisher_acc.address, lock_cond_id,
         access_cond_id, publisher_acc
     )
     keeper.escrow_reward_condition.get_tx_receipt(tx_hash)

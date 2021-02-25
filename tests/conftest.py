@@ -6,6 +6,7 @@ from common_utils_py.agreements.service_agreement import ServiceAgreement, Servi
 from common_utils_py.agreements.service_types import ServiceTypes
 from common_utils_py.did import DID
 from common_utils_py.metadata.metadata import Metadata
+from common_utils_py.utils.utilities import generate_prefixed_id
 from contracts_lib_py.contract_handler import ContractHandler
 from contracts_lib_py.web3_provider import Web3Provider
 
@@ -149,6 +150,8 @@ def setup_agreements_enviroment(ddo_sample):
     keeper = Keeper.get_instance()
 
     ddo = ddo_sample
+    ddo._did = DID.did({"0": generate_prefixed_id()})
+
     keeper.did_registry.register(
         ddo.asset_id,
         checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
