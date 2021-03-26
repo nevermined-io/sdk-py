@@ -19,7 +19,7 @@ install_requirements = [
     'coloredlogs',
     'pyopenssl',
     'PyJWT',  # not jwt
-    'PyYAML==4.2b4',
+    'PyYAML==5.4',
     'common-utils-py==0.4.6',
     'contracts-lib-py==0.5.5',
     'nevermined-secret-store==0.1.0',
