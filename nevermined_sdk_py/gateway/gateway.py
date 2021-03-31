@@ -259,6 +259,18 @@ class Gateway:
         return response.json()["access_token"]
 
     @staticmethod
+    def upload_filecoin(file_, config):
+        upload_filecoin_url = Gateway.get_upload_filecoin_endpoint(config)
+        response = Gateway._http_client.post(upload_filecoin_url, files={
+            'file': file_
+        })
+
+        if not response.ok:
+            raise ValueError(response.text)
+
+        return response.json()
+
+    @staticmethod
     def _prepare_consume_payload(did, service_agreement_id, service_index, signature,
                                  consumer_address):
         """Prepare a payload to send to Nevermined Gateway.
@@ -396,6 +408,16 @@ class Gateway:
         :return: Url, str
         """
         return f'{Gateway.get_gateway_url(config)}/services/oauth/token'
+
+    @staticmethod
+    def get_upload_filecoin_endpoint(config):
+        """
+        Return the url to upload a file to Filecoin.
+
+        :param config: Config,
+        :return Url, str
+        """
+        return f'{Gateway.get_gateway_url(config)}/services/upload/filecoin'
 
     @staticmethod
     def get_rsa_public_key(config):
