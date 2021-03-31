@@ -9,7 +9,6 @@ class Files:
 
     def __init__(self, config):
         self._config = config
-        self.gateway = GatewayProvider.get_gateway()
 
     def upload_filecoin(self, file_path):
         """Upload a file to Filecoin
@@ -22,5 +21,6 @@ class Files:
             raise ValueError(f'File {file_path} not found or not a file')
 
         with path.open('rb') as f:
-            response =  self.gateway.upload_filecoin(f, self._config)
+            gateway = GatewayProvider.get_gateway()
+            response =  gateway.upload_filecoin(f, self._config)
             return response['url']
