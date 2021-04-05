@@ -1,4 +1,5 @@
 import logging
+from nevermined_sdk_py.nevermined.files import Files
 
 from common_utils_py.did_resolver.did_resolver import DIDResolver
 from contracts_lib_py.contract_handler import ContractHandler
@@ -106,6 +107,7 @@ class Nevermined:
         self.providers = Providers(self._keeper, self._did_resolver, self._config)
         self.auth = Auth(self._keeper, self._config.storage_path)
         self.provenance = Provenance(self._keeper, self._config)
+        self.files = Files(self._config)
 
         logger.debug('Nevermined instance initialized: ')
         logger.debug(f'\tOther accounts: {sorted([a.address for a in self.accounts.list()])}')
