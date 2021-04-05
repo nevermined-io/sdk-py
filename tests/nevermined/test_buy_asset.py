@@ -47,10 +47,10 @@ def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
         ddo.did, sa.index, consumer_account, consumer_account)
 
     event_wait_time = 10
-    event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
+    event = keeper.lock_payment_condition.subscribe_condition_fulfilled(
         agreement_id,
         event_wait_time,
-        log_event(keeper.lock_reward_condition.FULFILLED_EVENT),
+        log_event(keeper.lock_payment_condition.FULFILLED_EVENT),
         (),
         wait=True
     )
@@ -58,11 +58,11 @@ def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
 
     # give access
     publisher_instance_no_init.agreements.conditions.grant_access(
-        agreement_id, ddo.did, consumer_account.address, pub_acc)
-    event = keeper.access_secret_store_condition.subscribe_condition_fulfilled(
+        agreement_id, ddo.asset_id, consumer_account.address, pub_acc)
+    event = keeper.access_condition.subscribe_condition_fulfilled(
         agreement_id,
         event_wait_time,
-        log_event(keeper.access_secret_store_condition.FULFILLED_EVENT),
+        log_event(keeper.access_condition.FULFILLED_EVENT),
         (),
         wait=True
     )
@@ -73,7 +73,7 @@ def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
     receivers = service.get_param_value_by_name('_receivers')
 
     publisher_instance_no_init.agreements.conditions.release_reward(
-        agreement_id, amounts, receivers, pub_acc)
+        agreement_id, ddo.asset_id, amounts, receivers, pub_acc)
 
     assert consumer_instance_no_init.assets.access(
         agreement_id,
@@ -163,19 +163,19 @@ def test_buy_asset_no_secret_store(publisher_instance_gateway, consumer_instance
             ddo.did, sa.index, consumer_account, consumer_account)
 
         event_wait_time = 10
-        event = keeper.escrow_access_secretstore_template.subscribe_agreement_created(
+        event = keeper.access_template.subscribe_agreement_created(
             agreement_id,
             event_wait_time,
-            log_event(keeper.escrow_access_secretstore_template.AGREEMENT_CREATED_EVENT),
+            log_event(keeper.access_template.AGREEMENT_CREATED_EVENT),
             (),
             wait=True
         )
         assert event, 'no event for EscrowAccessSecretStoreTemplate.AgreementCreated'
 
-        event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
+        event = keeper.lock_payment_condition.subscribe_condition_fulfilled(
             agreement_id,
             event_wait_time,
-            log_event(keeper.lock_reward_condition.FULFILLED_EVENT),
+            log_event(keeper.lock_payment_condition.FULFILLED_EVENT),
             (),
             wait=True
         )
@@ -183,11 +183,11 @@ def test_buy_asset_no_secret_store(publisher_instance_gateway, consumer_instance
 
         # give access
         publisher_instance_gateway.agreements.conditions.grant_access(
-            agreement_id, ddo.did, consumer_account.address, pub_acc)
-        event = keeper.access_secret_store_condition.subscribe_condition_fulfilled(
+            agreement_id, ddo.asset_id, consumer_account.address, pub_acc)
+        event = keeper.access_condition.subscribe_condition_fulfilled(
             agreement_id,
             event_wait_time,
-            log_event(keeper.access_secret_store_condition.FULFILLED_EVENT),
+            log_event(keeper.access_condition.FULFILLED_EVENT),
             (),
             wait=True
         )
@@ -195,7 +195,7 @@ def test_buy_asset_no_secret_store(publisher_instance_gateway, consumer_instance
         assert consumer_instance_gateway.agreements.is_access_granted(agreement_id, ddo.did, consumer_account.address)
 
         publisher_instance_gateway.agreements.conditions.release_reward(
-            agreement_id, sa.get_price(), pub_acc)
+            agreement_id, ddo.asset_id, sa.get_amounts_int(), sa.get_receivers(), pub_acc)
 
         assert consumer_instance_gateway.assets.access(
             agreement_id,

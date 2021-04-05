@@ -72,12 +72,12 @@ class Agreements:
             f'Unrecognized account address {account.address}'
 
         agreement_template_approved = self._keeper.template_manager.is_template_approved(
-            self._keeper.escrow_access_secretstore_template.address)
+            self._keeper.access_template.address)
         agreement_exec_template_approved = self._keeper.template_manager.is_template_approved(
             self._keeper.escrow_compute_execution_template.address)
         if not agreement_template_approved:
             msg = (f'The EscrowAccessSecretStoreTemplate contract at address '
-                   f'{self._keeper.escrow_access_secretstore_template.address} is not '
+                   f'{self._keeper.access_template.address} is not '
                    f'approved and cannot be used for creating service agreements.')
             logger.warning(msg)
             raise InvalidAgreementTemplate(msg)
@@ -92,7 +92,7 @@ class Agreements:
         asset_id = asset.asset_id
         service_agreement = asset.get_service_by_index(index)
         if service_agreement.type == ServiceTypes.ASSET_ACCESS:
-            agreement_template = self._keeper.escrow_access_secretstore_template
+            agreement_template = self._keeper.access_template
         elif service_agreement.type == ServiceTypes.CLOUD_COMPUTE:
             agreement_template = self._keeper.escrow_compute_execution_template
         else:
@@ -124,7 +124,12 @@ class Agreements:
             account
         )
         if success:
-            self.conditions.lock_reward(agreement_id, service_agreement.get_price(), account)
+            self.conditions.lock_payment(
+                agreement_id,
+                asset_id,
+                service_agreement.get_amounts_int(),
+                service_agreement.get_receivers(),
+                account)
         return self._is_condition_fulfilled(agreement_id, 'lockReward')
 
     def status(self, agreement_id):
@@ -157,7 +162,7 @@ class Agreements:
         :param consumer_address: ethereum account address of consumer, hex str
         :return: bool True if user has permission
         """
-        agreement_consumer = self._keeper.escrow_access_secretstore_template.get_agreement_consumer(
+        agreement_consumer = self._keeper.access_template.get_agreement_consumer(
             agreement_id)
 
         if agreement_consumer is None:
@@ -170,7 +175,7 @@ class Agreements:
             return False
 
         document_id = did_to_id(did)
-        return self._keeper.access_secret_store_condition.check_permissions(
+        return self._keeper.access_condition.check_permissions(
             document_id, consumer_address
         )
 
@@ -222,7 +227,7 @@ class Agreements:
         logger.debug(
             f'process consumer events for agreement {agreement_id}, blockNumber {from_block + 10}')
         if agreement_type == ServiceTypes.ASSET_ACCESS:
-            self._keeper.escrow_access_secretstore_template.subscribe_agreement_created(
+            self._keeper.access_template.subscribe_agreement_created(
                 agreement_id,
                 300,
                 fulfillLockRewardCondition,
@@ -251,7 +256,7 @@ class Agreements:
 
             conditions_dict = service_agreement.condition_by_name
             if agreement_type == ServiceTypes.ASSET_ACCESS:
-                self._keeper.access_secret_store_condition.subscribe_condition_fulfilled(
+                self._keeper.access_condition.subscribe_condition_fulfilled(
                     agreement_id,
                     max(conditions_dict['accessSecretStore'].timeout, 300),
                     consume_asset,
@@ -290,7 +295,7 @@ class Agreements:
             f'\n  agreement signature: {agreement_signature}'
             f'\n  agreement hash: {agreement_hash}'
             f'\n  EscrowAccessSecretStoreTemplate: '
-            f'{self._keeper.escrow_access_secretstore_template.address}'
+            f'{self._keeper.access_template.address}'
             f'\n  publisher ether balance: {publisher_ether_balance}'
         )
 

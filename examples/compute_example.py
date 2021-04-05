@@ -117,7 +117,7 @@ def compute_example(verbose=False):
         f"[CONSUMER --> PROVIDER] Requesting an agreement for compute to the data: {agreement_id}"
     )
 
-    event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
+    event = keeper.lock_payment_condition.subscribe_condition_fulfilled(
         agreement_id, 60, None, (), wait=True
     )
     assert event is not None, "Reward condition is not found"
@@ -137,7 +137,7 @@ def compute_example(verbose=False):
     )
     print("[CONSUMER --> PROVIDER] Requesting execution of the compute workflow")
 
-    event = keeper.escrow_reward_condition.subscribe_condition_fulfilled(
+    event = keeper.escrow_payment_condition.subscribe_condition_fulfilled(
         agreement_id, 60, None, (), wait=True
     )
     assert event is not None, "Escrow Reward condition not found"

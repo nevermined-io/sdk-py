@@ -5,9 +5,10 @@ import pytest
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_factory import ServiceDescriptor
 from common_utils_py.agreements.service_types import ServiceTypes, ServiceTypesIndices
-from common_utils_py.did import DID
+from common_utils_py.did import DID, did_to_id
 from contracts_lib_py.exceptions import DIDNotFound
 from contracts_lib_py.web3_provider import Web3Provider
+from eth_utils import add_0x_prefix
 
 from tests.resources.helper_functions import log_event
 
@@ -203,11 +204,11 @@ def test_assets_consumed(publisher_instance, consumer_instance, ddo_sample):
 
     def grant_access(event, instance, agr_id, did, cons_address, account):
         instance.agreements.conditions.grant_access(
-            agr_id, did, cons_address, account)
+            agr_id, add_0x_prefix(did_to_id(did)), cons_address, account)
 
     agreement_id = consumer_instance.assets.order(
         asset.did, sa.index, acct, acct)
-    keeper.lock_reward_condition.subscribe_condition_fulfilled(
+    keeper.lock_payment_condition.subscribe_condition_fulfilled(
         agreement_id,
         15,
         grant_access,
@@ -216,10 +217,10 @@ def test_assets_consumed(publisher_instance, consumer_instance, ddo_sample):
         wait=True
     )
 
-    keeper.access_secret_store_condition.subscribe_condition_fulfilled(
+    keeper.access_condition.subscribe_condition_fulfilled(
         agreement_id,
         15,
-        log_event(keeper.access_secret_store_condition.FULFILLED_EVENT),
+        log_event(keeper.access_condition.FULFILLED_EVENT),
         (),
         wait=True
     )
@@ -321,7 +322,7 @@ def test_execute_workflow(publisher_instance_no_init, consumer_instance_no_init,
     agreement_id = consumer_instance_no_init.assets.order(ddo_computing.did, sa.index, consumer, consumer)
 
     keeper = Keeper.get_instance()
-    event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
+    event = keeper.lock_payment_condition.subscribe_condition_fulfilled(
         agreement_id, 60, None, (), wait=True
     )
     assert event is not None, "Reward condition is not found"
@@ -359,7 +360,7 @@ def test_compute_status(publisher_instance_no_init, consumer_instance_no_init, m
     agreement_id = consumer_instance_no_init.assets.order(ddo_computing.did, sa.index, consumer, consumer)
 
     keeper = Keeper.get_instance()
-    event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
+    event = keeper.lock_payment_condition.subscribe_condition_fulfilled(
         agreement_id, 60, None, (), wait=True
     )
     assert event is not None, "Reward condition is not found"
@@ -400,7 +401,7 @@ def test_compute_logs(publisher_instance_no_init, consumer_instance_no_init, met
     agreement_id = consumer_instance_no_init.assets.order(ddo_computing.did, sa.index, consumer, consumer)
 
     keeper = Keeper.get_instance()
-    event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
+    event = keeper.lock_payment_condition.subscribe_condition_fulfilled(
         agreement_id, 60, None, (), wait=True
     )
     assert event is not None, "Reward condition is not found"
@@ -434,10 +435,10 @@ def test_agreement_direct(publisher_instance, consumer_instance, metadata):
 
     keeper = publisher_instance.keeper
 
-    event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
+    event = keeper.lock_payment_condition.subscribe_condition_fulfilled(
         agreement_id,
         10,
-        log_event(keeper.lock_reward_condition.FULFILLED_EVENT),
+        log_event(keeper.lock_payment_condition.FULFILLED_EVENT),
         (),
         wait=True
     )
@@ -454,7 +455,7 @@ def test_nfts(publisher_instance, metadata):
     ddo = publisher_instance.assets.create(metadata, publisher)
 
     balance = publisher_instance.assets.balance(publisher.address, ddo.did)
-    assert balance == 1
+    assert balance == 0
     balance_consumer = publisher_instance.assets.balance(someone_address, ddo.did)
     assert balance_consumer == 0
 

@@ -42,8 +42,7 @@ jobs:
         rm -rf "${HOME}/.nevermined/nevermined-contracts/artifacts"
 
         # start nevermined with the compute stack
-        export KEEPER_VERSION=v0.6.2
-        ./start_nevermined.sh --no-marketplace --local-spree-node --events-handler --compute --spree-embedded-contracts &
+        ./start_nevermined.sh --latest --no-marketplace --local-spree-node --events-handler --compute --spree-embedded-contracts &
 
         # wait for the compute api to be online.
         # the compute api is the last service to come online

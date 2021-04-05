@@ -9,7 +9,7 @@ class Templates:
     def __init__(self, keeper, config):
         self._keeper = keeper
         self._config = config
-        self.access_template_id = self._keeper.escrow_access_secretstore_template.address
+        self.access_template_id = self._keeper.access_template.address
 
     def propose(self, template_address, account):
         """

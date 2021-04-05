@@ -168,8 +168,8 @@ class Assets:
                     did,
                     gateway.get_access_endpoint(self._config),
                     access_service_attributes,
-                    self._keeper.escrow_access_secretstore_template.address,
-                    self._keeper.escrow_reward_condition.address)
+                    self._keeper.access_template.address,
+                    self._keeper.escrow_payment_condition.address)
                 ddo.add_service(access_service)
             elif service.type == ServiceTypes.METADATA:
                 ddo_service_endpoint = service.service_endpoint.replace('{did}', did)
@@ -181,7 +181,7 @@ class Assets:
                     service.service_endpoint,
                     service.attributes,
                     self._keeper.compute_execution_condition.address,
-                    self._keeper.escrow_reward_condition.address
+                    self._keeper.escrow_payment_condition.address
                 )
                 ddo.add_service(compute_service)
             else:
@@ -497,7 +497,7 @@ class Assets:
         :param consumer_address: ethereum address of consumer, hes-str
         :return: list of dids
         """
-        return self._keeper.access_secret_store_condition.get_purchased_assets_by_address(
+        return self._keeper.access_condition.get_purchased_assets_by_address(
             consumer_address)
 
     def revoke_permissions(self, did, address_to_revoke, account):
