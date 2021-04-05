@@ -452,7 +452,7 @@ def test_agreement_direct(publisher_instance, consumer_instance, metadata):
 def test_nfts(publisher_instance, metadata):
     publisher = publisher_instance.main_account
     someone_address = "0x00a329c0648769A73afAc7F9381E08FB43dBEA72"
-    ddo = publisher_instance.assets.create(metadata, publisher)
+    ddo = publisher_instance.assets.create(metadata, publisher, cap=100, royalties=0)
 
     balance = publisher_instance.assets.balance(publisher.address, ddo.did)
     assert balance == 0
@@ -462,7 +462,7 @@ def test_nfts(publisher_instance, metadata):
     publisher_instance.assets.mint(ddo.did, 10, account=publisher)
     assert balance + 10 == publisher_instance.assets.balance(publisher.address, ddo.did)
     assert publisher_instance.assets.transfer_nft(ddo.did, someone_address, 1, publisher)
-    assert publisher_instance.assets.balance(publisher.address, ddo.did) == 10
+    assert publisher_instance.assets.balance(publisher.address, ddo.did) == 9
     assert publisher_instance.assets.balance(someone_address, ddo.did) == balance_consumer + 1
     publisher_instance.assets.burn(ddo.did, 9, account=publisher)
     assert balance == publisher_instance.assets.balance(publisher.address, ddo.did)

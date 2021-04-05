@@ -54,7 +54,8 @@ class Assets:
     def create(self, metadata, publisher_account,
                service_descriptors=None, providers=None,
                authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False,
-               activity_id=None, attributes=None, asset_rewards={"_amounts": [], "_receivers": []}):
+               activity_id=None, attributes=None, asset_rewards={"_amounts": [], "_receivers": []},
+               cap=None, royalties=None):
         """
         Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
 
@@ -73,6 +74,8 @@ class Assets:
         :param activity_id: identifier of the activity creating the new entity
         :param attributes: attributes associated with the action
         :param asset_rewards: rewards distribution including the amounts and the receivers
+        :param cap: max cap of nfts that can be minted for the asset
+        :param royalties: royalties in the secondary market going to the original creator
         :return: DDO instance
         """
         assert isinstance(metadata, dict), f'Expected metadata of type dict, got {type(metadata)}'
@@ -240,6 +243,8 @@ class Assets:
             checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
             url=ddo_service_endpoint,
             account=publisher_account,
+            cap=cap,
+            royalties=royalties,
             providers=providers,
             activity_id=activity_id,
             attributes=attributes
