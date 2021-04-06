@@ -96,7 +96,7 @@ def buy_asset_new_flow():
         index=0)
     logging.info('Success buying asset.')
 
-    event = keeper.access_secret_store_condition.subscribe_condition_fulfilled(
+    event = keeper.access_condition.subscribe_condition_fulfilled(
         agreement_id, 15, None, (), wait=True
     )
     logging.info(f'Got access event {event}')
@@ -108,7 +108,7 @@ def buy_asset_new_flow():
 
     assert nevermined.agreements.is_access_granted(agreement_id, did, consumer_account.address)
 
-    event = keeper.escrow_reward_condition.subscribe_condition_fulfilled(
+    event = keeper.escrow_payment_condition.subscribe_condition_fulfilled(
         agreement_id,
         30,
         None,

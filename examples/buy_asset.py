@@ -104,19 +104,19 @@ def buy_asset():
             did, sa.index, consumer_account)
 
     logging.info('placed order: %s, %s', did, agreement_id)
-    event = keeper.escrow_access_secretstore_template.subscribe_agreement_created(
+    event = keeper.access_template.subscribe_agreement_created(
         agreement_id, 60, None, (), wait=True
     )
     assert event, "Agreement event is not found, check the keeper node's logs"
     logging.info(f'Got agreement event, next: lock reward condition')
 
-    event = keeper.lock_reward_condition.subscribe_condition_fulfilled(
+    event = keeper.lock_payment_condition.subscribe_condition_fulfilled(
         agreement_id, 60, None, (), wait=True
     )
     assert event, "Lock reward condition fulfilled event is not found, check the keeper node's logs"
     logging.info('Got lock reward event, next: wait for the access condition..')
 
-    event = keeper.access_secret_store_condition.subscribe_condition_fulfilled(
+    event = keeper.access_condition.subscribe_condition_fulfilled(
         agreement_id, 15, None, (), wait=True
     )
     logging.info(f'Got access event {event}')
@@ -137,7 +137,7 @@ def buy_asset():
         index=0)
     logging.info('Success buying asset.')
 
-    event = keeper.escrow_reward_condition.subscribe_condition_fulfilled(
+    event = keeper.escrow_payment_condition.subscribe_condition_fulfilled(
         agreement_id,
         30,
         None,

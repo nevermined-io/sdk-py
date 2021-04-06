@@ -144,7 +144,7 @@ def workflow_ddo():
     return ddo
 
 @pytest.fixture
-def setup_agreements_enviroment(ddo_sample):
+def setup_agreements_environment(ddo_sample):
     consumer_acc = get_consumer_account()
     publisher_acc = get_publisher_account()
     keeper = Keeper.get_instance()

@@ -54,7 +54,8 @@ class Assets:
     def create(self, metadata, publisher_account,
                service_descriptors=None, providers=None,
                authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False,
-               activity_id=None, attributes=None, asset_rewards={"_amounts": [], "_receivers": []}):
+               activity_id=None, attributes=None, asset_rewards={"_amounts": [], "_receivers": []},
+               cap=None, royalties=None):
         """
         Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
 
@@ -73,6 +74,8 @@ class Assets:
         :param activity_id: identifier of the activity creating the new entity
         :param attributes: attributes associated with the action
         :param asset_rewards: rewards distribution including the amounts and the receivers
+        :param cap: max cap of nfts that can be minted for the asset
+        :param royalties: royalties in the secondary market going to the original creator
         :return: DDO instance
         """
         assert isinstance(metadata, dict), f'Expected metadata of type dict, got {type(metadata)}'
@@ -168,8 +171,8 @@ class Assets:
                     did,
                     gateway.get_access_endpoint(self._config),
                     access_service_attributes,
-                    self._keeper.escrow_access_secretstore_template.address,
-                    self._keeper.escrow_reward_condition.address)
+                    self._keeper.access_template.address,
+                    self._keeper.escrow_payment_condition.address)
                 ddo.add_service(access_service)
             elif service.type == ServiceTypes.METADATA:
                 ddo_service_endpoint = service.service_endpoint.replace('{did}', did)
@@ -181,7 +184,7 @@ class Assets:
                     service.service_endpoint,
                     service.attributes,
                     self._keeper.compute_execution_condition.address,
-                    self._keeper.escrow_reward_condition.address
+                    self._keeper.escrow_payment_condition.address
                 )
                 ddo.add_service(compute_service)
             else:
@@ -240,6 +243,8 @@ class Assets:
             checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
             url=ddo_service_endpoint,
             account=publisher_account,
+            cap=cap,
+            royalties=royalties,
             providers=providers,
             activity_id=activity_id,
             attributes=attributes
@@ -497,7 +502,7 @@ class Assets:
         :param consumer_address: ethereum address of consumer, hes-str
         :return: list of dids
         """
-        return self._keeper.access_secret_store_condition.get_purchased_assets_by_address(
+        return self._keeper.access_condition.get_purchased_assets_by_address(
             consumer_address)
 
     def revoke_permissions(self, did, address_to_revoke, account):

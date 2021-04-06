@@ -19,11 +19,11 @@ install_requirements = [
     'coloredlogs',
     'pyopenssl',
     'PyJWT',  # not jwt
-    'PyYAML==4.2b4',
-    'common-utils-py==0.4.6',
-    'contracts-lib-py==0.5.5',
-    'nevermined-secret-store==0.1.0',
-    'requests~=2.21.0',
+    'PyYAML>=5.2',
+    'common-utils-py==0.5.0',
+    'contracts-lib-py==0.6.2',
+    'nevermined-secret-store==0.1.1',
+    'requests>=2.21.0',
     'deprecated',
     'pycryptodomex',
     'tqdm',
@@ -69,7 +69,7 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     description="🐳 Nevermined Python SDK.",
     extras_require={
@@ -89,6 +89,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/nevermined-io/sdk-py',
-    version='0.8.0',
+    version='0.9.0',
     zip_safe=False,
 )

@@ -46,7 +46,7 @@ def refund_reward(event, agreement_id, did, service_agreement, price, consumer_a
     assert document_id == asset_id, f'document_id {document_id} <=> asset_id {asset_id} mismatch.'
     assert price == service_agreement.get_price(), 'price mismatch.'
     try:
-        escrow_condition = Keeper.get_instance().escrow_reward_condition
+        escrow_condition = Keeper.get_instance().escrow_payment_condition
         tx_hash = escrow_condition.fulfill(
             agreement_id,
             price,
@@ -63,7 +63,7 @@ def refund_reward(event, agreement_id, did, service_agreement, price, consumer_a
         )
     except Exception as e:
         logger.error(
-            f'Error when doing escrow_reward_condition.fulfills (agreementId {agreement_id}): {e}',
+            f'Error when doing escrow_payment_condition.fulfills (agreementId {agreement_id}): {e}',
             exc_info=1)
         raise e
 
