@@ -105,7 +105,7 @@ class Agreements:
 
         publisher_address = Web3Provider.get_web3().toChecksumAddress(asset.publisher)
         condition_ids = service_agreement.generate_agreement_condition_ids(
-            agreement_id, asset_id, consumer_address, publisher_address, self._keeper)
+            agreement_id, asset_id, consumer_address, self._keeper)
 
         time_locks = service_agreement.conditions_timelocks
         time_outs = service_agreement.conditions_timeouts

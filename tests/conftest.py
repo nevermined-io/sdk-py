@@ -167,7 +167,7 @@ def setup_agreements_environment(ddo_sample):
     price = service_agreement.get_price()
     access_cond_id, lock_cond_id, escrow_cond_id = \
         service_agreement.generate_agreement_condition_ids(
-            agreement_id, asset_id, consumer_acc.address, publisher_acc.address, keeper
+            agreement_id, asset_id, consumer_acc.address, keeper
         )
 
     return (

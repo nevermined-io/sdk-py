@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import re
-
+import time
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.exceptions import EncryptAssetUrlsError
 from common_utils_py.http_requests.requests_session import get_requests_session
@@ -30,6 +30,9 @@ class Gateway:
     """
     _http_client = get_requests_session()
     _tokens_cache = {}
+
+    PING_ITERATIONS = 15
+    PING_SLEEP = 1500
 
     @staticmethod
     def _generate_cache_key(*args):
@@ -139,10 +142,15 @@ class Gateway:
         headers = {"Authorization": f"Bearer {access_token}"}
         consume_url = Gateway._create_compute_logs_url(config, service_agreement_id, execution_id)
 
-        response = Gateway._http_client.get(consume_url, headers=headers)
-        if not response.ok:
-            raise ValueError(response.text)
-        return response
+        iteration = 0
+        while iteration < Gateway.PING_ITERATIONS:
+            iteration = iteration + 1
+            response = Gateway._http_client.get(consume_url, headers=headers)
+            if not response.ok:
+                time.sleep(Gateway.PING_SLEEP / 1000)
+            else:
+                return response
+        raise ValueError(response.text)
 
     @staticmethod
     def compute_status(service_agreement_id, execution_id, account, config):
