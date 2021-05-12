@@ -143,6 +143,7 @@ def workflow_ddo():
     ddo['service'][0]['attributes']['main']['checksum'] = str(uuid.uuid4())
     return ddo
 
+
 @pytest.fixture
 def setup_agreements_environment(ddo_sample):
     consumer_acc = get_consumer_account()

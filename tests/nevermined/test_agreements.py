@@ -3,6 +3,7 @@ from common_utils_py.agreements.service_types import ServiceTypes, ServiceTypesI
 from common_utils_py.utils.utilities import to_checksum_addresses
 
 from nevermined_sdk_py.gateway.gateway import Gateway
+from nevermined_sdk_py.nevermined.agreements import check_token_address
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
 from tests.resources.helper_functions import log_event
 from tests.resources.mocks.gateway_mock import GatewayMock
@@ -74,10 +75,12 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
 
     amounts = service_agreement.get_amounts_int()
     receivers = service_agreement.get_receivers()
+    token_address = check_token_address(
+        keeper, service_agreement.get_param_value_by_name('_tokenAddress'))
 
     tx_hash = keeper.escrow_payment_condition.fulfill(
         agreement_id, asset_id, amounts, receivers,
-        keeper.escrow_payment_condition.address, lock_cond_id,
+        keeper.escrow_payment_condition.address, token_address, lock_cond_id,
         access_cond_id, publisher_acc
     )
     keeper.escrow_payment_condition.get_tx_receipt(tx_hash)
@@ -136,7 +139,10 @@ def test_agreement_status(setup_agreements_environment, agreements):
     amounts = service_agreement.get_amounts_int()
     receivers = service_agreement.get_receivers()
 
-    agreements.conditions.lock_payment(agreement_id, asset_id, amounts, receivers, consumer_acc)
+    token_address = keeper.token.address
+
+    agreements.conditions.lock_payment(
+        agreement_id, asset_id, amounts, receivers, token_address, consumer_acc)
 
     event = keeper.lock_payment_condition.subscribe_condition_fulfilled(
         agreement_id,
@@ -172,7 +178,7 @@ def test_agreement_status(setup_agreements_environment, agreements):
 
     tx_hash = keeper.escrow_payment_condition.fulfill(
         agreement_id, asset_id, amounts, receivers,
-        keeper.escrow_payment_condition.address, lock_cond_id,
+        keeper.escrow_payment_condition.address, token_address, lock_cond_id,
         access_cond_id, publisher_acc
     )
     keeper.escrow_payment_condition.get_tx_receipt(tx_hash)

@@ -13,7 +13,7 @@ class AssetConsumer:
 
     @staticmethod
     def access(service_agreement_id, service_index, ddo, consumer_account, destination,
-                 gateway, secret_store, config, index=None):
+                 gateway, secret_store, config, index=None, service_type=ServiceTypes.ASSET_ACCESS):
         """
         Download asset data files or result files from a compute job.
 
@@ -26,10 +26,11 @@ class AssetConsumer:
         :param secret_store: SecretStore instance
         :param config: Sdk configuration instance
         :param index: Index of the document that is going to be downloaded, int
+        :param service_type: service type
         :return: Asset folder path, str
         """
         did = ddo.did
-        sa = ServiceAgreement.from_ddo(ServiceTypes.ASSET_ACCESS, ddo)
+        sa = ServiceAgreement.from_ddo(service_type, ddo)
         consume_url = sa.service_endpoint
         if not consume_url:
             logger.error(
@@ -49,6 +50,12 @@ class AssetConsumer:
             assert index >= 0, logger.error('index has to be 0 or a positive integer.')
             assert index < len(ddo.metadata['main']['files']), logger.error(
                 'index can not be bigger than the number of files')
+
+        if service_type is ServiceTypes.NFT_ACCESS:
+            uri = '/nft-access'
+        else:
+            uri = '/access'
+
         if index is not None:
             gateway.access_service(
                 did,
@@ -57,7 +64,8 @@ class AssetConsumer:
                 consumer_account,
                 asset_folder,
                 config,
-                index
+                index,
+                uri
             )
         else:
             for i, _file in enumerate(ddo.metadata['main']['files']):
@@ -68,7 +76,8 @@ class AssetConsumer:
                     consumer_account,
                     asset_folder,
                     config,
-                    i
+                    i,
+                    uri
                 )
 
         return asset_folder

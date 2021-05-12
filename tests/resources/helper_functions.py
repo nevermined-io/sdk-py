@@ -11,7 +11,7 @@ import yaml
 from common_utils_py.ddo.ddo import DDO
 from common_utils_py.http_requests.requests_session import get_requests_session
 from contracts_lib_py.utils import get_account
-
+from common_utils_py.agreements.service_factory import ServiceDescriptor
 from nevermined_sdk_py.gateway.gateway_provider import GatewayProvider
 from nevermined_sdk_py.gateway.gateway import Gateway
 from nevermined_sdk_py.secret_store.secret_store import SecretStore
@@ -20,6 +20,7 @@ from nevermined_sdk_py.nevermined.nevermined import Nevermined
 from nevermined_sdk_py.secret_store.secret_store_provider import SecretStoreProvider
 from tests.resources.mocks.gateway_mock import GatewayMock
 from tests.resources.mocks.secret_store_mock import SecretStoreMock
+from common_utils_py.utils.utilities import to_checksum_addresses
 
 PUBLISHER_INDEX = 1
 CONSUMER_INDEX = 0
@@ -119,6 +120,13 @@ def get_computing_metadata():
         'utf-8'))
 
 
+def get_sample_nft_ddo():
+    return json.loads(urlopen(
+        'https://raw.githubusercontent.com/keyko-io/nevermined-docs/master/docs/architecture/specs'
+        '/examples/access/v0.1/ddo_nft.json').read().decode(
+        'utf-8'))
+
+
 def get_computing_ddo():
     return _get_asset(
         "https://raw.githubusercontent.com/nevermined-io/docs/master/docs/architecture/specs/examples/compute/v0.1/ddo.computing.json")
@@ -132,6 +140,60 @@ def get_registered_ddo(nevermined_instance, account):
     }
     metadata['main']['files'][0]['checksum'] = str(uuid.uuid4())
     ddo = nevermined_instance.assets.create(metadata, account, asset_rewards=asset_rewards)
+    return ddo
+
+
+def get_registered_ddo_nft(nevermined_instance, account):
+    ddo = get_sample_nft_ddo()
+    metadata = ddo['service'][0]['attributes']
+    metadata['main']['files'][0][
+        'url'] = "https://raw.githubusercontent.com/tbertinmahieux/MSongsDB/master/Tasks_Demos" \
+                 "/CoverSongs/shs_dataset_test.txt?" + str(uuid.uuid4())
+    metadata['main']['files'][0]['checksum'] = str(uuid.uuid4())
+
+    escrow_payment_condition = ddo['service'][1]['attributes']['serviceAgreementTemplate']['conditions'][2]
+    _number_nfts = 1
+    _amounts = get_param_value_by_name(escrow_payment_condition['parameters'], '_amounts')
+    _receivers = to_checksum_addresses(
+        get_param_value_by_name(escrow_payment_condition['parameters'], '_receivers'))
+
+    _total_price = 0
+    for i in _amounts:
+        _total_price += int(i)
+
+    asset_rewards = {
+        "_amounts": _amounts,
+        "_receivers": _receivers
+    }
+
+    metadata['main']['price'] = _total_price
+
+    access_service_attributes = {"main": {
+        "name": "nftAccessAgreement",
+        "creator": account.address,
+        "timeout": 3600,
+        "price": _total_price,
+        "_amounts": _amounts,
+        "_receivers": _receivers,
+        "_numberNfts": str(_number_nfts),
+        "datePublished": metadata['main']['dateCreated']
+    }}
+
+    sales_service_attributes = access_service_attributes
+    sales_service_attributes['main']['name'] = 'nftSalesAgreement'
+
+    nft_sales_service_descriptor = ServiceDescriptor.nft_sales_service_descriptor(
+        sales_service_attributes,
+        'http://localhost:8030'
+    )
+    nft_access_service_descriptor = ServiceDescriptor.nft_access_service_descriptor(
+        access_service_attributes,
+        'http://localhost:8030'
+    )
+    ddo = nevermined_instance.assets.create(metadata, account,
+                                            [nft_sales_service_descriptor, nft_access_service_descriptor],
+                                            asset_rewards=asset_rewards,
+                                            royalties= 0, cap=10, mint=10)
     return ddo
 
 
@@ -185,3 +247,14 @@ def setup_logging(default_path='logging.yaml', default_level=logging.INFO, env_k
     else:
         logging.basicConfig(level=default_level)
         coloredlogs.install(level=default_level)
+
+
+def get_param_value_by_name(parameters, name):
+    """
+    Return the value from the conditions parameters given the param name.
+
+    :return: Object
+    """
+    for p in parameters:
+        if p['name'] == name:
+            return p['value']

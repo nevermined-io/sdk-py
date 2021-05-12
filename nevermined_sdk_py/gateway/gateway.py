@@ -95,10 +95,10 @@ class Gateway:
             return json.loads(response.text)['hash']
 
     @staticmethod
-    def access_service(did, service_agreement_id, service_endpoint, account, destination_folder, config, index):
+    def access_service(did, service_agreement_id, service_endpoint, account, destination_folder, config, index, uri='/access'):
         cache_key = Gateway._generate_cache_key(account.address, service_agreement_id, did)
         if cache_key not in Gateway._tokens_cache:
-            grant_token = generate_access_grant_token(account, service_agreement_id, did)
+            grant_token = generate_access_grant_token(account, service_agreement_id, did, uri)
             access_token = Gateway.fetch_token(grant_token, config)
             Gateway._tokens_cache[cache_key] = access_token
         else:
@@ -324,6 +324,16 @@ class Gateway:
         :return: Url, str
         """
         return f'{Gateway.get_gateway_url(config)}/services/access'
+
+    @staticmethod
+    def get_nft_access_endpoint(config):
+        """
+        Return the endpoint to access the asset.
+
+        :param config:Config
+        :return: Url, str
+        """
+        return f'{Gateway.get_gateway_url(config)}/services/nft-access'
 
     @staticmethod
     def get_download_endpoint(config):

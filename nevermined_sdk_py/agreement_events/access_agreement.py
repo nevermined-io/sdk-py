@@ -31,7 +31,7 @@ def refund_reward(event, agreement_id, did, service_agreement, price, consumer_a
     logger.debug(f"trigger refund (agreement {agreement_id}) after event {event}.")
     if Keeper.get_instance().condition_manager.get_condition_state(escrow_condition_id) > 1:
         logger.debug(
-            f'escrow reward condition already fulfilled/aborted: '
+            f'escrow payment condition already fulfilled/aborted: '
             f'agreementId={agreement_id}, escrow reward conditionId={escrow_condition_id},'
             f' publisher={publisher_address}'
         )
@@ -39,7 +39,7 @@ def refund_reward(event, agreement_id, did, service_agreement, price, consumer_a
 
     access_id, lock_id = condition_ids[:2]
     name_to_parameter = {param.name: param for param in
-                         service_agreement.condition_by_name['escrowReward'].parameters}
+                         service_agreement.condition_by_name['escrowPayment'].parameters}
     document_id = add_0x_prefix(name_to_parameter['_documentId'].value)
     asset_id = add_0x_prefix(did_to_id(did))
     did_owner = Keeper.get_instance().agreement_manager.get_agreement_did_owner(agreement_id)

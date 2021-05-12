@@ -24,11 +24,11 @@ def fulfill_lock_payment_condition(event, agreement_id, price, consumer_account,
 
     keeper = Keeper.get_instance()
     if keeper.condition_manager.get_condition_state(lock_condition_id) > 1:
-        logger.debug(f'lock reward condition already fulfilled/aborted: '
-                     f'agreementId={agreement_id}, lockReward conditionId={lock_condition_id}')
+        logger.debug(f'lock payment condition already fulfilled/aborted: '
+                     f'agreementId={agreement_id}, lockPayment conditionId={lock_condition_id}')
         return
 
-    logger.debug(f"about to lock reward (agreement {agreement_id}) after event {event}.")
+    logger.debug(f"about to lock payment (agreement {agreement_id}) after event {event}.")
 
     approved = keeper.token.token_approve(
         keeper.lock_payment_condition.address, price, consumer_account)
