@@ -159,7 +159,11 @@ class Assets:
         ddo.add_proof(checksums, publisher_account)
 
         # Generating the did and adding to the ddo.
-        did = ddo.assign_did(DID.did(ddo.proof['checksum']))
+        did_seed = checksum(ddo.proof['checksum'])
+        asset_id = self._keeper.did_registry.hash_did(did_seed, publisher_account.address)
+        ddo._did = DID.did(asset_id)
+        did = ddo._did
+
         logger.debug(f'Generating new did: {did}')
         # Check if it's already registered first!
         if did in self._get_metadata_provider().list_assets():
@@ -263,7 +267,7 @@ class Assets:
         # register on-chain
         if mint > 0 or royalties is not None or cap is not None:
             registered_on_chain = self._keeper.did_registry.register_mintable_did(
-                ddo.asset_id,
+                did_seed,
                 checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
                 url=ddo_service_endpoint,
                 account=publisher_account,
@@ -277,7 +281,7 @@ class Assets:
                 self._keeper.did_registry.mint(ddo.asset_id, mint, account=publisher_account)
         else:
             registered_on_chain = self._keeper.did_registry.register(
-                ddo.asset_id,
+                did_seed,
                 checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
                 url=ddo_service_endpoint,
                 account=publisher_account,
@@ -305,8 +309,8 @@ class Assets:
         return ddo
 
     def create_compute(self, metadata, publisher_account, asset_rewards={"_amounts": [], "_receivers": []},
-               service_descriptors=None, providers=None,
-               authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False):
+                       service_descriptors=None, providers=None,
+                       authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False):
         """
         Register a compute to the data asset in both the keeper's DIDRegistry (on-chain) and in
         the Metadata store.
@@ -335,8 +339,8 @@ class Assets:
             compute_service_attributes, gateway.get_execute_endpoint(self._config))
 
         return self.create(metadata, publisher_account, service_descriptors=[service_descriptor],
-            providers=providers, authorization_type=authorization_type,
-            use_secret_store=use_secret_store)
+                           providers=providers, authorization_type=authorization_type,
+                           use_secret_store=use_secret_store)
 
     def retire(self, did):
         """

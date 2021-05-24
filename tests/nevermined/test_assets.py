@@ -71,7 +71,7 @@ def test_resolve_did(publisher_instance, metadata):
     assert ddo['service'][1] == original['service'][1]
 
     # Can't resolve unregistered asset
-    unregistered_did = DID.did({"0": "0x00112233445566"})
+    unregistered_did = DID.encoded_did({"0": "0x00112233445566"})
     with pytest.raises(DIDNotFound):
         publisher_instance.assets.resolve(unregistered_did)
 

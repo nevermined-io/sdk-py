@@ -88,7 +88,7 @@ def asset1():
     asset = _get_asset(
         'https://raw.githubusercontent.com/nevermined-io/docs/master/docs/architecture/specs'
         '/examples/access/v0.1/ddo1.json')
-    asset._did = DID.did(asset.proof['checksum'])
+    asset._did = DID.encoded_did(asset.proof['checksum'])
     yield asset
     metadata_provider.retire_all_assets()
 
@@ -98,7 +98,7 @@ def asset2():
     asset = _get_asset(
         'https://raw.githubusercontent.com/nevermined-io/docs/master/docs/architecture/specs'
         '/examples/access/v0.1/ddo2-update.json')
-    asset._did = DID.did(asset.proof['checksum'])
+    asset._did = DID.encoded_did(asset.proof['checksum'])
     return asset
 
 
@@ -151,18 +151,18 @@ def setup_agreements_environment(ddo_sample):
     keeper = Keeper.get_instance()
 
     ddo = ddo_sample
-    ddo._did = DID.did({"0": generate_prefixed_id()})
+    did_seed = generate_prefixed_id()
+    asset_id = keeper.did_registry.hash_did(did_seed, publisher_acc.address)
+    ddo._did = DID.did(asset_id)
 
     keeper.did_registry.register(
-        ddo.asset_id,
+        did_seed,
         checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
         url='localhost:5000',
         account=publisher_acc,
         providers=None
     )
 
-    registered_ddo = ddo
-    asset_id = registered_ddo.asset_id
     service_agreement = ServiceAgreement.from_ddo(ServiceTypes.ASSET_ACCESS, ddo)
     agreement_id = ServiceAgreement.create_new_agreement_id()
     price = service_agreement.get_price()

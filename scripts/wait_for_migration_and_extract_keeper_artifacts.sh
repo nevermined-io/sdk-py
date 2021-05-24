@@ -3,6 +3,7 @@
 RETRY_COUNT=0
 COMMAND_STATUS=1
 
+rm -rf artifacts
 mkdir -p artifacts
 
 until [ $COMMAND_STATUS -eq 0 ] || [ $RETRY_COUNT -eq 120 ]; do
