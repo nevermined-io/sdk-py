@@ -14,6 +14,7 @@ from nevermined_sdk_py.nevermined.agreements import Agreements
 from nevermined_sdk_py.nevermined.assets import Assets
 from nevermined_sdk_py.nevermined.auth import Auth
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
+from nevermined_sdk_py.nevermined.nfts import NFTs
 from nevermined_sdk_py.nevermined.provenance import Provenance
 from nevermined_sdk_py.nevermined.providers import Providers
 from nevermined_sdk_py.nevermined.secret_store import SecretStore
@@ -102,6 +103,7 @@ class Nevermined:
             AssetExecutor,
             self._config
         )
+        self.nfts = NFTs(self._keeper)
         self.services = Services()
         self.secret_store = SecretStore(self._config)
         self.providers = Providers(self._keeper, self._did_resolver, self._config)

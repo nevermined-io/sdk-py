@@ -459,11 +459,11 @@ def test_nfts(publisher_instance, metadata):
     balance_consumer = publisher_instance.assets.balance(someone_address, ddo.did)
     assert balance_consumer == 0
 
-    publisher_instance.assets.mint(ddo.did, 10, account=publisher)
+    publisher_instance.nfts.mint(ddo.did, 10, account=publisher)
     assert balance + 10 == publisher_instance.assets.balance(publisher.address, ddo.did)
-    assert publisher_instance.assets.transfer_nft(ddo.did, someone_address, 1, publisher)
-    assert publisher_instance.assets.balance(publisher.address, ddo.did) == 9
-    assert publisher_instance.assets.balance(someone_address, ddo.did) == balance_consumer + 1
-    publisher_instance.assets.burn(ddo.did, 9, account=publisher)
-    assert balance == publisher_instance.assets.balance(publisher.address, ddo.did)
+    assert publisher_instance.nfts.transfer_nft(ddo.did, someone_address, 1, publisher)
+    assert publisher_instance.nfts.balance(publisher.address, ddo.did) == 9
+    assert publisher_instance.nfts.balance(someone_address, ddo.did) == balance_consumer + 1
+    publisher_instance.nfts.burn(ddo.did, 9, account=publisher)
+    assert balance == publisher_instance.nfts.balance(publisher.address, ddo.did)
     publisher_instance.assets.retire(ddo.did)

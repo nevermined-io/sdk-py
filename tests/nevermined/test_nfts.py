@@ -82,20 +82,6 @@ def test_nfts_flow(publisher_instance_no_init, consumer_instance_no_init):
     nft_access_agreement_id = consumer_instance_no_init.assets.order(
         ddo.did, sa_access.index, consumer_account, consumer_account)
 
-    # nft_access_agreement_id = ServiceAgreement.create_new_agreement_id()
-    # (nft_access_cond_id, nft_holder_cond_id) = nft_access_service_agreement.generate_agreement_condition_ids(
-    #     nft_access_agreement_id, asset_id, consumer_account.address, keeper)
-    #
-    # keeper.nft_access_template.create_agreement(
-    #     nft_access_agreement_id,
-    #     asset_id,
-    #     [nft_holder_cond_id, nft_access_cond_id],
-    #     nft_access_service_agreement.conditions_timelocks,
-    #     nft_access_service_agreement.conditions_timeouts,
-    #     consumer_account.address,
-    #     pub_acc
-    # )
-
     event = keeper.nft_access_template.subscribe_agreement_created(
         nft_access_agreement_id,
         10,
