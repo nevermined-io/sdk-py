@@ -454,13 +454,13 @@ def test_nfts(publisher_instance, metadata):
     someone_address = "0x00a329c0648769A73afAc7F9381E08FB43dBEA72"
     ddo = publisher_instance.assets.create(metadata, publisher, cap=100, royalties=0)
 
-    balance = publisher_instance.assets.balance(publisher.address, ddo.did)
+    balance = publisher_instance.nfts.balance(publisher.address, ddo.did)
     assert balance == 0
-    balance_consumer = publisher_instance.assets.balance(someone_address, ddo.did)
+    balance_consumer = publisher_instance.nfts.balance(someone_address, ddo.did)
     assert balance_consumer == 0
 
     publisher_instance.nfts.mint(ddo.did, 10, account=publisher)
-    assert balance + 10 == publisher_instance.assets.balance(publisher.address, ddo.did)
+    assert balance + 10 == publisher_instance.nfts.balance(publisher.address, ddo.did)
     assert publisher_instance.nfts.transfer_nft(ddo.did, someone_address, 1, publisher)
     assert publisher_instance.nfts.balance(publisher.address, ddo.did) == 9
     assert publisher_instance.nfts.balance(someone_address, ddo.did) == balance_consumer + 1
