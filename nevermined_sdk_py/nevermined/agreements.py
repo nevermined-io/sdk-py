@@ -12,13 +12,24 @@ from common_utils_py.exceptions import (
 from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
 from contracts_lib_py.web3_provider import Web3Provider
 
-from nevermined_sdk_py.agreement_events.accessSecretStore import consume_asset, refund_reward
-from nevermined_sdk_py.agreement_events.computeExecution import execute_computation
-from nevermined_sdk_py.agreement_events.escrowAccessSecretStoreTemplate import \
+from nevermined_sdk_py.agreement_events.access_agreement import consume_asset, refund_reward
+from nevermined_sdk_py.agreement_events.compute_agreement import execute_computation
+from nevermined_sdk_py.agreement_events.payments import \
     fulfillLockRewardCondition
 from nevermined_sdk_py.nevermined.conditions import Conditions
+from web3 import Web3
 
 logger = logging.getLogger(__name__)
+
+ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+
+
+def check_token_address(keeper, token_address):
+    if token_address == '0x0' or token_address == ZERO_ADDRESS:
+        return ZERO_ADDRESS
+    elif not Web3.isAddress(token_address):
+        return keeper.token.address
+    return token_address
 
 
 class Agreements:
@@ -71,66 +82,85 @@ class Agreements:
         assert account.address in self._keeper.accounts, \
             f'Unrecognized account address {account.address}'
 
-        agreement_template_approved = self._keeper.template_manager.is_template_approved(
-            self._keeper.access_template.address)
-        agreement_exec_template_approved = self._keeper.template_manager.is_template_approved(
-            self._keeper.escrow_compute_execution_template.address)
-        if not agreement_template_approved:
-            msg = (f'The EscrowAccessSecretStoreTemplate contract at address '
-                   f'{self._keeper.access_template.address} is not '
-                   f'approved and cannot be used for creating service agreements.')
-            logger.warning(msg)
-            raise InvalidAgreementTemplate(msg)
-        if not agreement_exec_template_approved:
-            msg = (f'The EscroComputeExecutionTemplate contract at address '
-                   f'{self._keeper.agreement_exec_template_approved.address} is not '
-                   f'approved and cannot be used for creating service agreements.')
-            logger.warning(msg)
-            raise InvalidAgreementTemplate(msg)
-
+        payment_involved = True
         asset = self._asset_resolver.resolve(did)
         asset_id = asset.asset_id
-        service_agreement = asset.get_service_by_index(index)
-        if service_agreement.type == ServiceTypes.ASSET_ACCESS:
+        service = asset.get_service_by_index(index)
+        if service.type == ServiceTypes.ASSET_ACCESS:
             agreement_template = self._keeper.access_template
-        elif service_agreement.type == ServiceTypes.CLOUD_COMPUTE:
+            template_address = self._keeper.access_template.address
+        elif service.type == ServiceTypes.CLOUD_COMPUTE:
             agreement_template = self._keeper.escrow_compute_execution_template
+            template_address = self._keeper.escrow_compute_execution_template.address
+        elif service.type == ServiceTypes.NFT_SALES:
+            agreement_template = self._keeper.nft_sales_template
+            template_address = self._keeper.nft_sales_template.address
+        elif service.type == ServiceTypes.NFT_ACCESS:
+            payment_involved = False
+            agreement_template = self._keeper.nft_access_template
+            template_address = self._keeper.nft_access_template.address
         else:
             raise Exception('The agreement could not be created. Review the index of your service.')
 
-        if agreement_template.get_agreement_consumer(agreement_id) != '0x0000000000000000000000000000000000000000':
+        agreement_template_approved = self._keeper.template_manager.is_template_approved(template_address)
+        if not agreement_template_approved:
+            msg = (f'The Service Agreement Template contract at address '
+                   f'{template_address} is not '
+                   f'approved and cannot be used for creating service agreements.')
+            logger.warning(msg)
+            raise InvalidAgreementTemplate(msg)
+
+        if agreement_template.get_agreement_consumer(agreement_id) != ZERO_ADDRESS:
             raise ServiceAgreementExists(
                 f'Service agreement {agreement_id} already exists, cannot reuse '
                 f'the same agreement id.')
 
+        service_agreement = ServiceAgreement.from_service_index(index, asset)
+        token_address = check_token_address(
+            self._keeper, service_agreement.get_param_value_by_name('_tokenAddress'))
+
         publisher_address = Web3Provider.get_web3().toChecksumAddress(asset.publisher)
         condition_ids = service_agreement.generate_agreement_condition_ids(
-            agreement_id, asset_id, consumer_address, publisher_address, self._keeper)
+            agreement_id, asset_id, consumer_address, self._keeper, token_address=token_address)
 
         time_locks = service_agreement.conditions_timelocks
         time_outs = service_agreement.conditions_timeouts
-        if service_agreement.get_price() > self._keeper.token.get_token_balance(consumer_address):
+
+        if payment_involved and service_agreement.get_price() > self._keeper.token.get_token_balance(consumer_address):
             return Exception(
                 f'The consumer balance is '
                 f'{self._keeper.token.get_token_balance(consumer_address)}. '
                 f'This balance is lower that the asset price {service_agreement.get_price()}.')
+
+        if service.type == ServiceTypes.NFT_SALES:
+            conditions_ordered = [condition_ids[1], condition_ids[0], condition_ids[2]]
+        elif service.type == ServiceTypes.NFT_ACCESS:
+            conditions_ordered = [condition_ids[1], condition_ids[0]]
+        else:
+            conditions_ordered = condition_ids
+
         success = agreement_template.create_agreement(
             agreement_id,
             asset_id,
-            condition_ids,
+            conditions_ordered,
             time_locks,
             time_outs,
             consumer_address,
             account
         )
+
         if success:
-            self.conditions.lock_payment(
-                agreement_id,
-                asset_id,
-                service_agreement.get_amounts_int(),
-                service_agreement.get_receivers(),
-                account)
-        return self._is_condition_fulfilled(agreement_id, 'lockReward')
+            if payment_involved:
+                self.conditions.lock_payment(
+                    agreement_id,
+                    asset_id,
+                    service_agreement.get_amounts_int(),
+                    service_agreement.get_receivers(),
+                    token_address,
+                    account)
+                return self._is_condition_fulfilled(agreement_id, 'lockReward')
+            return True
+        return False
 
     def status(self, agreement_id):
         """

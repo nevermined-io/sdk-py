@@ -1,14 +1,14 @@
 import os
 
 import pytest
-from contracts_lib_py.web3_provider import Web3Provider
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_types import ServiceAuthorizationTypes, ServiceTypes
 from common_utils_py.ddo.ddo import DDO
-from secret_store_client.client import RPCError
+from contracts_lib_py.web3_provider import Web3Provider
 
 from examples import ExampleConfig
 from nevermined_sdk_py import ConfigProvider
+from nevermined_sdk_py.nevermined.agreements import check_token_address
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
 from tests.resources.helper_functions import (get_consumer_account, get_publisher_account,
                                               get_registered_ddo, get_registered_with_psk, log_event)
@@ -66,14 +66,16 @@ def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
         (),
         wait=True
     )
-    assert event, 'no event for AccessSecretStoreCondition.Fulfilled'
+    assert event, 'no event for AccessCondition.Fulfilled'
     assert consumer_instance_no_init.agreements.is_access_granted(agreement_id, ddo.did, consumer_account.address)
 
     amounts = list(map(int, service.get_param_value_by_name('_amounts')))
     receivers = service.get_param_value_by_name('_receivers')
+    token_address = check_token_address(
+        keeper, service.get_param_value_by_name('_tokenAddress'))
 
     publisher_instance_no_init.agreements.conditions.release_reward(
-        agreement_id, ddo.asset_id, amounts, receivers, pub_acc)
+        agreement_id, ddo.asset_id, amounts, receivers, token_address, pub_acc)
 
     assert consumer_instance_no_init.assets.access(
         agreement_id,
@@ -139,7 +141,7 @@ def test_buy_asset_no_secret_store(publisher_instance_gateway, consumer_instance
     w3 = Web3Provider.get_web3()
     pub_acc = get_publisher_account()
 
-    for method in [ServiceAuthorizationTypes.SECRET_STORE, ServiceAuthorizationTypes.PSK_ECDSA, ServiceAuthorizationTypes.PSK_RSA]:
+    for method in [ServiceAuthorizationTypes.PSK_ECDSA, ServiceAuthorizationTypes.PSK_RSA]:
         # Register ddo
         ddo = get_registered_with_psk(publisher_instance_gateway, pub_acc, auth_method=method)
         assert isinstance(ddo, DDO)
@@ -194,8 +196,11 @@ def test_buy_asset_no_secret_store(publisher_instance_gateway, consumer_instance
         assert event, 'no event for AccessSecretStoreCondition.Fulfilled'
         assert consumer_instance_gateway.agreements.is_access_granted(agreement_id, ddo.did, consumer_account.address)
 
+        token_address = check_token_address(
+            keeper, sa.get_param_value_by_name('_tokenAddress'))
+
         publisher_instance_gateway.agreements.conditions.release_reward(
-            agreement_id, ddo.asset_id, sa.get_amounts_int(), sa.get_receivers(), pub_acc)
+            agreement_id, ddo.asset_id, sa.get_amounts_int(), sa.get_receivers(), token_address, pub_acc)
 
         assert consumer_instance_gateway.assets.access(
             agreement_id,

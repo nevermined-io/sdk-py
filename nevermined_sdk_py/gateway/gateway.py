@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import re
-
+import time
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.exceptions import EncryptAssetUrlsError
 from common_utils_py.http_requests.requests_session import get_requests_session
@@ -30,6 +30,9 @@ class Gateway:
     """
     _http_client = get_requests_session()
     _tokens_cache = {}
+
+    PING_ITERATIONS = 15
+    PING_SLEEP = 1500
 
     @staticmethod
     def _generate_cache_key(*args):
@@ -92,10 +95,10 @@ class Gateway:
             return json.loads(response.text)['hash']
 
     @staticmethod
-    def access_service(did, service_agreement_id, service_endpoint, account, destination_folder, config, index):
+    def access_service(did, service_agreement_id, service_endpoint, account, destination_folder, config, index, uri='/access'):
         cache_key = Gateway._generate_cache_key(account.address, service_agreement_id, did)
         if cache_key not in Gateway._tokens_cache:
-            grant_token = generate_access_grant_token(account, service_agreement_id, did)
+            grant_token = generate_access_grant_token(account, service_agreement_id, did, uri)
             access_token = Gateway.fetch_token(grant_token, config)
             Gateway._tokens_cache[cache_key] = access_token
         else:
@@ -139,10 +142,15 @@ class Gateway:
         headers = {"Authorization": f"Bearer {access_token}"}
         consume_url = Gateway._create_compute_logs_url(config, service_agreement_id, execution_id)
 
-        response = Gateway._http_client.get(consume_url, headers=headers)
-        if not response.ok:
-            raise ValueError(response.text)
-        return response
+        iteration = 0
+        while iteration < Gateway.PING_ITERATIONS:
+            iteration = iteration + 1
+            response = Gateway._http_client.get(consume_url, headers=headers)
+            if not response.ok:
+                time.sleep(Gateway.PING_SLEEP / 1000)
+            else:
+                return response
+        raise ValueError(response.text)
 
     @staticmethod
     def compute_status(service_agreement_id, execution_id, account, config):
@@ -316,6 +324,16 @@ class Gateway:
         :return: Url, str
         """
         return f'{Gateway.get_gateway_url(config)}/services/access'
+
+    @staticmethod
+    def get_nft_access_endpoint(config):
+        """
+        Return the endpoint to access the asset.
+
+        :param config:Config
+        :return: Url, str
+        """
+        return f'{Gateway.get_gateway_url(config)}/services/nft-access'
 
     @staticmethod
     def get_download_endpoint(config):

@@ -55,7 +55,7 @@ class Assets:
                service_descriptors=None, providers=None,
                authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False,
                activity_id=None, attributes=None, asset_rewards={"_amounts": [], "_receivers": []},
-               cap=None, royalties=None):
+               cap=None, royalties=None, mint=0):
         """
         Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
 
@@ -76,6 +76,7 @@ class Assets:
         :param asset_rewards: rewards distribution including the amounts and the receivers
         :param cap: max cap of nfts that can be minted for the asset
         :param royalties: royalties in the secondary market going to the original creator
+        :param mint: number of nfts to mint just after registration of the asset
         :return: DDO instance
         """
         assert isinstance(metadata, dict), f'Expected metadata of type dict, got {type(metadata)}'
@@ -158,7 +159,11 @@ class Assets:
         ddo.add_proof(checksums, publisher_account)
 
         # Generating the did and adding to the ddo.
-        did = ddo.assign_did(DID.did(ddo.proof['checksum']))
+        did_seed = checksum(ddo.proof['checksum'])
+        asset_id = self._keeper.did_registry.hash_did(did_seed, publisher_account.address)
+        ddo._did = DID.did(asset_id)
+        did = ddo._did
+
         logger.debug(f'Generating new did: {did}')
         # Check if it's already registered first!
         if did in self._get_metadata_provider().list_assets():
@@ -172,8 +177,30 @@ class Assets:
                     gateway.get_access_endpoint(self._config),
                     access_service_attributes,
                     self._keeper.access_template.address,
-                    self._keeper.escrow_payment_condition.address)
+                    self._keeper.escrow_payment_condition.address,
+                    service.type
+                )
                 ddo.add_service(access_service)
+            elif service.type == ServiceTypes.NFT_ACCESS:
+                access_service = ServiceFactory.complete_access_service(
+                    did,
+                    gateway.get_nft_access_endpoint(self._config),
+                    self._build_nft_access(metadata_copy, publisher_account, asset_rewards, service.main['_numberNfts']),
+                    self._keeper.nft_access_template.address,
+                    self._keeper.escrow_payment_condition.address,
+                    service.type
+                )
+                ddo.add_service(access_service)
+            elif service.type == ServiceTypes.NFT_SALES:
+                nft_sales_service = ServiceFactory.complete_nft_sales_service(
+                    did,
+                    gateway.get_access_endpoint(self._config),
+                    service.attributes,
+                    self._keeper.nft_sales_template.address,
+                    self._keeper.escrow_payment_condition.address,
+                    service.type
+                )
+                ddo.add_service(nft_sales_service)
             elif service.type == ServiceTypes.METADATA:
                 ddo_service_endpoint = service.service_endpoint.replace('{did}', did)
                 service.set_service_endpoint(ddo_service_endpoint)
@@ -238,17 +265,33 @@ class Assets:
         response = None
 
         # register on-chain
-        registered_on_chain = self._keeper.did_registry.register(
-            ddo.asset_id,
-            checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
-            url=ddo_service_endpoint,
-            account=publisher_account,
-            cap=cap,
-            royalties=royalties,
-            providers=providers,
-            activity_id=activity_id,
-            attributes=attributes
-        )
+        if mint > 0 or royalties is not None or cap is not None:
+            registered_on_chain = self._keeper.did_registry.register_mintable_did(
+                did_seed,
+                checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
+                url=ddo_service_endpoint,
+                account=publisher_account,
+                cap=cap,
+                royalties=royalties,
+                providers=providers,
+                activity_id=activity_id,
+                attributes=attributes
+            )
+            if mint > 0:
+                self._keeper.did_registry.mint(ddo.asset_id, mint, account=publisher_account)
+        else:
+            registered_on_chain = self._keeper.did_registry.register(
+                did_seed,
+                checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
+                url=ddo_service_endpoint,
+                account=publisher_account,
+                cap=cap,
+                royalties=royalties,
+                providers=providers,
+                activity_id=activity_id,
+                attributes=attributes
+            )
+
         if registered_on_chain is False:
             logger.warning(f'Registering {did} on-chain failed.')
             return None
@@ -266,8 +309,8 @@ class Assets:
         return ddo
 
     def create_compute(self, metadata, publisher_account, asset_rewards={"_amounts": [], "_receivers": []},
-               service_descriptors=None, providers=None,
-               authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False):
+                       service_descriptors=None, providers=None,
+                       authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False):
         """
         Register a compute to the data asset in both the keeper's DIDRegistry (on-chain) and in
         the Metadata store.
@@ -296,8 +339,8 @@ class Assets:
             compute_service_attributes, gateway.get_execute_endpoint(self._config))
 
         return self.create(metadata, publisher_account, service_descriptors=[service_descriptor],
-            providers=providers, authorization_type=authorization_type,
-            use_secret_store=use_secret_store)
+                           providers=providers, authorization_type=authorization_type,
+                           use_secret_store=use_secret_store)
 
     def retire(self, did):
         """
@@ -374,7 +417,7 @@ class Assets:
         return agreement_id
 
     def access(self, service_agreement_id, did, service_index, consumer_account,
-               destination, index=None):
+               destination, index=None, service_type=ServiceTypes.ASSET_ACCESS):
         """
         Consume the asset data.
 
@@ -385,6 +428,7 @@ class Assets:
         asset.
         This method downloads and saves the asset datafiles to disk.
 
+        :param service_type:
         :param service_agreement_id: str
         :param did: DID, str
         :param service_index: identifier of the service inside the asset DDO, str
@@ -406,7 +450,8 @@ class Assets:
             GatewayProvider.get_gateway(),
             self._get_secret_store(consumer_account),
             self._config,
-            index
+            index,
+            service_type=service_type
         )
 
     def download(self, did, service_index, owner_account, destination, index=None):
@@ -579,45 +624,6 @@ class Assets:
             self._config
         )
 
-    def mint(self, did, amount, account):
-        """
-        Mint an amount of nfts.
-        :param did: the id of an asset on-chain, hex str
-        :param amount: amount of nft to be minted, int
-        :param account: Account executing the action
-        """
-        return self._keeper.did_registry.mint(convert_to_bytes(did), amount, account)
-
-    def burn(self, did, amount, account):
-        """
-        Burn an amount of nfts.
-        :param did: the id of an asset on-chain, hex str
-        :param amount: amount of nft to be burnt, int
-        :param account: Account executing the action
-        """
-        return self._keeper.did_registry.burn(convert_to_bytes(did), amount, account)
-
-    def transfer_nft(self, did, address, amount, account):
-        """
-        Transfer nft to another address. Return true if successful
-
-        :param did: the id of an asset on-chain, hex str
-        :param address: ethereum account address, hex str
-        :param amount: amount of nft to be transfer, int
-        :param account: Account executing the action
-
-        """
-        return self._keeper.did_registry.transfer_nft(did_to_id(did), address, amount, account)
-
-    def balance(self, address, did):
-        """
-        Return nft balance.
-
-        :param address: ethereum account address, hex str
-        :param did: the id of an asset on-chain, hex str
-        """
-        return self._keeper.did_registry.balance(address, convert_to_bytes(did))
-
     @staticmethod
     def _build_authorization(authorization_type, public_key=None, threshold=None):
         authorization = dict()
@@ -639,6 +645,19 @@ class Assets:
             "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
             "_amounts": asset_rewards["_amounts"],
             "_receivers": asset_rewards["_receivers"]
+        }}
+
+    @staticmethod
+    def _build_nft_access(metadata, publisher_account, asset_rewards, number_nfts):
+        return {"main": {
+            "name": "nftAccessAgreement",
+            "creator": publisher_account.address,
+            "price": metadata[MetadataMain.KEY]['price'],
+            "timeout": 3600,
+            "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
+            "_amounts": asset_rewards["_amounts"],
+            "_receivers": asset_rewards["_receivers"],
+            "_numberNfts": number_nfts
         }}
 
     def _build_compute(self, metadata, publisher_account, asset_rewards):
