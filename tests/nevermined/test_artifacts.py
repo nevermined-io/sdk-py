@@ -15,7 +15,7 @@ INFURA_TOKEN = os.environ.get("INFURA_TOKEN")
 @pytest.mark.parametrize("keeper_url,network_name", [
     [f"https://mainnet.infura.io/v3/{INFURA_TOKEN}", "mainnet"],
     [f"https://rinkeby.infura.io/v3/{INFURA_TOKEN}", "rinkeby"],
-    ("http://localhost:8545", 8996, "spree"),
+    ("http://localhost:8545", "spree"),
     ("https://rpc-mumbai.matic.today", "mumbai"),
     ("https://alfajores-forno.celo-testnet.org", "celo-alfajores"),
     ("https://baklava-forno.celo-testnet.org", "celo-baklava")
