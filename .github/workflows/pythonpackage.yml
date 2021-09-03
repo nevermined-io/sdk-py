@@ -63,6 +63,7 @@ jobs:
         export PARITY_ADDRESS1=0x068ed00cf0441e4829d9784fcbe7b9e26d4bd8d0
         export PARITY_PASSWORD1=secret
         export PARITY_KEYFILE1=tests/resources/data/key_file_1.json
+        export INFURA_TOKEN=${{ secrets.INFURA_TOKEN }}
 
         pip install pytest
         pytest -v
