@@ -9,6 +9,8 @@ from common_utils_py.metadata.metadata import Metadata
 from common_utils_py.utils.utilities import generate_prefixed_id
 from contracts_lib_py.contract_handler import ContractHandler
 from contracts_lib_py.web3_provider import Web3Provider
+from contracts_lib_py.web3.http_provider import CustomHTTPProvider
+from web3 import Web3
 
 from examples import ExampleConfig
 from nevermined_sdk_py import ConfigProvider
@@ -32,7 +34,7 @@ metadata_provider = Metadata(ConfigProvider.get_config().metadata_url)
 @pytest.fixture(autouse=True)
 def setup_all():
     config = ExampleConfig.get_config()
-    Web3Provider.get_web3(config.keeper_url)
+    Web3Provider._web3 = Web3(CustomHTTPProvider(config.keeper_url))
     ContractHandler.artifacts_path = config.keeper_path
     Keeper.get_instance(artifacts_path=config.keeper_path)
 
