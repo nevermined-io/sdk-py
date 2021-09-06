@@ -1,3 +1,5 @@
+from nevermined_sdk_py.config_provider import ConfigProvider
+from examples.example_config import ExampleConfig
 import json
 import logging
 import logging.config
@@ -52,6 +54,8 @@ def get_consumer_account():
 
 
 def get_publisher_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=True):
+    config = ExampleConfig.get_config()
+    ConfigProvider.set_config(config)
     nevermined = Nevermined()
     account = get_publisher_account()
     nevermined.main_account = account
@@ -71,6 +75,8 @@ def get_publisher_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=
 
 
 def get_consumer_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=True):
+    config = ExampleConfig.get_config()
+    ConfigProvider.set_config(config)
     nevermined = Nevermined()
     account = get_consumer_account()
     nevermined.main_account = account
