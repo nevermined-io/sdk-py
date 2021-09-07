@@ -20,8 +20,8 @@ install_requirements = [
     'pyopenssl',
     'PyJWT',  # not jwt
     'PyYAML>=5.2',
-    'common-utils-py==0.7.3',
-    'contracts-lib-py==0.7.10',
+    'common-utils-py==0.7.4',
+    'contracts-lib-py==0.7.11',
     'nevermined-secret-store==0.1.1',
     'requests>=2.21.0',
     'deprecated',
