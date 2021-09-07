@@ -40,6 +40,12 @@ def setup_all():
 
 
 @pytest.fixture
+def metadata_provider_instance():
+    config = ExampleConfig.get_config()
+    ConfigProvider.set_config(config)
+    return Metadata(ConfigProvider.get_config().metadata_url)
+
+@pytest.fixture
 def secret_store():
     return SecretStoreMock
 
