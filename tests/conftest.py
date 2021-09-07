@@ -28,7 +28,6 @@ from tests.resources.mocks.secret_store_mock import SecretStoreMock
 setup_logging()
 
 ConfigProvider.set_config(ExampleConfig.get_config())
-metadata_provider = Metadata(ConfigProvider.get_config().metadata_url)
 
 
 @pytest.fixture(autouse=True)
@@ -97,9 +96,7 @@ def asset1():
         'https://raw.githubusercontent.com/nevermined-io/docs/master/docs/architecture/specs'
         '/examples/access/v0.1/ddo1.json')
     asset._did = DID.encoded_did(asset.proof['checksum'])
-    yield asset
-    metadata_provider.retire_all_assets()
-
+    return asset
 
 @pytest.fixture
 def asset2():
@@ -107,8 +104,7 @@ def asset2():
         'https://raw.githubusercontent.com/nevermined-io/docs/master/docs/architecture/specs'
         '/examples/access/v0.1/ddo2-update.json')
     asset._did = DID.encoded_did(asset.proof['checksum'])
-    return asset
-
+    return  asset
 
 @pytest.fixture
 def ddo_sample():

@@ -48,8 +48,9 @@ def test_list_assets(asset1, metadata_provider_instance):
     num_assets = len(metadata_provider_instance.list_assets())
     metadata_provider_instance.publish_asset_ddo(asset1)
     assert len(metadata_provider_instance.list_assets()) == (num_assets + 1)
-    assert isinstance(metadata_provider_instance.list_assets(), list)
-    assert isinstance(metadata_provider_instance.list_assets()[0], str)
+    assets = metadata_provider_instance.list_assets()
+    assert isinstance(assets, list)
+    assert isinstance(assets[0], str)
     metadata_provider_instance.retire_asset_ddo(asset1.did)
 
 
