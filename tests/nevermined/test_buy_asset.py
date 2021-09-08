@@ -16,11 +16,9 @@ from tests.resources.helper_functions import (get_consumer_account, get_publishe
 
 def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
     config = ExampleConfig.get_config()
-    ConfigProvider.set_config(config)
     keeper = Keeper.get_instance()
     # :TODO: enable the actual SecretStore
     # SecretStoreProvider.set_secret_store_class(SecretStore)
-    w3 = Web3Provider.get_web3()
     pub_acc = get_publisher_account()
 
     # Register ddo

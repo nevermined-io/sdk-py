@@ -9,6 +9,8 @@ from common_utils_py.metadata.metadata import Metadata
 from common_utils_py.utils.utilities import generate_prefixed_id
 from contracts_lib_py.contract_handler import ContractHandler
 from contracts_lib_py.web3_provider import Web3Provider
+from contracts_lib_py.web3.http_provider import CustomHTTPProvider
+from web3 import Web3
 
 from examples import ExampleConfig
 from nevermined_sdk_py import ConfigProvider
@@ -26,16 +28,21 @@ from tests.resources.mocks.secret_store_mock import SecretStoreMock
 setup_logging()
 
 ConfigProvider.set_config(ExampleConfig.get_config())
-metadata_provider = Metadata(ConfigProvider.get_config().metadata_url)
 
 
 @pytest.fixture(autouse=True)
 def setup_all():
     config = ExampleConfig.get_config()
-    Web3Provider.get_web3(config.keeper_url)
+    Web3Provider._web3 = Web3(CustomHTTPProvider(config.keeper_url))
     ContractHandler.artifacts_path = config.keeper_path
     Keeper.get_instance(artifacts_path=config.keeper_path)
 
+
+@pytest.fixture
+def metadata_provider_instance():
+    config = ExampleConfig.get_config()
+    ConfigProvider.set_config(config)
+    return Metadata(ConfigProvider.get_config().metadata_url)
 
 @pytest.fixture
 def secret_store():
@@ -89,9 +96,7 @@ def asset1():
         'https://raw.githubusercontent.com/nevermined-io/docs/master/docs/architecture/specs'
         '/examples/access/v0.1/ddo1.json')
     asset._did = DID.encoded_did(asset.proof['checksum'])
-    yield asset
-    metadata_provider.retire_all_assets()
-
+    return asset
 
 @pytest.fixture
 def asset2():
@@ -99,8 +104,7 @@ def asset2():
         'https://raw.githubusercontent.com/nevermined-io/docs/master/docs/architecture/specs'
         '/examples/access/v0.1/ddo2-update.json')
     asset._did = DID.encoded_did(asset.proof['checksum'])
-    return asset
-
+    return  asset
 
 @pytest.fixture
 def ddo_sample():

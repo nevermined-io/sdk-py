@@ -13,7 +13,6 @@ from tests.resources.helper_functions import (get_consumer_account, get_publishe
 
 def test_nfts_flow(publisher_instance_no_init, consumer_instance_no_init):
     config = ExampleConfig.get_config()
-    ConfigProvider.set_config(config)
     keeper = Keeper.get_instance()
 
     pub_acc = get_publisher_account()

@@ -1,3 +1,5 @@
+from nevermined_sdk_py.config_provider import ConfigProvider
+from examples.example_config import ExampleConfig
 import json
 import logging
 import logging.config
@@ -52,6 +54,8 @@ def get_consumer_account():
 
 
 def get_publisher_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=True):
+    config = ExampleConfig.get_config()
+    ConfigProvider.set_config(config)
     nevermined = Nevermined()
     account = get_publisher_account()
     nevermined.main_account = account
@@ -71,6 +75,8 @@ def get_publisher_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=
 
 
 def get_consumer_instance(init_tokens=True, use_ss_mock=True, use_gateway_mock=True):
+    config = ExampleConfig.get_config()
+    ConfigProvider.set_config(config)
     nevermined = Nevermined()
     account = get_consumer_account()
     nevermined.main_account = account
@@ -157,6 +163,10 @@ def get_registered_ddo_nft(nevermined_instance, account):
     _receivers = to_checksum_addresses(
         get_param_value_by_name(escrow_payment_condition['parameters'], '_receivers'))
 
+    transfer_nft_condition = ddo['service'][1]['attributes']['serviceAgreementTemplate']['conditions'][1]
+    _nftHolder = get_param_value_by_name(transfer_nft_condition['parameters'], '_nftHolder')
+
+
     _total_price = 0
     for i in _amounts:
         _total_price += int(i)
@@ -181,6 +191,7 @@ def get_registered_ddo_nft(nevermined_instance, account):
 
     sales_service_attributes = access_service_attributes
     sales_service_attributes['main']['name'] = 'nftSalesAgreement'
+    sales_service_attributes['main']['_nftHolder'] = _nftHolder
 
     nft_sales_service_descriptor = ServiceDescriptor.nft_sales_service_descriptor(
         sales_service_attributes,
