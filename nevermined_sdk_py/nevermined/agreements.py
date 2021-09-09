@@ -79,8 +79,6 @@ class Agreements:
         """
         assert consumer_address and Web3Provider.get_web3().isChecksumAddress(
             consumer_address), f'Invalid consumer address {consumer_address}'
-        assert account.address in self._keeper.accounts, \
-            f'Unrecognized account address {account.address}'
 
         payment_involved = True
         asset = self._asset_resolver.resolve(did)
