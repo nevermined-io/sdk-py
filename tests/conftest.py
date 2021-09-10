@@ -18,9 +18,9 @@ from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
 from nevermined_sdk_py.assets.asset_executor import AssetExecutor
 from nevermined_sdk_py.assets.asset_consumer import AssetConsumer
 from nevermined_sdk_py.nevermined.agreements import Agreements
-from tests.resources.helper_functions import (_get_asset, get_algorithm_ddo, get_consumer_account,
+from tests.resources.helper_functions import (_get_asset, get_algorithm_ddo, get_buyer_public_key, get_consumer_account,
                                               get_consumer_instance, get_ddo_sample,
-                                              get_metadata, get_publisher_account,
+                                              get_metadata, get_proof_ddo, get_provider_public_key, get_publisher_account,
                                               get_publisher_instance, get_registered_ddo, get_workflow_ddo,
                                               setup_logging)
 from tests.resources.mocks.secret_store_mock import SecretStoreMock
@@ -82,6 +82,10 @@ def consumer_instance_gateway():
 @pytest.fixture
 def registered_ddo():
     return get_registered_ddo(get_publisher_instance(), get_publisher_account())
+
+@pytest.fixture
+def proof_ddo():
+    return get_proof_ddo(get_publisher_instance(), get_publisher_account())
 
 
 @pytest.fixture
@@ -173,6 +177,46 @@ def setup_agreements_environment(ddo_sample):
     access_cond_id, lock_cond_id, escrow_cond_id = \
         service_agreement.generate_agreement_condition_ids(
             agreement_id, asset_id, consumer_acc.address, keeper
+        )
+
+    return (
+        keeper,
+        publisher_acc,
+        consumer_acc,
+        agreement_id,
+        asset_id,
+        price,
+        service_agreement,
+        (lock_cond_id, access_cond_id, escrow_cond_id),
+    )
+
+@pytest.fixture
+def setup_agreements_proof_environment(proof_ddo):
+    consumer_acc = get_consumer_account()
+    publisher_acc = get_publisher_account()
+    consumer_acc.babyjub_address = get_buyer_public_key()
+    publisher_acc.babyjub_address = get_provider_public_key()
+    keeper = Keeper.get_instance()
+
+    ddo = proof_ddo
+    did_seed = generate_prefixed_id()
+    asset_id = keeper.did_registry.hash_did(did_seed, publisher_acc.address)
+    ddo._did = DID.did(asset_id)
+
+    keeper.did_registry.register(
+        did_seed,
+        checksum=Web3Provider.get_web3().toBytes(hexstr=ddo.asset_id),
+        url='localhost:5000',
+        account=publisher_acc,
+        providers=None
+    )
+
+    service_agreement = ServiceAgreement.from_ddo(ServiceTypes.ASSET_ACCESS_PROOF, ddo)
+    agreement_id = ServiceAgreement.create_new_agreement_id()
+    price = service_agreement.get_price()
+    access_cond_id, lock_cond_id, escrow_cond_id = \
+        service_agreement.generate_agreement_condition_ids(
+            agreement_id, asset_id, consumer_acc.babyjub_address, keeper
         )
 
     return (

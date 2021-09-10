@@ -2,7 +2,7 @@ import logging
 import time
 
 from common_utils_py.agreements.service_agreement import ServiceAgreement
-from common_utils_py.agreements.service_types import ServiceTypes
+from common_utils_py.agreements.service_types import ServiceTypes, ServiceTypesIndices
 from common_utils_py.did import did_to_id
 from common_utils_py.exceptions import (
     InvalidAgreementTemplate,
@@ -56,7 +56,7 @@ class Agreements:
         signature = self._sign(agreement_id, did, consumer_account, service_index)
         return agreement_id, signature
 
-    def create(self, did, index, agreement_id, consumer_address, account):
+    def create(self, did, index, agreement_id, consumer_acc, account):
         """
         Execute the service agreement on-chain using keeper's ServiceAgreement contract.
 
@@ -77,6 +77,8 @@ class Agreements:
             consumer, publisher or provider
         :return: dict the `executeAgreement` transaction receipt
         """
+        consumer_address = consumer_acc.address
+        consumer_address_real = consumer_acc.address
         assert consumer_address and Web3Provider.get_web3().isChecksumAddress(
             consumer_address), f'Invalid consumer address {consumer_address}'
 
@@ -84,9 +86,15 @@ class Agreements:
         asset = self._asset_resolver.resolve(did)
         asset_id = asset.asset_id
         service = asset.get_service_by_index(index)
+        print('create agreement')
+        print(service.type)
         if service.type == ServiceTypes.ASSET_ACCESS:
             agreement_template = self._keeper.access_template
             template_address = self._keeper.access_template.address
+        elif service.type == ServiceTypes.ASSET_ACCESS_PROOF:
+            agreement_template = self._keeper.access_proof_template
+            template_address = self._keeper.access_proof_template.address
+            consumer_address = consumer_acc.babyjub_address
         elif service.type == ServiceTypes.CLOUD_COMPUTE:
             agreement_template = self._keeper.escrow_compute_execution_template
             template_address = self._keeper.escrow_compute_execution_template.address
@@ -124,10 +132,10 @@ class Agreements:
         time_locks = service_agreement.conditions_timelocks
         time_outs = service_agreement.conditions_timeouts
 
-        if payment_involved and service_agreement.get_price() > self._keeper.token.get_token_balance(consumer_address):
+        if payment_involved and service_agreement.get_price() > self._keeper.token.get_token_balance(consumer_address_real):
             return Exception(
                 f'The consumer balance is '
-                f'{self._keeper.token.get_token_balance(consumer_address)}. '
+                f'{self._keeper.token.get_token_balance(consumer_address_real)}. '
                 f'This balance is lower that the asset price {service_agreement.get_price()}.')
 
         if service.type == ServiceTypes.NFT_SALES:
@@ -143,7 +151,7 @@ class Agreements:
             conditions_ordered,
             time_locks,
             time_outs,
-            consumer_address,
+            consumer_address_real,
             account
         )
 
@@ -223,9 +231,14 @@ class Agreements:
         service_agreement = asset.get_service_by_index(service_index)
 
         publisher_address = self._keeper.did_registry.get_did_owner(asset.asset_id)
-        agreement_hash = service_agreement.get_service_agreement_hash(
-            agreement_id, asset.asset_id, consumer_account.address, publisher_address, self._keeper
-        )
+        if service_index == ServiceTypesIndices.DEFAULT_ACCESS_PROOF_INDEX:
+            agreement_hash = service_agreement.get_service_agreement_hash(
+                agreement_id, asset.asset_id, consumer_account.babyjub_address, publisher_address, self._keeper
+            )
+        else:
+            agreement_hash = service_agreement.get_service_agreement_hash(
+                agreement_id, asset.asset_id, consumer_account.address, publisher_address, self._keeper
+            )
         signature = self._keeper.sign_hash(add_ethereum_prefix_and_hash_msg(agreement_hash),
                                            consumer_account)
         address = self._keeper.personal_ec_recover(agreement_hash, signature)

@@ -1,0 +1,3 @@
+[submodule "snark-tools"]
+	path = snark-tools
+	url = git@github.com:nevermined-io/snark-tools.git

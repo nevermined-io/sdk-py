@@ -326,6 +326,16 @@ class Gateway:
         return f'{Gateway.get_gateway_url(config)}/services/access'
 
     @staticmethod
+    def get_access_proof_endpoint(config):
+        """
+        Return the endpoint to access the asset.
+
+        :param config:Config
+        :return: Url, str
+        """
+        return f'{Gateway.get_gateway_url(config)}/services/access-proof'
+
+    @staticmethod
     def get_nft_access_endpoint(config):
         """
         Return the endpoint to access the asset.

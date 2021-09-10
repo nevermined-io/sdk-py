@@ -181,6 +181,16 @@ class Assets:
                     service.type
                 )
                 ddo.add_service(access_service)
+            elif service.type == ServiceTypes.ASSET_ACCESS_PROOF:
+                access_service = ServiceFactory.complete_access_service(
+                    did,
+                    gateway.get_access_proof_endpoint(self._config),
+                    self._build_access_proof(metadata_copy, publisher_account, asset_rewards),
+                    self._keeper.access_proof_template.address,
+                    self._keeper.escrow_payment_condition.address,
+                    service.type
+                )
+                ddo.add_service(access_service)
             elif service.type == ServiceTypes.NFT_ACCESS:
                 access_service = ServiceFactory.complete_access_service(
                     did,
@@ -644,6 +654,23 @@ class Assets:
             "timeout": 3600,
             "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
             "_amounts": asset_rewards["_amounts"],
+            "_receivers": asset_rewards["_receivers"]
+        }}
+
+    @staticmethod
+    def _build_access_proof(metadata, publisher_account, asset_rewards):
+        return {"main": {
+            "name": "dataAssetAccessProofServiceAgreement",
+            "creator": publisher_account.address,
+            "price": metadata[MetadataMain.KEY]['price'],
+            "timeout": 3600,
+            "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
+            "_amounts": asset_rewards["_amounts"],
+            "_hash": metadata['additionalInformation']['poseidonHash'],
+            "_providerPub": [
+                metadata['additionalInformation']['providerKey']['x'],
+                metadata['additionalInformation']['providerKey']['y']
+            ],
             "_receivers": asset_rewards["_receivers"]
         }}
 
