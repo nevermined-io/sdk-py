@@ -89,6 +89,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/nevermined-io/sdk-py',
-    version='0.10.3',
+    version='0.10.4',
     zip_safe=False,
 )
