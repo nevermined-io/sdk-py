@@ -84,6 +84,9 @@ class Assets:
         # copy metadata so we don't change the original
         metadata_copy = copy.deepcopy(metadata)
 
+        if '_tokenAddress' not in asset_rewards:
+            asset_rewards['_tokenAddress'] = ''
+
         # Create a DDO object
         ddo = DDO()
         gateway = GatewayProvider.get_gateway()
