@@ -644,7 +644,8 @@ class Assets:
             "timeout": 3600,
             "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
             "_amounts": asset_rewards["_amounts"],
-            "_receivers": asset_rewards["_receivers"]
+            "_receivers": asset_rewards["_receivers"],
+            "_tokenAddress": asset_rewards["_tokenAddress"]
         }}
 
     @staticmethod
