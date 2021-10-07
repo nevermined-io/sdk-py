@@ -54,7 +54,7 @@ class Assets:
     def create(self, metadata, publisher_account,
                service_descriptors=None, providers=None,
                authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False,
-               activity_id=None, attributes=None, asset_rewards={"_amounts": [], "_receivers": []},
+               activity_id=None, attributes=None, asset_rewards={"_amounts": [], "_receivers": [], "_tokenAddress": ""},
                cap=None, royalties=None, mint=0):
         """
         Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
