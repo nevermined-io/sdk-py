@@ -661,7 +661,8 @@ class Assets:
             "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
             "_amounts": asset_rewards["_amounts"],
             "_receivers": asset_rewards["_receivers"],
-            "_numberNfts": number_nfts
+            "_numberNfts": number_nfts,
+            "_tokenAddress": asset_rewards["_tokenAddress"]
         }}
 
     def _build_compute(self, metadata, publisher_account, asset_rewards):
