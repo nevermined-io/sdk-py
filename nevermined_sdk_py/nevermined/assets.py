@@ -54,7 +54,7 @@ class Assets:
     def create(self, metadata, publisher_account,
                service_descriptors=None, providers=None,
                authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False,
-               activity_id=None, attributes=None, asset_rewards={"_amounts": [], "_receivers": []},
+               activity_id=None, attributes=None, asset_rewards={"_amounts": [], "_receivers": [], "_tokenAddress": ""},
                cap=None, royalties=None, mint=0):
         """
         Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
@@ -83,6 +83,9 @@ class Assets:
 
         # copy metadata so we don't change the original
         metadata_copy = copy.deepcopy(metadata)
+
+        if '_tokenAddress' not in asset_rewards:
+            asset_rewards['_tokenAddress'] = ''
 
         # Create a DDO object
         ddo = DDO()
@@ -654,7 +657,8 @@ class Assets:
             "timeout": 3600,
             "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
             "_amounts": asset_rewards["_amounts"],
-            "_receivers": asset_rewards["_receivers"]
+            "_receivers": asset_rewards["_receivers"],
+            "_tokenAddress": asset_rewards["_tokenAddress"]
         }}
 
     @staticmethod
@@ -684,7 +688,8 @@ class Assets:
             "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
             "_amounts": asset_rewards["_amounts"],
             "_receivers": asset_rewards["_receivers"],
-            "_numberNfts": number_nfts
+            "_numberNfts": number_nfts,
+            "_tokenAddress": asset_rewards["_tokenAddress"]
         }}
 
     def _build_compute(self, metadata, publisher_account, asset_rewards):
