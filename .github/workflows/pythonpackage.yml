@@ -24,6 +24,19 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Set up node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '14.x'
+    - name: Install rapidsnark
+      run: |
+        git clone https://github.com/nevermined-io/rapidsnark
+        cd rapidsnark
+        git submodule update --init --recursive
+        sh ./scripts/install-linux.sh
+        cd ..
+        rm -rf rapidsnark
+
     - name: Install minikube v1.22.0
       run: |
         wget https://storage.googleapis.com/minikube/releases/v1.22.0/minikube-linux-amd64
@@ -33,6 +46,7 @@ jobs:
     - name: Reclaim some disk space
       run : |
           docker system prune --all --volumes -f
+  
 
     - name: Start Nevermined
       run: |
