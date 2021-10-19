@@ -1,7 +1,7 @@
 from common_utils_py.utils.keytransfer import make_prover, prove_transfer, hash_key
 from web3 import Web3
 
-prover = make_prover("/usr/local/share/rapidsnark/keytransfer.zkey", "/usr/local/share/rapidsnark/keytransfer.dat")
+prover = make_prover("/usr/local/share/keytransfer/keytransfer.zkey", "/usr/local/share/keytransfer/keytransfer.dat")
 
 def call_prover(consumer_pub, provider_secret, asset_plain):
     c = Web3.keccak(text=provider_secret)
