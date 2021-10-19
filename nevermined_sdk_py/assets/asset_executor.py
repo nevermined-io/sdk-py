@@ -23,5 +23,6 @@ class AssetExecutor:
                                                      compute_ddo).service_endpoint
         response = gateway.execute_compute_service(agreement_id, service_endpoint,
                                                    consumer_account, workflow_ddo, config)
-
+        print('Executing???')
+        print(response)
         return response.json()["workflowId"]

@@ -146,6 +146,8 @@ class Gateway:
         while iteration < Gateway.PING_ITERATIONS:
             iteration = iteration + 1
             response = Gateway._http_client.get(consume_url, headers=headers)
+            print("got response from gateway")
+            print(response.text)
             if not response.ok:
                 time.sleep(Gateway.PING_SLEEP / 1000)
             else:
