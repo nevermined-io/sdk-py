@@ -424,7 +424,7 @@ class Assets:
             did,
             index,
             agreement_id,
-            consumer_account.address,
+            consumer_account,
             account
         )
         return agreement_id

@@ -36,7 +36,7 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
         did,
         ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
         agreement_id,
-        consumer_acc.address,
+        consumer_acc,
         publisher_acc
     )
     assert success, 'createAgreement failed.'

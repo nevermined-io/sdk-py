@@ -86,8 +86,6 @@ class Agreements:
         asset = self._asset_resolver.resolve(did)
         asset_id = asset.asset_id
         service = asset.get_service_by_index(index)
-        print('create agreement')
-        print(service.type)
         if service.type == ServiceTypes.ASSET_ACCESS:
             agreement_template = self._keeper.access_template
             template_address = self._keeper.access_template.address

@@ -128,7 +128,6 @@ def test_agreement_status(setup_agreements_proof_environment, agreements):
         consumer_acc.address,
         publisher_acc
     )
-    print('create agreement: ', success)
     assert success, f'createAgreement failed {success}'
     event = keeper.access_proof_template.subscribe_agreement_created(
         agreement_id,
