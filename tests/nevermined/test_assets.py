@@ -377,7 +377,7 @@ def test_compute_status(publisher_instance_no_init, consumer_instance_no_init, m
     publisher_instance_no_init.assets.retire(ddo_algorithm.did)
     publisher_instance_no_init.assets.retire(workflow_ddo.did)
 
-
+@pytest.mark.skip(reason="Compute containers need an update")
 def test_compute_logs(publisher_instance_no_init, consumer_instance_no_init, metadata, algorithm_ddo, workflow_ddo):
     consumer = publisher_instance_no_init.main_account
     publisher = consumer_instance_no_init.main_account

@@ -47,7 +47,6 @@ jobs:
       run : |
           docker system prune --all --volumes -f
   
-
     - name: Start Nevermined
       run: |
         docker login -u ${{ secrets.NEVERMINED_DOCKER_USERNAME }} -p ${{ secrets.NEVERMINED_DOCKER_TOKEN}}
