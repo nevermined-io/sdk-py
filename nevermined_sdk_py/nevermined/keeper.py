@@ -15,6 +15,8 @@ class NeverminedKeeper(Keeper):
             return 'lockReward'
         elif self.access_condition.address == address:
             return 'accessSecretStore'
+        elif self.access_proof_condition.address == address:
+            return 'accessProof'
         elif self.compute_execution_condition.address == address:
             return 'execCompute'
         elif self.escrow_payment_condition.address == address:

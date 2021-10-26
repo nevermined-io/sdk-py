@@ -55,7 +55,7 @@ class Assets:
                service_descriptors=None, providers=None,
                authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False,
                activity_id=None, attributes=None, asset_rewards={"_amounts": [], "_receivers": [], "_tokenAddress": ""},
-               cap=None, royalties=None, mint=0):
+               cap=None, royalties=None, mint=0, timeout=3600):
         """
         Register an asset in both the keeper's DIDRegistry (on-chain) and in the Metadata store.
 
@@ -95,7 +95,7 @@ class Assets:
                                                                               ddo_service_endpoint)
         if metadata_copy['main']['type'] == 'dataset' or metadata_copy['main'][
             'type'] == 'algorithm':
-            access_service_attributes = self._build_access(metadata_copy, publisher_account, asset_rewards)
+            access_service_attributes = self._build_access(metadata_copy, publisher_account, asset_rewards, timeout)
             if not service_descriptors:
                 if authorization_type == ServiceAuthorizationTypes.PSK_RSA:
                     service_descriptors = [ServiceDescriptor.authorization_service_descriptor(
@@ -184,11 +184,21 @@ class Assets:
                     service.type
                 )
                 ddo.add_service(access_service)
+            elif service.type == ServiceTypes.ASSET_ACCESS_PROOF:
+                access_service = ServiceFactory.complete_access_service(
+                    did,
+                    gateway.get_access_proof_endpoint(self._config),
+                    self._build_access_proof(metadata_copy, publisher_account, asset_rewards, timeout),
+                    self._keeper.access_proof_template.address,
+                    self._keeper.escrow_payment_condition.address,
+                    service.type
+                )
+                ddo.add_service(access_service)
             elif service.type == ServiceTypes.NFT_ACCESS:
                 access_service = ServiceFactory.complete_access_service(
                     did,
                     gateway.get_nft_access_endpoint(self._config),
-                    self._build_nft_access(metadata_copy, publisher_account, asset_rewards, service.main['_numberNfts']),
+                    self._build_nft_access(metadata_copy, publisher_account, asset_rewards, service.main['_numberNfts'], timeout),
                     self._keeper.nft_access_template.address,
                     self._keeper.escrow_payment_condition.address,
                     service.type
@@ -313,7 +323,7 @@ class Assets:
 
     def create_compute(self, metadata, publisher_account, asset_rewards={"_amounts": [], "_receivers": []},
                        service_descriptors=None, providers=None,
-                       authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False):
+                       authorization_type=ServiceAuthorizationTypes.PSK_RSA, use_secret_store=False, timeout=86400):
         """
         Register a compute to the data asset in both the keeper's DIDRegistry (on-chain) and in
         the Metadata store.
@@ -337,7 +347,7 @@ class Assets:
         metadata_copy = copy.deepcopy(metadata)
         gateway = GatewayProvider.get_gateway()
 
-        compute_service_attributes = self._build_compute(metadata_copy, publisher_account, asset_rewards)
+        compute_service_attributes = self._build_compute(metadata_copy, publisher_account, asset_rewards, timeout)
         service_descriptor = ServiceDescriptor.compute_service_descriptor(
             compute_service_attributes, gateway.get_execute_endpoint(self._config))
 
@@ -414,7 +424,7 @@ class Assets:
             did,
             index,
             agreement_id,
-            consumer_account.address,
+            consumer_account,
             account
         )
         return agreement_id
@@ -639,12 +649,12 @@ class Assets:
         return authorization
 
     @staticmethod
-    def _build_access(metadata, publisher_account, asset_rewards):
+    def _build_access(metadata, publisher_account, asset_rewards, timeout=3600):
         return {"main": {
             "name": "dataAssetAccessServiceAgreement",
             "creator": publisher_account.address,
             "price": metadata[MetadataMain.KEY]['price'],
-            "timeout": 3600,
+            "timeout": timeout,
             "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
             "_amounts": asset_rewards["_amounts"],
             "_receivers": asset_rewards["_receivers"],
@@ -652,12 +662,29 @@ class Assets:
         }}
 
     @staticmethod
-    def _build_nft_access(metadata, publisher_account, asset_rewards, number_nfts):
+    def _build_access_proof(metadata, publisher_account, asset_rewards, timeout=3600):
+        return {"main": {
+            "name": "dataAssetAccessProofServiceAgreement",
+            "creator": publisher_account.address,
+            "price": metadata[MetadataMain.KEY]['price'],
+            "timeout": timeout,
+            "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
+            "_amounts": asset_rewards["_amounts"],
+            "_hash": metadata['additionalInformation']['poseidonHash'],
+            "_providerPub": [
+                metadata['additionalInformation']['providerKey']['x'],
+                metadata['additionalInformation']['providerKey']['y']
+            ],
+            "_receivers": asset_rewards["_receivers"]
+        }}
+
+    @staticmethod
+    def _build_nft_access(metadata, publisher_account, asset_rewards, number_nfts, timeout=3600):
         return {"main": {
             "name": "nftAccessAgreement",
             "creator": publisher_account.address,
             "price": metadata[MetadataMain.KEY]['price'],
-            "timeout": 3600,
+            "timeout": timeout,
             "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
             "_amounts": asset_rewards["_amounts"],
             "_receivers": asset_rewards["_receivers"],
@@ -665,13 +692,13 @@ class Assets:
             "_tokenAddress": asset_rewards["_tokenAddress"]
         }}
 
-    def _build_compute(self, metadata, publisher_account, asset_rewards):
+    def _build_compute(self, metadata, publisher_account, asset_rewards, timeout=86400):
         return {"main": {
             "name": "dataAssetComputeServiceAgreement",
             "creator": publisher_account.address,
             "datePublished": metadata[MetadataMain.KEY]['dateCreated'],
             "price": metadata[MetadataMain.KEY]['price'],
-            "timeout": 86400,
+            "timeout": timeout,
             "provider": self._build_provider_config(),
             "_amounts": asset_rewards["_amounts"],
             "_receivers": asset_rewards["_receivers"]

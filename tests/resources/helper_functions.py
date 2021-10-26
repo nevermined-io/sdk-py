@@ -1,3 +1,4 @@
+from tests.resources.snark_util import poseidon_hash
 from nevermined_sdk_py.config_provider import ConfigProvider
 from examples.example_config import ExampleConfig
 import json
@@ -146,6 +147,69 @@ def get_registered_ddo(nevermined_instance, account):
     }
     metadata['main']['files'][0]['checksum'] = str(uuid.uuid4())
     ddo = nevermined_instance.assets.create(metadata, account, asset_rewards=asset_rewards)
+    return ddo
+
+def get_key():
+    return "4e657665726d696e65640a436f707972696768742032303230204b65796b6f20476d62482e0a0a546869732070726f6475637420696e636c75646573"
+
+class BabyjubKey:
+    def __init__(self, secret, public1, public2):
+        self.secret = secret
+        self.x = public1
+        self.y = public2
+
+def get_provider_babyjub_key():
+    secret = os.getenv('PROVIDER_BABYJUB_SECRET', '')
+    public1 = os.getenv('PROVIDER_BABYJUB_PUBLIC1', '')
+    public2 = os.getenv('PROVIDER_BABYJUB_PUBLIC2', '')
+    return BabyjubKey(secret, public1, public2)
+
+def get_provider_public_key():
+    public1 = os.getenv('PROVIDER_BABYJUB_PUBLIC1', '')
+    public2 = os.getenv('PROVIDER_BABYJUB_PUBLIC2', '')
+    return [public1, public2]
+
+def get_buyer_public_key():
+    public1 = os.getenv('BUYER_BABYJUB_PUBLIC1', '')
+    public2 = os.getenv('BUYER_BABYJUB_PUBLIC2', '')
+    return [public1, public2]
+
+def get_proof_ddo(nevermined_instance, account):
+    metadata = get_metadata()
+    asset_rewards = {
+        "_amounts": ["10", "2"],
+        "_receivers": ["0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e", "0x068ed00cf0441e4829d9784fcbe7b9e26d4bd8d0"]
+    }
+    key=get_key()
+    metadata['main']['files'][0]['url'] = key
+    metadata['main']['files'][0]['checksum'] = str(uuid.uuid4())
+    hash = poseidon_hash(key)
+    providerKey = get_provider_public_key()
+    metadata['additionalInformation'] = {
+        "providerKey": {
+            "x": providerKey[0],
+            "y": providerKey[1]
+        },
+        "poseidonHash": hash
+    }
+    access_service_attributes = {
+        "main": {
+            "name": "dataAssetAccessProofServiceAgreement",
+            "creator": account.address,
+            "price": metadata['main']['price'],
+            "timeout": 3600,
+            "datePublished": metadata['main']['dateCreated'],
+            "_amounts": asset_rewards['_amounts'],
+            "_hash": hash,
+            "_providerPub": providerKey,
+            "_receivers": asset_rewards['_receivers']
+        }
+    }
+    service_descriptor = ServiceDescriptor.access_proof_service_descriptor(
+        access_service_attributes,
+        'http://localhost:8030'
+    )
+    ddo = nevermined_instance.assets.create(metadata, account, [service_descriptor], asset_rewards=asset_rewards)
     return ddo
 
 

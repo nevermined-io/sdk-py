@@ -1,15 +1,16 @@
 from common_utils_py.agreements.service_agreement import ServiceAgreement
 from common_utils_py.agreements.service_types import ServiceTypes, ServiceTypesIndices
 from common_utils_py.utils.utilities import to_checksum_addresses
+from web3 import providers
 
 from nevermined_sdk_py.gateway.gateway import Gateway
 from nevermined_sdk_py.nevermined.agreements import check_token_address
 from nevermined_sdk_py.nevermined.keeper import NeverminedKeeper as Keeper
-from tests.resources.helper_functions import log_event
+from tests.resources.helper_functions import get_buyer_public_key, get_key, get_provider_babyjub_key, get_provider_public_key, log_event
 from tests.resources.mocks.gateway_mock import GatewayMock
+from tests.resources.snark_util import call_prover
 
-
-def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
+def test_sign_agreement(publisher_instance, consumer_instance, proof_ddo):
     # point consumer_instance's Gateway mock to the publisher's nevermined instance
     Gateway.set_http_client(
         GatewayMock(publisher_instance, publisher_instance.main_account))
@@ -19,22 +20,26 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
 
     publisher_acc = publisher_instance.main_account
 
-    did = registered_ddo.did
-    asset_id = registered_ddo.asset_id
+    did = proof_ddo.did
+    asset_id = proof_ddo.asset_id
     ddo = consumer_instance.assets.resolve(did)
-    service_agreement = ServiceAgreement.from_ddo(ServiceTypes.ASSET_ACCESS, ddo)
+    service_agreement = ServiceAgreement.from_ddo(ServiceTypes.ASSET_ACCESS_PROOF, ddo)
 
     price = service_agreement.get_price()
 
     # Give consumer some tokens
     keeper.dispenser.request_vodkas(price * 2, consumer_acc)
+    consumer_acc.babyjub_address = get_buyer_public_key()
+    publisher_acc.babyjub_address = get_provider_public_key()
+    provider_secret = get_provider_babyjub_key().secret
+    proof = call_prover(consumer_acc.babyjub_address, provider_secret, '0x'+get_key())
 
     agreement_id, signature = consumer_instance.agreements.prepare(
-        did, consumer_acc, ServiceTypesIndices.DEFAULT_ACCESS_INDEX)
+        did, consumer_acc, ServiceTypesIndices.DEFAULT_ACCESS_PROOF_INDEX)
 
     success = publisher_instance.agreements.create(
         did,
-        ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
+        ServiceTypesIndices.DEFAULT_ACCESS_PROOF_INDEX,
         agreement_id,
         consumer_acc,
         publisher_acc
@@ -44,7 +49,7 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
     # Verify condition types (condition contracts)
     agreement_values = keeper.agreement_manager.get_agreement(agreement_id)
     assert agreement_values.did == asset_id, ''
-    cond_types = keeper.access_template.get_condition_types()
+    cond_types = keeper.access_proof_template.get_condition_types()
     for i, cond_id in enumerate(agreement_values.condition_ids):
         cond = keeper.condition_manager.get_condition(cond_id)
         assert cond.type_ref == cond_types[i]
@@ -57,15 +62,15 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
     assert 1 == keeper.condition_manager.get_condition_state(escrow_cond_id), ''
 
     # Fulfill access_condition
-    tx_hash = keeper.access_condition.fulfill(
-        agreement_id, asset_id, consumer_acc.address, publisher_acc
+    tx_hash = keeper.access_proof_condition.fulfill(
+        agreement_id, proof['hash'], consumer_acc.babyjub_address, publisher_acc.babyjub_address, proof['cipher'], proof['proof'], publisher_acc
     )
-    keeper.access_condition.get_tx_receipt(tx_hash)
+    keeper.access_proof_condition.get_tx_receipt(tx_hash)
     assert 2 == keeper.condition_manager.get_condition_state(access_cond_id), ''
-    event = keeper.access_condition.subscribe_condition_fulfilled(
+    event = keeper.access_proof_condition.subscribe_condition_fulfilled(
         agreement_id,
         10,
-        log_event(keeper.access_condition.FULFILLED_EVENT),
+        log_event(keeper.access_proof_condition.FULFILLED_EVENT),
         (),
         wait=True
     )
@@ -96,8 +101,7 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
     publisher_instance.assets.retire(did)
 
 
-# @pytest.mark.skip(reason="Failing some times with actions")
-def test_agreement_status(setup_agreements_environment, agreements):
+def test_agreement_status(setup_agreements_proof_environment, agreements):
     (
         keeper,
         publisher_acc,
@@ -108,9 +112,14 @@ def test_agreement_status(setup_agreements_environment, agreements):
         service_agreement,
         (lock_cond_id, access_cond_id, escrow_cond_id),
 
-    ) = setup_agreements_environment
+    ) = setup_agreements_proof_environment
 
-    success = keeper.access_template.create_agreement(
+    consumer_acc.babyjub_address = get_buyer_public_key()
+    publisher_acc.babyjub_address = get_provider_public_key()
+    provider_secret = get_provider_babyjub_key().secret
+    proof = call_prover(consumer_acc.babyjub_address, provider_secret, '0x'+get_key())
+
+    success = keeper.access_proof_template.create_agreement(
         agreement_id,
         asset_id,
         [access_cond_id, lock_cond_id, escrow_cond_id],
@@ -119,19 +128,18 @@ def test_agreement_status(setup_agreements_environment, agreements):
         consumer_acc.address,
         publisher_acc
     )
-    print('create agreement: ', success)
     assert success, f'createAgreement failed {success}'
-    event = keeper.access_template.subscribe_agreement_created(
+    event = keeper.access_proof_template.subscribe_agreement_created(
         agreement_id,
         10,
-        log_event(keeper.access_template.AGREEMENT_CREATED_EVENT),
+        log_event(keeper.access_proof_template.AGREEMENT_CREATED_EVENT),
         (),
         wait=True
     )
     assert event, 'no event for AgreementCreated '
     assert agreements.status(agreement_id) == {"agreementId": agreement_id,
                                                "conditions": {"lockReward": 1,
-                                                              "accessSecretStore": 1,
+                                                              "accessProof": 1,
                                                               "escrowReward": 1
                                                               }
                                                }
@@ -154,24 +162,25 @@ def test_agreement_status(setup_agreements_environment, agreements):
     assert event, 'no event for LockRewardCondition.Fulfilled'
     assert agreements.status(agreement_id) == {"agreementId": agreement_id,
                                                "conditions": {"lockReward": 2,
-                                                              "accessSecretStore": 1,
+                                                              "accessProof": 1,
                                                               "escrowReward": 1
                                                               }
                                                }
-    tx_hash = keeper.access_condition.fulfill(
-        agreement_id, asset_id, consumer_acc.address, publisher_acc)
-    keeper.access_condition.get_tx_receipt(tx_hash)
-    event = keeper.access_condition.subscribe_condition_fulfilled(
+    tx_hash = keeper.access_proof_condition.fulfill(
+        agreement_id, proof['hash'], consumer_acc.babyjub_address, publisher_acc.babyjub_address, proof['cipher'], proof['proof'], publisher_acc
+    )
+    keeper.access_proof_condition.get_tx_receipt(tx_hash)
+    event = keeper.access_proof_condition.subscribe_condition_fulfilled(
         agreement_id,
         20,
-        log_event(keeper.access_condition.FULFILLED_EVENT),
+        log_event(keeper.access_proof_condition.FULFILLED_EVENT),
         (),
         wait=True
     )
-    assert event, 'no event for AccessSecretStoreCondition.Fulfilled'
+    assert event, 'no event for AccessProofCondition.Fulfilled'
     assert agreements.status(agreement_id) == {"agreementId": agreement_id,
                                                "conditions": {"lockReward": 2,
-                                                              "accessSecretStore": 2,
+                                                              "accessProof": 2,
                                                               "escrowReward": 1
                                                               }
                                                }
@@ -192,7 +201,7 @@ def test_agreement_status(setup_agreements_environment, agreements):
     assert event, 'no event for EscrowReward.Fulfilled'
     assert agreements.status(agreement_id) == {"agreementId": agreement_id,
                                                "conditions": {"lockReward": 2,
-                                                              "accessSecretStore": 2,
+                                                              "accessProof": 2,
                                                               "escrowReward": 2
                                                               }
                                                }

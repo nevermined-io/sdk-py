@@ -58,6 +58,10 @@ class GatewayMock(object):
         return f'{Gateway.get_gateway_url(config)}/services/access'
 
     @staticmethod
+    def get_access_proof_endpoint(config):
+        return f'{Gateway.get_gateway_url(config)}/services/access-proof'
+
+    @staticmethod
     def get_consume_endpoint(config):
         return f'{Gateway.get_gateway_url(config)}/services/consume'
 
