@@ -32,6 +32,15 @@ This repository include also the methods to encrypt and decrypt information usin
 
 Python 3.6
 
+To use the data transfer proof, a C++ library is required:
+
+```bash
+git clone https://github.com/nevermined-io/rapidsnark
+cd rapidsnark
+git submodule update --init --recursive
+sh ./scripts/install-linux.sh
+```
+
 ## Quick-start
 
 Install sdk:
