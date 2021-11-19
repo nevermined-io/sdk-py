@@ -110,7 +110,7 @@ html_theme = 'alabaster'
 # Colors
 brand_white = '#fff'
 brand_black = '#141414'
-brand_pink = '#ff4092'
+brand_pink = '#7834f9'
 brand_purple = '#7b1173'
 brand_grey_light = '#8b98a9'
 brand_grey = '#41474e'
