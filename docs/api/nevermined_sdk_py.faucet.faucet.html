@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>nevermined_sdk_py.nevermined.tokens module &#8212; nevermined-sdk-py 0.10.5 documentation</title>
+    <title>nevermined_sdk_py.faucet.faucet module &#8212; nevermined-sdk-py 0.10.5 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -14,8 +14,8 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="nevermined_sdk_py.secret_store package" href="nevermined_sdk_py.secret_store.html" />
-    <link rel="prev" title="nevermined_sdk_py.nevermined.templates module" href="nevermined_sdk_py.nevermined.templates.html" />
+    <link rel="next" title="nevermined_sdk_py.gateway package" href="nevermined_sdk_py.gateway.html" />
+    <link rel="prev" title="nevermined_sdk_py.faucet package" href="nevermined_sdk_py.faucet.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -32,46 +32,38 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-nevermined_sdk_py.nevermined.tokens">
-<span id="nevermined-sdk-py-nevermined-tokens-module"></span><h1>nevermined_sdk_py.nevermined.tokens module<a class="headerlink" href="#module-nevermined_sdk_py.nevermined.tokens" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-nevermined_sdk_py.faucet.faucet">
+<span id="nevermined-sdk-py-faucet-faucet-module"></span><h1>nevermined_sdk_py.faucet.faucet module<a class="headerlink" href="#module-nevermined_sdk_py.faucet.faucet" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="nevermined_sdk_py.nevermined.tokens.Tokens">
-<em class="property">class </em><code class="sig-prename descclassname">nevermined_sdk_py.nevermined.tokens.</code><code class="sig-name descname">Tokens</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">keeper</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.tokens.Tokens" title="Permalink to this definition">¶</a></dt>
+<dt id="nevermined_sdk_py.faucet.faucet.Faucet">
+<em class="property">class </em><code class="sig-prename descclassname">nevermined_sdk_py.faucet.faucet.</code><code class="sig-name descname">Faucet</code><a class="headerlink" href="#nevermined_sdk_py.faucet.faucet.Faucet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Nevermined token class.</p>
+<p><cite>Faucet</cite>.</p>
+<p>The main functions available are:
+- Request eht for an account</p>
 <dl class="py method">
-<dt id="nevermined_sdk_py.nevermined.tokens.Tokens.request">
-<code class="sig-name descname">request</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">account</span></em>, <em class="sig-param"><span class="n">amount</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.tokens.Tokens.request" title="Permalink to this definition">¶</a></dt>
-<dd><p>Request a number of tokens to be minted and transfered to <cite>account</cite></p>
+<dt id="nevermined_sdk_py.faucet.faucet.Faucet.get_eth_from_faucet">
+<em class="property">static </em><code class="sig-name descname">get_eth_from_faucet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">address</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.faucet.faucet.Faucet.get_eth_from_faucet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.faucet.faucet.Faucet.get_faucet_url">
+<em class="property">static </em><code class="sig-name descname">get_faucet_url</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.faucet.faucet.Faucet.get_faucet_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Gateway component url.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>account</strong> – Account instance requesting the tokens</p></li>
-<li><p><strong>amount</strong> – int number of tokens to request</p></li>
-</ul>
+<dd class="field-odd"><p><strong>config</strong> – Config</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>bool</p>
+<dd class="field-even"><p>Url, str</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="nevermined_sdk_py.nevermined.tokens.Tokens.transfer">
-<code class="sig-name descname">transfer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">receiver_address</span></em>, <em class="sig-param"><span class="n">amount</span></em>, <em class="sig-param"><span class="n">sender_account</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.tokens.Tokens.transfer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transfer a number of tokens from <cite>sender_account</cite> to <cite>receiver_address</cite></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>receiver_address</strong> – hex str ethereum address to receive this transfer of tokens</p></li>
-<li><p><strong>amount</strong> – int number of tokens to transfer</p></li>
-<li><p><strong>sender_account</strong> – Account instance to take the tokens from</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>bool</p>
-</dd>
-</dl>
+<dt id="nevermined_sdk_py.faucet.faucet.Faucet.set_http_client">
+<em class="property">static </em><code class="sig-name descname">set_http_client</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">http_client</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.faucet.faucet.Faucet.set_http_client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the http client to something other than the default <cite>requests</cite></p>
 </dd></dl>
 
 </dd></dl>
@@ -109,9 +101,9 @@
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.agreement_events.html">nevermined_sdk_py.agreement_events package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.assets.html">nevermined_sdk_py.assets package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.data_store.html">nevermined_sdk_py.data_store package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.faucet.html">nevermined_sdk_py.faucet package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="nevermined_sdk_py.faucet.html">nevermined_sdk_py.faucet package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.gateway.html">nevermined_sdk_py.gateway package</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="nevermined_sdk_py.nevermined.html">nevermined_sdk_py.nevermined package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.nevermined.html">nevermined_sdk_py.nevermined package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.secret_store.html">nevermined_sdk_py.secret_store package</a></li>
 </ul>
 </li>
@@ -129,9 +121,9 @@
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="modules.html">nevermined_sdk_py</a><ul>
   <li><a href="nevermined_sdk_py.html">nevermined_sdk_py package</a><ul>
-  <li><a href="nevermined_sdk_py.nevermined.html">nevermined_sdk_py.nevermined package</a><ul>
-      <li>Previous: <a href="nevermined_sdk_py.nevermined.templates.html" title="previous chapter">nevermined_sdk_py.nevermined.templates module</a></li>
-      <li>Next: <a href="nevermined_sdk_py.secret_store.html" title="next chapter">nevermined_sdk_py.secret_store package</a></li>
+  <li><a href="nevermined_sdk_py.faucet.html">nevermined_sdk_py.faucet package</a><ul>
+      <li>Previous: <a href="nevermined_sdk_py.faucet.html" title="previous chapter">nevermined_sdk_py.faucet package</a></li>
+      <li>Next: <a href="nevermined_sdk_py.gateway.html" title="next chapter">nevermined_sdk_py.gateway package</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -164,7 +156,7 @@
       &copy;nevermined-sdk-py contributors.
       
       |
-      <a href="../_sources/api/nevermined_sdk_py.nevermined.tokens.rst.txt"
+      <a href="../_sources/api/nevermined_sdk_py.faucet.faucet.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -7,9 +7,9 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   nevermined_sdk_py.agreement_events.accessSecretStore
-   nevermined_sdk_py.agreement_events.computeExecution
-   nevermined_sdk_py.agreement_events.escrowAccessSecretStoreTemplate
+   nevermined_sdk_py.agreement_events.access_agreement
+   nevermined_sdk_py.agreement_events.compute_agreement
+   nevermined_sdk_py.agreement_events.payments
 
 Module contents
 ---------------

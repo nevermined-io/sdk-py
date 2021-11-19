@@ -1,0 +1,18 @@
+nevermined\_sdk\_py.faucet package
+==================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   nevermined_sdk_py.faucet.faucet
+
+Module contents
+---------------
+
+.. automodule:: nevermined_sdk_py.faucet
+   :members:
+   :undoc-members:
+   :show-inheritance:

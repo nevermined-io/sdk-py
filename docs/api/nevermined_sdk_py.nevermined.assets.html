@@ -4,14 +4,14 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>nevermined_sdk_py.nevermined.assets module &#8212; nevermined-sdk-py 0.2.0 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nevermined_sdk_py.nevermined.assets module &#8212; nevermined-sdk-py 0.10.5 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="nevermined_sdk_py.nevermined.auth module" href="nevermined_sdk_py.nevermined.auth.html" />
@@ -41,7 +41,7 @@
 <p>Nevermined assets class.</p>
 <dl class="py method">
 <dt id="nevermined_sdk_py.nevermined.assets.Assets.access">
-<code class="sig-name descname">access</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service_agreement_id</span></em>, <em class="sig-param"><span class="n">did</span></em>, <em class="sig-param"><span class="n">service_index</span></em>, <em class="sig-param"><span class="n">consumer_account</span></em>, <em class="sig-param"><span class="n">destination</span></em>, <em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.access" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">access</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service_agreement_id</span></em>, <em class="sig-param"><span class="n">did</span></em>, <em class="sig-param"><span class="n">service_index</span></em>, <em class="sig-param"><span class="n">consumer_account</span></em>, <em class="sig-param"><span class="n">destination</span></em>, <em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">service_type</span><span class="o">=</span><span class="default_value">'access'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.access" title="Permalink to this definition">¶</a></dt>
 <dd><p>Consume the asset data.</p>
 <p>Using the service endpoint defined in the ddo’s service pointed to by service_definition_id.
 Consumer’s permissions is checked implicitly by the secret-store during decryption
@@ -52,6 +52,7 @@ This method downloads and saves the asset datafiles to disk.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>service_type</strong> – </p></li>
 <li><p><strong>service_agreement_id</strong> – str</p></li>
 <li><p><strong>did</strong> – DID, str</p></li>
 <li><p><strong>service_index</strong> – identifier of the service inside the asset DDO, str</p></li>
@@ -62,6 +63,42 @@ This method downloads and saves the asset datafiles to disk.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>str path to saved files</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.nevermined.assets.Assets.compute_logs">
+<code class="sig-name descname">compute_logs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service_agreement_id</span></em>, <em class="sig-param"><span class="n">execution_id</span></em>, <em class="sig-param"><span class="n">account</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.compute_logs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the logs of a compute workflow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service_agreement_id</strong> – The id of the service agreement that ordered the compute job, str</p></li>
+<li><p><strong>execution_id</strong> – The id of the compute job, str</p></li>
+<li><p><strong>account</strong> – Account instance that ordered the execution of the compute job</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list, compute logs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.nevermined.assets.Assets.compute_status">
+<code class="sig-name descname">compute_status</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service_agreement_id</span></em>, <em class="sig-param"><span class="n">execution_id</span></em>, <em class="sig-param"><span class="n">account</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.compute_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the status of a compute workflow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>service_agreement_id</strong> – The id of the service agreement that ordered the compute job, str</p></li>
+<li><p><strong>execution_id</strong> – The id of the compute job, str</p></li>
+<li><p><strong>account</strong> – Account instance that ordered the execution of the compute job</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>str compute status</p>
 </dd>
 </dl>
 </dd></dl>
@@ -82,13 +119,56 @@ This method downloads and saves the asset datafiles to disk.</p>
 
 <dl class="py method">
 <dt id="nevermined_sdk_py.nevermined.assets.Assets.create">
-<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">metadata</span></em>, <em class="sig-param"><span class="n">publisher_account</span></em>, <em class="sig-param"><span class="n">service_descriptors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">providers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">authorization_type</span><span class="o">=</span><span class="default_value">'PSK-RSA'</span></em>, <em class="sig-param"><span class="n">use_secret_store</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">metadata</span></em>, <em class="sig-param"><span class="n">publisher_account</span></em>, <em class="sig-param"><span class="n">service_descriptors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">providers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">authorization_type</span><span class="o">=</span><span class="default_value">'PSK-RSA'</span></em>, <em class="sig-param"><span class="n">use_secret_store</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">activity_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">attributes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">asset_rewards</span><span class="o">=</span><span class="default_value">{'_amounts': [], '_receivers': [], '_tokenAddress': ''}</span></em>, <em class="sig-param"><span class="n">cap</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">royalties</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mint</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">3600</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register an asset in both the keeper’s DIDRegistry (on-chain) and in the Metadata store.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>metadata</strong> – dict conforming to the Metadata accepted by Nevermined Protocol.</p></li>
 <li><p><strong>publisher_account</strong> – Account of the publisher registering this asset</p></li>
+<li><p><strong>service_descriptors</strong> – list of ServiceDescriptor tuples of length 2.
+The first item must be one of ServiceTypes and the second
+item is a dict of parameters and values required by the service</p></li>
+<li><p><strong>providers</strong> – list of addresses of providers of this asset (a provider is
+an ethereum account that is authorized to provide asset services)</p></li>
+<li><p><strong>authorization_type</strong> – str indicate the authorization type that is going to be used</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>to encrypt the urls.</dt><dd><p>SecretStore, PSK-RSA and PSK-ECDSA are supported.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>use_secret_store</strong> – bool indicate whether to use the secret store directly for
+encrypting urls (Uses Gateway provider service if set to False)</p></li>
+<li><p><strong>activity_id</strong> – identifier of the activity creating the new entity</p></li>
+<li><p><strong>attributes</strong> – attributes associated with the action</p></li>
+<li><p><strong>asset_rewards</strong> – rewards distribution including the amounts and the receivers</p></li>
+<li><p><strong>cap</strong> – max cap of nfts that can be minted for the asset</p></li>
+<li><p><strong>royalties</strong> – royalties in the secondary market going to the original creator</p></li>
+<li><p><strong>mint</strong> – number of nfts to mint just after registration of the asset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DDO instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.nevermined.assets.Assets.create_compute">
+<code class="sig-name descname">create_compute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">metadata</span></em>, <em class="sig-param"><span class="n">publisher_account</span></em>, <em class="sig-param"><span class="n">asset_rewards</span><span class="o">=</span><span class="default_value">{'_amounts': [], '_receivers': []}</span></em>, <em class="sig-param"><span class="n">service_descriptors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">providers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">authorization_type</span><span class="o">=</span><span class="default_value">'PSK-RSA'</span></em>, <em class="sig-param"><span class="n">use_secret_store</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">86400</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.create_compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a compute to the data asset in both the keeper’s DIDRegistry (on-chain) and in
+the Metadata store.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metadata</strong> – dict conforming to the Metadata accepted by Nevermined Protocol.</p></li>
+<li><p><strong>publisher_account</strong> – Account of the publisher registering this asset</p></li>
+<li><p><strong>asset_rewards</strong> – Asset rewards distribution including amounts and receivers</p></li>
 <li><p><strong>service_descriptors</strong> – list of ServiceDescriptor tuples of length 2.
 The first item must be one of ServiceTypes and the second
 item is a dict of parameters and values required by the service</p></li>
@@ -132,6 +212,32 @@ encrypting urls (Uses Gateway provider service if set to False)</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="nevermined_sdk_py.nevermined.assets.Assets.download">
+<code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">did</span></em>, <em class="sig-param"><span class="n">service_index</span></em>, <em class="sig-param"><span class="n">owner_account</span></em>, <em class="sig-param"><span class="n">destination</span></em>, <em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the asset data.</p>
+<p>Using the service endpoint defined in the ddo’s service pointed to by service_definition_id.
+Consumer’s permissions is checked implicitly by the secret-store during decryption
+of the contentUrls.
+The service endpoint is expected to also verify that <cite>owner_account</cite> is the actual owner
+of the asset.
+This method downloads and saves the asset datafiles to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>did</strong> – DID, str</p></li>
+<li><p><strong>service_index</strong> – identifier of the service inside the asset DDO, str</p></li>
+<li><p><strong>owner_account</strong> – Account instance of the owner</p></li>
+<li><p><strong>destination</strong> – str path</p></li>
+<li><p><strong>index</strong> – Index of the document that is going to be downloaded, int</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>str path to saved files</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="nevermined_sdk_py.nevermined.assets.Assets.execute">
 <code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">agreement_id</span></em>, <em class="sig-param"><span class="n">did</span></em>, <em class="sig-param"><span class="n">index</span></em>, <em class="sig-param"><span class="n">consumer_account</span></em>, <em class="sig-param"><span class="n">workflow_did</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.execute" title="Permalink to this definition">¶</a></dt>
 <dd><p>:param agreement_id:representation of <cite>bytes32</cite> id, hexstr
@@ -140,7 +246,7 @@ encrypting urls (Uses Gateway provider service if set to False)</p>
 :param consumer_account: Account instance of the consumer ordering the service
 :param workflow_did: the asset did (of <cite>workflow</cite> type) which consist of <cite>did:nv:</cite> and
 the assetId hex str (without <cite>0x</cite> prefix), str
-:return: local path on the file system where the asset data files are downloaded, str</p>
+:return: the id of the compute job, str</p>
 </dd></dl>
 
 <dl class="py method">
@@ -162,27 +268,7 @@ the assetId hex str (without <cite>0x</cite> prefix), str
 
 <dl class="py method">
 <dt id="nevermined_sdk_py.nevermined.assets.Assets.order">
-<code class="sig-name descname">order</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">did</span></em>, <em class="sig-param"><span class="n">index</span></em>, <em class="sig-param"><span class="n">consumer_account</span></em>, <em class="sig-param"><span class="n">auto_consume</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.order" title="Permalink to this definition">¶</a></dt>
-<dd><p>Place order by directly creating an SEA (agreement) on-chain.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>did</strong> – str starting with the prefix <cite>did:nv:</cite> and followed by the asset id which is</p>
-</dd>
-</dl>
-<p>a hex str
-:param index: str the service definition id identifying a specific
-service in the DDO (DID document)
-:param consumer_account: Account instance of the consumer
-:param auto_consume: boolean
-:return: agreement_id the service agreement id (can be used to query</p>
-<blockquote>
-<div><p>the nevermined-contracts for the status of the service agreement)</p>
-</div></blockquote>
-</dd></dl>
-
-<dl class="py method">
-<dt id="nevermined_sdk_py.nevermined.assets.Assets.order_direct">
-<code class="sig-name descname">order_direct</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">did</span></em>, <em class="sig-param"><span class="n">index</span></em>, <em class="sig-param"><span class="n">consumer_account</span></em>, <em class="sig-param"><span class="n">account</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.order_direct" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">order</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">did</span></em>, <em class="sig-param"><span class="n">index</span></em>, <em class="sig-param"><span class="n">consumer_account</span></em>, <em class="sig-param"><span class="n">account</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.order" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -221,7 +307,7 @@ service in the DDO (DID document)
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>query</strong> – dict with query parameters
-(e.g.) <a class="reference external" href="https://github.com/keyko-io/nevermined-metadata/blob/develop/docs">https://github.com/keyko-io/nevermined-metadata/blob/develop/docs</a>
+(e.g.) <a class="reference external" href="https://github.com/nevermined-io/metadata-api/blob/develop/docs">https://github.com/nevermined-io/metadata-api/blob/develop/docs</a>
 /for_api_users/API.md</p></li>
 <li><p><strong>sort</strong> – Dictionary to choose order main in some value</p></li>
 <li><p><strong>offset</strong> – Number of elements shows by page</p></li>
@@ -321,20 +407,6 @@ provided take the default</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="nevermined_sdk_py.nevermined.assets.Assets.validate">
-<code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">metadata</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.assets.Assets.validate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Validate that the metadata is ok to be stored in Metadata.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>metadata</strong> – dict conforming to the Metadata accepted by Nevermined Protocol.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </div>
@@ -370,6 +442,7 @@ provided take the default</p></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.agreement_events.html">nevermined_sdk_py.agreement_events package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.assets.html">nevermined_sdk_py.assets package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.data_store.html">nevermined_sdk_py.data_store package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.faucet.html">nevermined_sdk_py.faucet package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.gateway.html">nevermined_sdk_py.gateway package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="nevermined_sdk_py.nevermined.html">nevermined_sdk_py.nevermined package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.secret_store.html">nevermined_sdk_py.secret_store package</a></li>

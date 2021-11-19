@@ -4,14 +4,14 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>nevermined_sdk_py.gateway.gateway module &#8212; nevermined-sdk-py 0.2.0 documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nevermined_sdk_py.gateway.gateway module &#8212; nevermined-sdk-py 0.10.5 documentation</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="nevermined_sdk_py.gateway.gateway_provider module" href="nevermined_sdk_py.gateway.gateway_provider.html" />
@@ -44,28 +44,72 @@
 - encrypt a secret using different methods
 - consume_service
 - run_compute_service</p>
-<dl class="py method">
-<dt id="nevermined_sdk_py.gateway.gateway.Gateway.access_service">
-<em class="property">static </em><code class="sig-name descname">access_service</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">did</span></em>, <em class="sig-param"><span class="n">service_agreement_id</span></em>, <em class="sig-param"><span class="n">service_endpoint</span></em>, <em class="sig-param"><span class="n">account</span></em>, <em class="sig-param"><span class="n">destination_folder</span></em>, <em class="sig-param"><span class="n">index</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.access_service" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.PING_ITERATIONS">
+<code class="sig-name descname">PING_ITERATIONS</code><em class="property"> = 15</em><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.PING_ITERATIONS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.PING_SLEEP">
+<code class="sig-name descname">PING_SLEEP</code><em class="property"> = 1500</em><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.PING_SLEEP" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="nevermined_sdk_py.gateway.gateway.Gateway.consume_service">
-<em class="property">static </em><code class="sig-name descname">consume_service</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">did</span></em>, <em class="sig-param"><span class="n">service_agreement_id</span></em>, <em class="sig-param"><span class="n">service_endpoint</span></em>, <em class="sig-param"><span class="n">account</span></em>, <em class="sig-param"><span class="n">files</span></em>, <em class="sig-param"><span class="n">destination_folder</span></em>, <em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.consume_service" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call the Gateway endpoint to get access to the different files that form the asset.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>service_agreement_id</strong> – Service Agreement Id, str</p></li>
-<li><p><strong>service_endpoint</strong> – Url to access, str</p></li>
-<li><p><strong>account</strong> – Account instance of the consumer signing this agreement, hex-str</p></li>
-<li><p><strong>files</strong> – List containing the files to be consumed, list</p></li>
-<li><p><strong>index</strong> – Index of the document that is going to be downloaded, int</p></li>
-<li><p><strong>destination_folder</strong> – Path, str</p></li>
-</ul>
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.access_service">
+<em class="property">static </em><code class="sig-name descname">access_service</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">did</span></em>, <em class="sig-param"><span class="n">service_agreement_id</span></em>, <em class="sig-param"><span class="n">service_endpoint</span></em>, <em class="sig-param"><span class="n">account</span></em>, <em class="sig-param"><span class="n">destination_folder</span></em>, <em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">index</span></em>, <em class="sig-param"><span class="n">uri</span><span class="o">=</span><span class="default_value">'/access'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.access_service" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.compute_logs">
+<em class="property">static </em><code class="sig-name descname">compute_logs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service_agreement_id</span></em>, <em class="sig-param"><span class="n">execution_id</span></em>, <em class="sig-param"><span class="n">account</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.compute_logs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the logs of a compute workflow.</p>
+<dl>
+<dt>Args:</dt><dd><p>service_agreement_id (str): The id of the service agreement.
+execution_id (str): The id of the workflow execution.
+account (<code class="xref py py-class docutils literal notranslate"><span class="pre">contracts_lib_py.account.Account</span></code>): The account that ordered</p>
+<blockquote>
+<div><p>the execution of the workflow.</p>
+</div></blockquote>
+<p>config (<a class="reference internal" href="nevermined_sdk_py.config.html#nevermined_sdk_py.config.Config" title="nevermined_sdk_py.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">nevermined_sdk_py.config.Config</span></code></a>): nevermined-sdk config instance.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True if was downloaded, bool</p>
+<dt>Returns:</dt><dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code>: HTTP server response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.compute_status">
+<em class="property">static </em><code class="sig-name descname">compute_status</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service_agreement_id</span></em>, <em class="sig-param"><span class="n">execution_id</span></em>, <em class="sig-param"><span class="n">account</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.compute_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the status of a compute workflow.</p>
+<dl>
+<dt>Args:</dt><dd><p>service_agreement_id (str): The id of the service agreement.
+execution_id (str): The id of the workflow execution.
+account (<code class="xref py py-class docutils literal notranslate"><span class="pre">contracts_lib_py.account.Account</span></code>): The account that ordered</p>
+<blockquote>
+<div><p>the execution of the workflow.</p>
+</div></blockquote>
+<p>config (<a class="reference internal" href="nevermined_sdk_py.config.html#nevermined_sdk_py.config.Config" title="nevermined_sdk_py.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">nevermined_sdk_py.config.Config</span></code></a>): nevermined-sdk config instance.</p>
+</dd>
+<dt>Returns:</dt><dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code>: HTTP server response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.download">
+<em class="property">static </em><code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">did</span></em>, <em class="sig-param"><span class="n">account</span></em>, <em class="sig-param"><span class="n">destination_folder</span></em>, <em class="sig-param"><span class="n">index</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows an asset data file if the account is the owner or provider of the asset</p>
+<dl>
+<dt>Args:</dt><dd><p>did (str): The did of the asset.
+account (<code class="xref py py-class docutils literal notranslate"><span class="pre">contracts_lib_py.account.Account</span></code>): The account</p>
+<blockquote>
+<div><p>that should be the owner or provider of the asset.</p>
+</div></blockquote>
+<p>destination_folder (str): The destination where the downloaded file should be put.
+index (int): Index of the file.
+config (<a class="reference internal" href="nevermined_sdk_py.config.html#nevermined_sdk_py.config.Config" title="nevermined_sdk_py.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">nevermined_sdk_py.config.Config</span></code></a>): nevermined-sdk config instance.</p>
+</dd>
+<dt>Returns:</dt><dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code>: HTTP server response</p>
 </dd>
 </dl>
 </dd></dl>
@@ -73,6 +117,11 @@
 <dl class="py method">
 <dt id="nevermined_sdk_py.gateway.gateway.Gateway.encrypt_files_dict">
 <em class="property">static </em><code class="sig-name descname">encrypt_files_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">files_dict</span></em>, <em class="sig-param"><span class="n">encrypt_endpoint</span></em>, <em class="sig-param"><span class="n">asset_id</span></em>, <em class="sig-param"><span class="n">method</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.encrypt_files_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.execute_compute_service">
+<em class="property">static </em><code class="sig-name descname">execute_compute_service</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">service_agreement_id</span></em>, <em class="sig-param"><span class="n">service_endpoint</span></em>, <em class="sig-param"><span class="n">account</span></em>, <em class="sig-param"><span class="n">workflow_ddo</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.execute_compute_service" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -93,9 +142,38 @@
 </dd></dl>
 
 <dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.fetch_token">
+<em class="property">static </em><code class="sig-name descname">fetch_token</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">grant_token</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.fetch_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="nevermined_sdk_py.gateway.gateway.Gateway.get_access_endpoint">
 <em class="property">static </em><code class="sig-name descname">get_access_endpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.get_access_endpoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the endpoint to access the asset.</p>
+<p>:param config:Config
+:return: Url, str</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.get_access_proof_endpoint">
+<em class="property">static </em><code class="sig-name descname">get_access_proof_endpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.get_access_proof_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the endpoint to access the asset.</p>
+<p>:param config:Config
+:return: Url, str</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.get_compute_logs_endpoint">
+<em class="property">static </em><code class="sig-name descname">get_compute_logs_endpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.get_compute_logs_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return he endpoint to get the logs of a compute workflow.</p>
+<p>:param config:Config
+:return: Url, str</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.get_compute_status_endpoint">
+<em class="property">static </em><code class="sig-name descname">get_compute_status_endpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.get_compute_status_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return he endpoint to get the status of a compute workflow.</p>
 <p>:param config:Config
 :return: Url, str</p>
 </dd></dl>
@@ -112,6 +190,14 @@
 <dd class="field-even"><p>Url, str</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.get_download_endpoint">
+<em class="property">static </em><code class="sig-name descname">get_download_endpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.get_download_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return he endpoint to download the asset.</p>
+<p>:param config:Config
+:return: Url, str</p>
 </dd></dl>
 
 <dl class="py method">
@@ -163,6 +249,20 @@ This method has been deprecated.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.get_fetch_token_endpoint">
+<em class="property">static </em><code class="sig-name descname">get_fetch_token_endpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.get_fetch_token_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the url to fetch an access token.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> – Config</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Url, str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="nevermined_sdk_py.gateway.gateway.Gateway.get_gateway_url">
 <em class="property">static </em><code class="sig-name descname">get_gateway_url</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.get_gateway_url" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Gateway component url.</p>
@@ -174,6 +274,14 @@ This method has been deprecated.</p>
 <dd class="field-even"><p>Url, str</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.get_nft_access_endpoint">
+<em class="property">static </em><code class="sig-name descname">get_nft_access_endpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.get_nft_access_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the endpoint to access the asset.</p>
+<p>:param config:Config
+:return: Url, str</p>
 </dd></dl>
 
 <dl class="py method">
@@ -197,6 +305,18 @@ This method has been deprecated.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.get_upload_filecoin_endpoint">
+<em class="property">static </em><code class="sig-name descname">get_upload_filecoin_endpoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.get_upload_filecoin_endpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the url to upload a file to Filecoin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> – Config,</p>
+</dd>
+</dl>
+<p>:return Url, str</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="nevermined_sdk_py.gateway.gateway.Gateway.old_encrypt_files_dict">
 <em class="property">static </em><code class="sig-name descname">old_encrypt_files_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">files_dict</span></em>, <em class="sig-param"><span class="n">encrypt_endpoint</span></em>, <em class="sig-param"><span class="n">asset_id</span></em>, <em class="sig-param"><span class="n">account_address</span></em>, <em class="sig-param"><span class="n">signed_did</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.old_encrypt_files_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -206,6 +326,11 @@ This method has been deprecated.</p>
 <em class="property">static </em><code class="sig-name descname">set_http_client</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">http_client</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.set_http_client" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the http client to something other than the default <cite>requests</cite></p>
 </dd></dl>
+
+<dl class="py method">
+<dt id="nevermined_sdk_py.gateway.gateway.Gateway.upload_filecoin">
+<em class="property">static </em><code class="sig-name descname">upload_filecoin</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.gateway.gateway.Gateway.upload_filecoin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt id="nevermined_sdk_py.gateway.gateway.Gateway.write_file">
@@ -252,6 +377,7 @@ This method has been deprecated.</p>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.agreement_events.html">nevermined_sdk_py.agreement_events package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.assets.html">nevermined_sdk_py.assets package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.data_store.html">nevermined_sdk_py.data_store package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.faucet.html">nevermined_sdk_py.faucet package</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="nevermined_sdk_py.gateway.html">nevermined_sdk_py.gateway package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.nevermined.html">nevermined_sdk_py.nevermined package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="nevermined_sdk_py.secret_store.html">nevermined_sdk_py.secret_store package</a></li>

@@ -12,8 +12,11 @@ Submodules
    nevermined_sdk_py.nevermined.assets
    nevermined_sdk_py.nevermined.auth
    nevermined_sdk_py.nevermined.conditions
+   nevermined_sdk_py.nevermined.files
    nevermined_sdk_py.nevermined.keeper
    nevermined_sdk_py.nevermined.nevermined
+   nevermined_sdk_py.nevermined.nfts
+   nevermined_sdk_py.nevermined.provenance
    nevermined_sdk_py.nevermined.providers
    nevermined_sdk_py.nevermined.secret_store
    nevermined_sdk_py.nevermined.services

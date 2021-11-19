@@ -1,0 +1,7 @@
+nevermined\_sdk\_py.agreement\_events.compute\_agreement module
+===============================================================
+
+.. automodule:: nevermined_sdk_py.agreement_events.compute_agreement
+   :members:
+   :undoc-members:
+   :show-inheritance:

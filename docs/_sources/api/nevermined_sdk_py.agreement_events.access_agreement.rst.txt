@@ -1,0 +1,7 @@
+nevermined\_sdk\_py.agreement\_events.access\_agreement module
+==============================================================
+
+.. automodule:: nevermined_sdk_py.agreement_events.access_agreement
+   :members:
+   :undoc-members:
+   :show-inheritance:

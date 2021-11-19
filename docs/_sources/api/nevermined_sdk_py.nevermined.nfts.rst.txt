@@ -1,0 +1,7 @@
+nevermined\_sdk\_py.nevermined.nfts module
+==========================================
+
+.. automodule:: nevermined_sdk_py.nevermined.nfts
+   :members:
+   :undoc-members:
+   :show-inheritance:

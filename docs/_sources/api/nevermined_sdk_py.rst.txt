@@ -10,6 +10,7 @@ Subpackages
    nevermined_sdk_py.agreement_events
    nevermined_sdk_py.assets
    nevermined_sdk_py.data_store
+   nevermined_sdk_py.faucet
    nevermined_sdk_py.gateway
    nevermined_sdk_py.nevermined
    nevermined_sdk_py.secret_store

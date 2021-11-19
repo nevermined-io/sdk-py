@@ -1,0 +1,7 @@
+nevermined\_sdk\_py.nevermined.provenance module
+================================================
+
+.. automodule:: nevermined_sdk_py.nevermined.provenance
+   :members:
+   :undoc-members:
+   :show-inheritance:

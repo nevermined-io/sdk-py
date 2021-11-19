@@ -182,12 +182,12 @@ div.sphinxsidebar h3.donation {
 /* -- body styles ----------------------------------------------------------- */
 
 a {
-    color: #ff4092;
+    color: #7834f9;
     text-decoration: underline;
 }
 
 a:hover {
-    color: #ff4092;
+    color: #7834f9;
     text-decoration: underline;
 }
 
@@ -259,12 +259,12 @@ dt:target, .highlight {
 }
 
 div.warning {
-    background-color: #ff4092;
+    background-color: #7834f9;
     border: 1px solid #7b1173;
 }
 
 div.danger {
-    background-color: #ff4092;
+    background-color: #7834f9;
     border: 1px solid #7b1173;
     -moz-box-shadow: 2px 2px 4px #D52C2C;
     -webkit-box-shadow: 2px 2px 4px #D52C2C;
@@ -272,7 +272,7 @@ div.danger {
 }
 
 div.error {
-    background-color: #ff4092;
+    background-color: #7834f9;
     border: 1px solid #7b1173;
     -moz-box-shadow: 2px 2px 4px #D52C2C;
     -webkit-box-shadow: 2px 2px 4px #D52C2C;
@@ -280,12 +280,12 @@ div.error {
 }
 
 div.caution {
-    background-color: #ff4092;
+    background-color: #7834f9;
     border: 1px solid #7b1173;
 }
 
 div.attention {
-    background-color: #ff4092;
+    background-color: #7834f9;
     border: 1px solid #7b1173;
 }
 
@@ -467,7 +467,7 @@ tt.xref, code.xref, a tt {
 
 a.reference {
     text-decoration: none;
-    border-bottom: 1px dotted #ff4092;
+    border-bottom: 1px dotted #7834f9;
 }
 
 /* Don't put an underline on images */
@@ -476,18 +476,18 @@ a.image-reference, a.image-reference:hover {
 }
 
 a.reference:hover {
-    border-bottom: 1px solid #ff4092;
+    border-bottom: 1px solid #7834f9;
 }
 
 a.footnote-reference {
     text-decoration: none;
     font-size: 0.7em;
     vertical-align: top;
-    border-bottom: 1px dotted #ff4092;
+    border-bottom: 1px dotted #7834f9;
 }
 
 a.footnote-reference:hover {
-    border-bottom: 1px solid #ff4092;
+    border-bottom: 1px solid #7834f9;
 }
 
 a:hover tt, a:hover code {
