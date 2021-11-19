@@ -4,11 +4,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>nevermined_sdk_py.nevermined.accounts module &#8212; nevermined-sdk-py 0.10.5 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
@@ -32,16 +33,16 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-nevermined_sdk_py.nevermined.accounts">
+  <section id="module-nevermined_sdk_py.nevermined.accounts">
 <span id="nevermined-sdk-py-nevermined-accounts-module"></span><h1>nevermined_sdk_py.nevermined.accounts module<a class="headerlink" href="#module-nevermined_sdk_py.nevermined.accounts" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="nevermined_sdk_py.nevermined.accounts.Accounts">
-<em class="property">class </em><code class="sig-prename descclassname">nevermined_sdk_py.nevermined.accounts.</code><code class="sig-name descname">Accounts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">keeper</span></em>, <em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">nevermined_tokens</span></em>, <em class="sig-param"><span class="n">faucet</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Accounts" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nevermined_sdk_py.nevermined.accounts.Accounts">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">nevermined_sdk_py.nevermined.accounts.</span></span><span class="sig-name descname"><span class="pre">Accounts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keeper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nevermined_tokens</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faucet</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Accounts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Nevermined accounts class.</p>
 <dl class="py method">
-<dt id="nevermined_sdk_py.nevermined.accounts.Accounts.balance">
-<code class="sig-name descname">balance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">account</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Accounts.balance" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nevermined_sdk_py.nevermined.accounts.Accounts.balance">
+<span class="sig-name descname"><span class="pre">balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Accounts.balance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the balance, a tuple with the eth and nevermined balance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -54,8 +55,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="nevermined_sdk_py.nevermined.accounts.Accounts.list">
-<code class="sig-name descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Accounts.list" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nevermined_sdk_py.nevermined.accounts.Accounts.list">
+<span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Accounts.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return list of Account instances available in the current ethereum node</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -65,15 +66,15 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="nevermined_sdk_py.nevermined.accounts.Accounts.request_eth_from_faucet">
-<code class="sig-name descname">request_eth_from_faucet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">address</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Accounts.request_eth_from_faucet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nevermined_sdk_py.nevermined.accounts.Accounts.request_eth_from_faucet">
+<span class="sig-name descname"><span class="pre">request_eth_from_faucet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Accounts.request_eth_from_faucet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Requests Network ETH to the faucet for paying the transactions gas
 :param address: eth address requesting, hex str</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="nevermined_sdk_py.nevermined.accounts.Accounts.request_tokens">
-<code class="sig-name descname">request_tokens</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">account</span></em>, <em class="sig-param"><span class="n">amount</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Accounts.request_tokens" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nevermined_sdk_py.nevermined.accounts.Accounts.request_tokens">
+<span class="sig-name descname"><span class="pre">request_tokens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Accounts.request_tokens" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request an amount of ocean tokens for an account.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -94,24 +95,24 @@
 </dd></dl>
 
 <dl class="py class">
-<dt id="nevermined_sdk_py.nevermined.accounts.Balance">
-<em class="property">class </em><code class="sig-prename descclassname">nevermined_sdk_py.nevermined.accounts.</code><code class="sig-name descname">Balance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">eth</span></em>, <em class="sig-param"><span class="n">ocn</span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Balance" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nevermined_sdk_py.nevermined.accounts.Balance">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">nevermined_sdk_py.nevermined.accounts.</span></span><span class="sig-name descname"><span class="pre">Balance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ocn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Balance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
-<dl class="py method">
-<dt id="nevermined_sdk_py.nevermined.accounts.Balance.eth">
-<em class="property">property </em><code class="sig-name descname">eth</code><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Balance.eth" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nevermined_sdk_py.nevermined.accounts.Balance.eth">
+<span class="sig-name descname"><span class="pre">eth</span></span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Balance.eth" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="nevermined_sdk_py.nevermined.accounts.Balance.ocn">
-<em class="property">property </em><code class="sig-name descname">ocn</code><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Balance.ocn" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nevermined_sdk_py.nevermined.accounts.Balance.ocn">
+<span class="sig-name descname"><span class="pre">ocn</span></span><a class="headerlink" href="#nevermined_sdk_py.nevermined.accounts.Balance.ocn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -177,7 +178,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
