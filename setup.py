@@ -21,7 +21,7 @@ install_requirements = [
     'PyJWT',  # not jwt
     'PyYAML>=5.2',
     'common-utils-py==0.7.7',
-    'contracts-lib-py==0.7.17',
+    'contracts-lib-py==0.10.1',
     'nevermined-secret-store==0.1.1',
     'requests>=2.21.0',
     'deprecated',
@@ -89,6 +89,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/nevermined-io/sdk-py',
-    version='0.10.7',
+    version='0.11.0',
     zip_safe=False,
 )

@@ -41,7 +41,7 @@ class NFTs:
         :param account: Account executing the action
 
         """
-        return self._keeper.did_registry.transfer_nft(did_to_id(did), address, amount, account)
+        return self._keeper.nft_upgradeable.transfer_nft(did_to_id(did), address, amount, account)
 
     def balance(self, address, did):
         """
@@ -50,6 +50,6 @@ class NFTs:
         :param address: ethereum account address, hex str
         :param did: the id of an asset on-chain, hex str
         """
-        return self._keeper.did_registry.balance(address, convert_to_bytes(did))
+        return self._keeper.nft_upgradeable.balance(address, did_to_id(did))
 
 

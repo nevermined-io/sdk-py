@@ -106,13 +106,22 @@ def test_query_search(asset1, asset2, metadata_provider_instance):
     num_matches = 0
     metadata_provider_instance.publish_asset_ddo(asset1)
 
-    assert len(metadata_provider_instance.query_search(search_query={"query": {"type": ["dataset"]}},
+    search_query = {
+        "query": {
+            "bool": {
+                "must": [{
+                    "match": {"service.attributes.main.type": "dataset"}
+                }]
+            }
+        }
+    }
+    assert len(metadata_provider_instance.query_search(search_query=search_query,
                                               offset=10000)['results']) == (
                    num_matches + 1)
 
     metadata_provider_instance.publish_asset_ddo(asset2)
 
-    assert len(metadata_provider_instance.query_search(search_query={"query": {"type": ["dataset"]}},
+    assert len(metadata_provider_instance.query_search(search_query=search_query,
                                               offset=10000)['results']) == (
                    num_matches + 2)
     metadata_provider_instance.retire_asset_ddo(asset1.did)
