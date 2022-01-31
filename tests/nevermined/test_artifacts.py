@@ -17,8 +17,7 @@ INFURA_TOKEN = os.environ.get("INFURA_TOKEN")
     [f"https://rinkeby.infura.io/v3/{INFURA_TOKEN}", "rinkeby"],
     ("http://localhost:8545", "spree"),
     (f"https://polygon-mumbai.infura.io/v3/{INFURA_TOKEN}", "mumbai"),
-    ("https://alfajores-forno.celo-testnet.org", "celo-alfajores"),
-    ("https://baklava-forno.celo-testnet.org", "celo-baklava")
+    ("https://alfajores-forno.celo-testnet.org", "celo-alfajores")
 ])
 def test_artifact(keeper_url, network_name):
     options = {
