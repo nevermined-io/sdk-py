@@ -24,9 +24,7 @@ def test_publish_ddo_already_registered(asset1, metadata_provider_instance):
 
 def test_get_asset_ddo_for_not_registered_did(metadata_provider_instance):
     invalid_did = 'did:nv:not_valid'
-    # with pytest.raises(ValueError):
-    response = metadata_provider_instance.get_asset_ddo(invalid_did)
-    print(response)
+    assert metadata_provider_instance.get_asset_ddo(invalid_did) == {}
 
 
 def test_get_asset_metadata(asset1, metadata_provider_instance):

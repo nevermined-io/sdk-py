@@ -86,4 +86,4 @@ jobs:
         export BUYER_BABYJUB_PUBLIC2=0x14b14fa0a30ec744dde9f32d519c65ebaa749bfe991a32deea44b83a4e5c65bb
 
         pip install pytest
-        pytest -v -s
+        pytest -v
