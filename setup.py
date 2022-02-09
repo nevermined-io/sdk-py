@@ -26,7 +26,7 @@ install_requirements = [
     'deprecated',
     'pycryptodomex',
     'tqdm',
-    'pytz'
+    'pytz',
     'web3==5.26.0',
     # web3 requires eth-abi, requests, and more,
     # so those will be installed too.
