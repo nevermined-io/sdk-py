@@ -20,14 +20,15 @@ install_requirements = [
     'pyopenssl',
     'PyJWT',  # not jwt
     'PyYAML>=5.2',
-    'common-utils-py==0.7.7',
-    'contracts-lib-py==0.7.17',
+    'common-utils-py==0.10.0',
+    'contracts-lib-py==0.11.0',
     'nevermined-secret-store==0.1.1',
     'requests>=2.21.0',
     'deprecated',
     'pycryptodomex',
     'tqdm',
-    'pytz'
+    'pytz',
+    'web3==5.26.0',
     # web3 requires eth-abi, requests, and more,
     # so those will be installed too.
     # See https://github.com/ethereum/web3.py/blob/master/setup.py
@@ -37,6 +38,7 @@ install_requirements = [
 setup_requirements = ['pytest-runner', ]
 
 test_requirements = [
+    'contracts-lib-py==0.11.0',
     'coverage',
     'pylint',
     'pytest',
@@ -89,6 +91,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/nevermined-io/sdk-py',
-    version='0.10.7',
+    version='0.12.0',
     zip_safe=False,
 )

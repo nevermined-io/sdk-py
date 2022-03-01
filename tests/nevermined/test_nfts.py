@@ -72,7 +72,7 @@ def test_nfts_flow(publisher_instance_no_init, consumer_instance_no_init):
     assert keeper.condition_manager.get_condition_state(access_cond_id) == 2, ''
     assert keeper.condition_manager.get_condition_state(escrow_cond_id) == 2, ''
 
-    assert keeper.did_registry.balance(consumer_account.address, asset_id) >= number_nfts
+    assert keeper.nft_upgradeable.balance(consumer_account.address, asset_id) >= number_nfts
 
 
     # CHECK ACCESS CREATING THE AGREEMENT
