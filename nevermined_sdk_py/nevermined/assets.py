@@ -43,8 +43,8 @@ class Assets:
             downloads_path = self._config.get('resources', 'downloads.path') or downloads_path
         self._downloads_path = downloads_path
 
-    def _get_metadata_provider(self, url=None):
-        return MetadataProvider.get_metadata_provider(url or self._metadata_url)
+    def _get_metadata_provider(self, url=None, account=None):
+        return MetadataProvider.get_metadata_provider(url or self._metadata_url, account)
 
     def _get_secret_store(self, account):
         return SecretStoreProvider.get_secret_store(
@@ -90,7 +90,7 @@ class Assets:
         # Create a DDO object
         ddo = DDO()
         gateway = GatewayProvider.get_gateway()
-        ddo_service_endpoint = self._get_metadata_provider().get_service_endpoint()
+        ddo_service_endpoint = self._get_metadata_provider(account=publisher_account).get_service_endpoint()
         metadata_service_desc = ServiceDescriptor.metadata_service_descriptor(metadata_copy,
                                                                               ddo_service_endpoint)
         if metadata_copy['main']['type'] == 'dataset' or metadata_copy['main'][
@@ -169,7 +169,7 @@ class Assets:
 
         logger.debug(f'Generating new did: {did}')
         # Check if it's already registered first!
-        if did in self._get_metadata_provider().list_assets():
+        if did in self._get_metadata_provider(account=publisher_account).list_assets():
             raise DIDAlreadyExist(
                 f'Asset id {did} is already registered to another asset.')
 
@@ -311,7 +311,7 @@ class Assets:
         logger.info(f'Successfully registered DDO (DID={did}) on chain.')
         try:
             # publish the new ddo
-            response = self._get_metadata_provider().publish_asset_ddo(ddo)
+            response = self._get_metadata_provider(account=publisher_account).publish_asset_ddo(ddo)
             logger.info('Asset/ddo published successfully in Metadata.')
         except ValueError as ve:
             raise ValueError(f'Invalid value to publish in the metadata: {str(ve)}')
@@ -355,17 +355,18 @@ class Assets:
                            providers=providers, authorization_type=authorization_type,
                            use_secret_store=use_secret_store)
 
-    def retire(self, did):
+    def retire(self, did, account):
         """
         Retire this did of Metadata
 
         :param did: DID, str
+        :para account: The account that owns the did
         :return: bool
         """
         try:
             ddo = self.resolve(did)
             metadata_service = ddo.get_service(ServiceTypes.METADATA)
-            self._get_metadata_provider(metadata_service.service_endpoint).retire_asset_ddo(did)
+            self._get_metadata_provider(metadata_service.service_endpoint, account).retire_asset_ddo(did)
             return True
         except MetadataGenericError as err:
             logger.error(err)
@@ -541,7 +542,6 @@ class Assets:
         :param did: DID, str
         :return: the ethereum address of the owner/publisher of given asset did, hex-str
         """
-        # return self._get_metadata_provider(self._metadata_url).get_asset_ddo(did).proof['creator']
         return self._keeper.did_registry.get_did_owner(did_to_id(did))
 
     def owner_assets(self, owner_address):

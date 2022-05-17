@@ -42,7 +42,7 @@ def setup_all():
 def metadata_provider_instance():
     config = ExampleConfig.get_config()
     ConfigProvider.set_config(config)
-    return Metadata(ConfigProvider.get_config().metadata_url)
+    return Metadata(ConfigProvider.get_config().metadata_url, get_publisher_account())
 
 @pytest.fixture
 def secret_store():
@@ -99,7 +99,7 @@ def asset1():
     asset = _get_asset(
         'https://raw.githubusercontent.com/nevermined-io/docs/master/docs/architecture/specs'
         '/examples/access/v0.1/ddo1.json')
-    asset._did = DID.encoded_did(asset.proof['checksum'])
+    asset._did = DID.did(generate_prefixed_id())
     return asset
 
 @pytest.fixture
@@ -107,7 +107,7 @@ def asset2():
     asset = _get_asset(
         'https://raw.githubusercontent.com/nevermined-io/docs/master/docs/architecture/specs'
         '/examples/access/v0.1/ddo2-update.json')
-    asset._did = DID.encoded_did(asset.proof['checksum'])
+    asset._did = DID.did(generate_prefixed_id())
     return  asset
 
 @pytest.fixture

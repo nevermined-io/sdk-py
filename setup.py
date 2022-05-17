@@ -20,7 +20,7 @@ install_requirements = [
     'pyopenssl',
     'PyJWT',  # not jwt
     'PyYAML>=5.2',
-    'common-utils-py==0.10.0',
+    'common-utils-py==1.0.0-rc4',
     'contracts-lib-py==0.11.0',
     'nevermined-secret-store==0.1.1',
     'requests>=2.21.0',
@@ -38,7 +38,6 @@ install_requirements = [
 setup_requirements = ['pytest-runner', ]
 
 test_requirements = [
-    'contracts-lib-py==0.11.0',
     'coverage',
     'pylint',
     'pytest',
