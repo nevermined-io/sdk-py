@@ -172,17 +172,19 @@ def setup_agreements_environment(ddo_sample):
     )
 
     service_agreement = ServiceAgreement.from_ddo(ServiceTypes.ASSET_ACCESS, ddo)
-    agreement_id = ServiceAgreement.create_new_agreement_id()
+    agreement_id_seed = ServiceAgreement.create_new_agreement_id()
     price = service_agreement.get_price()
-    access_cond_id, lock_cond_id, escrow_cond_id = \
-        service_agreement.generate_agreement_condition_ids(
-            agreement_id, asset_id, consumer_acc.address, keeper
-        )
+
+    ((agreement_id_seed, agreement_id), *conditions) = service_agreement.generate_agreement_condition_ids(
+            agreement_id_seed, asset_id, consumer_acc.address, keeper, publisher_acc.address)
+
+    access_cond_id, lock_cond_id, escrow_cond_id = [c[1] for c in conditions]
 
     return (
         keeper,
         publisher_acc,
         consumer_acc,
+        agreement_id_seed,
         agreement_id,
         asset_id,
         price,

@@ -6,7 +6,6 @@ from common_utils_py.agreements.service_types import ServiceTypes, ServiceTypesI
 from common_utils_py.did import did_to_id
 from common_utils_py.exceptions import (
     InvalidAgreementTemplate,
-    InvalidServiceAgreementSignature,
     ServiceAgreementExists,
 )
 from contracts_lib_py.utils import add_ethereum_prefix_and_hash_msg
@@ -52,11 +51,12 @@ class Agreements:
          the ddo to use in this agreement.
         :return: tuple (agreement_id: str, signature: hex str)
         """
-        agreement_id = ServiceAgreement.create_new_agreement_id()
+        agreement_id_seed = ServiceAgreement.create_new_agreement_id()
+        agreement_id = self._keeper.agreement_manager.hash_id(agreement_id_seed, consumer_account.address)
         signature = self._sign(agreement_id, did, consumer_account, service_index)
         return agreement_id, signature
 
-    def create(self, did, index, agreement_id, consumer_acc, account):
+    def create(self, did, index, agreement_id_seed, consumer_acc, account):
         """
         Execute the service agreement on-chain using keeper's ServiceAgreement contract.
 
@@ -69,7 +69,7 @@ class Agreements:
         :param did: str representation fo the asset DID. Use this to retrieve the asset DDO.
         :param index: str identifies the specific service in
          the ddo to use in this agreement.
-        :param agreement_id: 32 bytes identifier created by the consumer and will be used
+        :param agreement_id_seed: 32 bytes identifier created by the consumer and will be used
          on-chain for the executed agreement.
          conditions and their parameters values and other details of the agreement.
         :param consumer_address: ethereum account address of consumer, hex str
@@ -114,27 +114,32 @@ class Agreements:
             logger.warning(msg)
             raise InvalidAgreementTemplate(msg)
 
-        if agreement_template.get_agreement_consumer(agreement_id) != ZERO_ADDRESS:
-            raise ServiceAgreementExists(
-                f'Service agreement {agreement_id} already exists, cannot reuse '
-                f'the same agreement id.')
-
         service_agreement = ServiceAgreement.from_service_index(index, asset)
         token_address = check_token_address(
             self._keeper, service_agreement.get_param_value_by_name('_tokenAddress'))
 
         publisher_address = Web3Provider.get_web3().toChecksumAddress(asset.publisher)
-        condition_ids = service_agreement.generate_agreement_condition_ids(
-            agreement_id, asset_id, consumer_address, self._keeper, token_address=token_address)
 
+        ((agreement_id_seed, agreement_id), *conditions) = service_agreement.generate_agreement_condition_ids(
+            agreement_id_seed, asset_id, consumer_address, self._keeper, consumer_address, token_address=token_address)
+
+        if agreement_template.get_agreement_consumer(agreement_id) != ZERO_ADDRESS:
+            raise ServiceAgreementExists(
+                f'Service agreement {agreement_id} already exists, cannot reuse '
+                f'the same agreement id.')
+
+        condition_ids = [c[1] for c in conditions]
         time_locks = service_agreement.conditions_timelocks
         time_outs = service_agreement.conditions_timeouts
 
-        if payment_involved and service_agreement.get_price() > self._keeper.token.get_token_balance(consumer_address_real):
+        price = service_agreement.get_price()
+        consumer_balance = self._keeper.token.get_token_balance(consumer_address_real)
+
+        if payment_involved and price > consumer_balance:
             return Exception(
                 f'The consumer balance is '
-                f'{self._keeper.token.get_token_balance(consumer_address_real)}. '
-                f'This balance is lower that the asset price {service_agreement.get_price()}.')
+                f'{consumer_balance}. '
+                f'This balance is lower that the asset price {price}.')
 
         if service.type == ServiceTypes.NFT_SALES:
             conditions_ordered = [condition_ids[1], condition_ids[0], condition_ids[2]]
@@ -144,14 +149,14 @@ class Agreements:
             conditions_ordered = condition_ids
 
         success = agreement_template.create_agreement(
-            agreement_id,
+            agreement_id_seed,
             asset_id,
             conditions_ordered,
             time_locks,
             time_outs,
-            consumer_address_real,
             account
         )
+        print('--- agreement_id', agreement_id)
 
         if success:
             if payment_involved:

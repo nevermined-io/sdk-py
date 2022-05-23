@@ -29,13 +29,15 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
     # Give consumer some tokens
     keeper.dispenser.request_vodkas(price * 2, consumer_acc)
 
-    agreement_id, signature = consumer_instance.agreements.prepare(
-        did, consumer_acc, ServiceTypesIndices.DEFAULT_ACCESS_INDEX)
+    agreement_id_seed = ServiceAgreement.create_new_agreement_id()
+    agreement_id = keeper.agreement_manager.hash_id(agreement_id_seed, publisher_acc.address)
 
+    print('--- agreement_id test', agreement_id)
+    print('--- agreement_id_seed test', agreement_id_seed)
     success = publisher_instance.agreements.create(
         did,
         ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
-        agreement_id,
+        agreement_id_seed,
         consumer_acc,
         publisher_acc
     )
@@ -102,6 +104,7 @@ def test_agreement_status(setup_agreements_environment, agreements):
         keeper,
         publisher_acc,
         consumer_acc,
+        agreement_id_seed,
         agreement_id,
         asset_id,
         price,
@@ -111,15 +114,15 @@ def test_agreement_status(setup_agreements_environment, agreements):
     ) = setup_agreements_environment
 
     success = keeper.access_template.create_agreement(
-        agreement_id,
+        agreement_id_seed,
         asset_id,
         [access_cond_id, lock_cond_id, escrow_cond_id],
         service_agreement.conditions_timelocks,
         service_agreement.conditions_timeouts,
-        consumer_acc.address,
         publisher_acc
     )
     print('create agreement: ', success)
+    print('--- agreement_id', agreement_id)
     assert success, f'createAgreement failed {success}'
     event = keeper.access_template.subscribe_agreement_created(
         agreement_id,
