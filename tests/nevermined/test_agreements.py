@@ -27,19 +27,17 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
     price = service_agreement.get_price()
 
     # Give consumer some tokens
-    keeper.dispenser.request_vodkas(price * 2, consumer_acc)
+    keeper.dispenser.request_tokens(100, consumer_acc)
 
     agreement_id_seed = ServiceAgreement.create_new_agreement_id()
-    agreement_id = keeper.agreement_manager.hash_id(agreement_id_seed, publisher_acc.address)
+    agreement_id = keeper.agreement_manager.hash_id(agreement_id_seed, consumer_acc.address)
 
-    print('--- agreement_id test', agreement_id)
-    print('--- agreement_id_seed test', agreement_id_seed)
     success = publisher_instance.agreements.create(
         did,
         ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
         agreement_id_seed,
         consumer_acc,
-        publisher_acc
+        consumer_acc
     )
     assert success, 'createAgreement failed.'
 
@@ -81,7 +79,7 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
         keeper, service_agreement.get_param_value_by_name('_tokenAddress'))
 
     tx_hash = keeper.escrow_payment_condition.fulfill(
-        agreement_id, asset_id, amounts, receivers,
+        agreement_id, asset_id, amounts, receivers, consumer_acc.address,
         keeper.escrow_payment_condition.address, token_address, lock_cond_id,
         access_cond_id, publisher_acc
     )
@@ -95,7 +93,7 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
         wait=True
     )
     assert event, 'no event for EscrowReward.Fulfilled'
-    publisher_instance.assets.retire(did)
+    publisher_instance.assets.retire(did, publisher_acc)
 
 
 # @pytest.mark.skip(reason="Failing some times with actions")

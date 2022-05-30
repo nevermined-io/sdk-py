@@ -21,7 +21,11 @@ def create_asset(publisher_instance, ddo_sample):
     auth_service = ServiceDescriptor.authorization_service_descriptor(
         {'main': {'service': 'SecretStore', 'publicKey': '0casd',
                   'threshold': '1'}}, my_secret_store)
-    return nevermined.assets.create(asset.metadata, acct, [auth_service])
+    asset_rewards = {
+        "_amounts": ["10", "2"],
+        "_receivers": ["0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e", "0x068ed00cf0441e4829d9784fcbe7b9e26d4bd8d0"]
+    }
+    return nevermined.assets.create(asset.metadata, acct, [auth_service], asset_rewards=asset_rewards)
 
 
 def test_register_asset(publisher_instance, ddo_sample):

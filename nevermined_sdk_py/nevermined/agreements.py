@@ -121,14 +121,14 @@ class Agreements:
         publisher_address = Web3Provider.get_web3().toChecksumAddress(asset.publisher)
 
         ((agreement_id_seed, agreement_id), *conditions) = service_agreement.generate_agreement_condition_ids(
-            agreement_id_seed, asset_id, consumer_address, self._keeper, consumer_address, token_address=token_address)
+            agreement_id_seed, asset_id, consumer_address, self._keeper, token_address=token_address)
 
         if agreement_template.get_agreement_consumer(agreement_id) != ZERO_ADDRESS:
             raise ServiceAgreementExists(
                 f'Service agreement {agreement_id} already exists, cannot reuse '
                 f'the same agreement id.')
 
-        condition_ids = [c[1] for c in conditions]
+        condition_ids = [c[0] for c in conditions]
         time_locks = service_agreement.conditions_timelocks
         time_outs = service_agreement.conditions_timeouts
 
@@ -154,6 +154,7 @@ class Agreements:
             conditions_ordered,
             time_locks,
             time_outs,
+            Web3.toChecksumAddress(account.address),
             account
         )
         print('--- agreement_id', agreement_id)
