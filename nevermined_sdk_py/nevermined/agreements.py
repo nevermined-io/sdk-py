@@ -54,7 +54,7 @@ class Agreements:
         agreement_id_seed = ServiceAgreement.create_new_agreement_id()
         agreement_id = self._keeper.agreement_manager.hash_id(agreement_id_seed, consumer_account.address)
         signature = self._sign(agreement_id, did, consumer_account, service_index)
-        return agreement_id, signature
+        return (agreement_id_seed, agreement_id), signature
 
     def create(self, did, index, agreement_id_seed, consumer_acc, account):
         """
@@ -79,6 +79,7 @@ class Agreements:
         """
         consumer_address = consumer_acc.address
         consumer_address_real = consumer_acc.address
+        babyjub_address = None
         assert consumer_address and Web3Provider.get_web3().isChecksumAddress(
             consumer_address), f'Invalid consumer address {consumer_address}'
 
@@ -92,7 +93,7 @@ class Agreements:
         elif service.type == ServiceTypes.ASSET_ACCESS_PROOF:
             agreement_template = self._keeper.access_proof_template
             template_address = self._keeper.access_proof_template.address
-            consumer_address = consumer_acc.babyjub_address
+            babyjub_address = consumer_acc.babyjub_address
         elif service.type == ServiceTypes.CLOUD_COMPUTE:
             agreement_template = self._keeper.escrow_compute_execution_template
             template_address = self._keeper.escrow_compute_execution_template.address
@@ -121,7 +122,8 @@ class Agreements:
         publisher_address = Web3Provider.get_web3().toChecksumAddress(asset.publisher)
 
         ((agreement_id_seed, agreement_id), *conditions) = service_agreement.generate_agreement_condition_ids(
-            agreement_id_seed, asset_id, consumer_address, self._keeper, token_address=token_address)
+            agreement_id_seed, asset_id, consumer_address, self._keeper, token_address=token_address,
+            babyjub_pk=babyjub_address)
 
         if agreement_template.get_agreement_consumer(agreement_id) != ZERO_ADDRESS:
             raise ServiceAgreementExists(
@@ -132,14 +134,14 @@ class Agreements:
         time_locks = service_agreement.conditions_timelocks
         time_outs = service_agreement.conditions_timeouts
 
-        price = service_agreement.get_price()
-        consumer_balance = self._keeper.token.get_token_balance(consumer_address_real)
-
-        if payment_involved and price > consumer_balance:
-            return Exception(
-                f'The consumer balance is '
-                f'{consumer_balance}. '
-                f'This balance is lower that the asset price {price}.')
+        if payment_involved:
+            price = service_agreement.get_price()
+            consumer_balance = self._keeper.token.get_token_balance(consumer_address_real)
+            if price > consumer_balance:
+                return Exception(
+                    f'The consumer balance is '
+                    f'{consumer_balance}. '
+                    f'This balance is lower that the asset price {price}.')
 
         if service.type == ServiceTypes.NFT_SALES:
             conditions_ordered = [condition_ids[1], condition_ids[0], condition_ids[2]]
@@ -157,7 +159,6 @@ class Agreements:
             Web3.toChecksumAddress(account.address),
             account
         )
-        print('--- agreement_id', agreement_id)
 
         if success:
             if payment_involved:
@@ -237,7 +238,8 @@ class Agreements:
         publisher_address = self._keeper.did_registry.get_did_owner(asset.asset_id)
         if service_index == ServiceTypesIndices.DEFAULT_ACCESS_PROOF_INDEX:
             agreement_hash = service_agreement.get_service_agreement_hash(
-                agreement_id, asset.asset_id, consumer_account.babyjub_address, publisher_address, self._keeper
+                agreement_id, asset.asset_id, consumer_account.address, publisher_address, self._keeper,
+                babyjub_pk=consumer_account.babyjub_address
             )
         else:
             agreement_hash = service_agreement.get_service_agreement_hash(
@@ -251,20 +253,11 @@ class Agreements:
         return signature
 
     def _is_condition_fulfilled(self, agreement_id, condition_type):
-        # TODO move this method to the contracts-lib-py
-        max_retries = 5
-        sleep_time = 500
-        iteration = 0
-        while iteration < max_retries:
-            status = self.status(agreement_id)
-            condition_status = status.get('conditions').get(condition_type)
-            logger.debug(f'Condition check[  ${condition_type}  ] : + ${condition_status}')
-            if condition_status == 2:
-                return True
-            iteration = iteration + 1
-            time.sleep(sleep_time)
+        status = self.status(agreement_id)
+        condition_status = status.get('conditions').get(condition_type)
+        logger.debug(f'Condition check[  ${condition_type}  ] : + ${condition_status}')
 
-        return False
+        return condition_status == 2
 
     def _process_consumer_agreement_events(
             self, agreement_id, did, service_agreement, account,

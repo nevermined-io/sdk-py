@@ -73,7 +73,7 @@ def test_buy_asset(publisher_instance_no_init, consumer_instance_no_init):
         keeper, service.get_param_value_by_name('_tokenAddress'))
 
     publisher_instance_no_init.agreements.conditions.release_reward(
-        agreement_id, ddo.asset_id, amounts, receivers, token_address, pub_acc)
+        agreement_id, ddo.asset_id, amounts, receivers, consumer_account.address, token_address, pub_acc)
 
     assert consumer_instance_no_init.assets.access(
         agreement_id,

@@ -34,15 +34,15 @@ def test_sign_agreement(publisher_instance, consumer_instance, proof_ddo):
     provider_secret = get_provider_babyjub_key().secret
     proof = call_prover(consumer_acc.babyjub_address, provider_secret, '0x'+get_key())
 
-    agreement_id, signature = consumer_instance.agreements.prepare(
+    (agreement_id_seed, agreement_id), signature = consumer_instance.agreements.prepare(
         did, consumer_acc, ServiceTypesIndices.DEFAULT_ACCESS_PROOF_INDEX)
 
     success = publisher_instance.agreements.create(
         did,
         ServiceTypesIndices.DEFAULT_ACCESS_PROOF_INDEX,
-        agreement_id,
+        agreement_id_seed,
         consumer_acc,
-        publisher_acc
+        consumer_acc
     )
     assert success, 'createAgreement failed.'
 
@@ -65,7 +65,9 @@ def test_sign_agreement(publisher_instance, consumer_instance, proof_ddo):
     tx_hash = keeper.access_proof_condition.fulfill(
         agreement_id, proof['hash'], consumer_acc.babyjub_address, publisher_acc.babyjub_address, proof['cipher'], proof['proof'], publisher_acc
     )
-    keeper.access_proof_condition.get_tx_receipt(tx_hash)
+    receipt = keeper.access_proof_condition.get_tx_receipt(tx_hash)
+    assert receipt.status == 1
+
     assert 2 == keeper.condition_manager.get_condition_state(access_cond_id), ''
     event = keeper.access_proof_condition.subscribe_condition_fulfilled(
         agreement_id,

@@ -176,9 +176,9 @@ def setup_agreements_environment(ddo_sample):
     price = service_agreement.get_price()
 
     ((agreement_id_seed, agreement_id), *conditions) = service_agreement.generate_agreement_condition_ids(
-            agreement_id_seed, asset_id, consumer_acc.address, keeper, publisher_acc.address)
+            agreement_id_seed, asset_id, consumer_acc.address, keeper, token_address=keeper.token.address)
 
-    access_cond_id, lock_cond_id, escrow_cond_id = [c[1] for c in conditions]
+    access_cond_id, lock_cond_id, escrow_cond_id = conditions
 
     return (
         keeper,

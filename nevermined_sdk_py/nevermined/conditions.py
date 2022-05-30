@@ -55,7 +55,7 @@ class Conditions:
         receipt = self._keeper.access_condition.get_tx_receipt(tx_hash)
         return bool(receipt and receipt.status == 1)
 
-    def release_reward(self, agreement_id, asset_id, amounts, receivers, token_address, account):
+    def release_reward(self, agreement_id, asset_id, amounts, receivers, consumer_address, token_address, account):
         """
         Release reward condition.
 
@@ -68,15 +68,13 @@ class Conditions:
         :return:
         """
         agreement_values = self._keeper.agreement_manager.get_agreement(agreement_id)
-        consumer, provider = self._keeper.access_template.get_agreement_data(
-            agreement_id)
-        owner = agreement_values.owner
         access_id, lock_id = agreement_values.condition_ids[:2]
         tx_hash = self._keeper.escrow_payment_condition.fulfill(
             agreement_id,
             asset_id,
             amounts,
             to_checksum_addresses(receivers),
+            consumer_address,
             self._keeper.escrow_payment_condition.address,
             token_address,
             lock_id,

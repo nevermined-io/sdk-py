@@ -419,15 +419,18 @@ class Assets:
                 metadata_provider.query_search(query, sort, offset, page)['results']]
 
     def order(self, did, index, consumer_account, account):
-        agreement_id = ServiceAgreement.create_new_agreement_id()
+        agreement_id_seed = ServiceAgreement.create_new_agreement_id()
+        agreement_id = self._keeper.agreement_manager.hash_id(agreement_id_seed, consumer_account.address)
         logger.debug(f'about to request create agreement: {agreement_id}')
-        self._agreements.create(
+        result = self._agreements.create(
             did,
             index,
-            agreement_id,
+            agreement_id_seed,
             consumer_account,
             account
         )
+        if result is False:
+            raise Exception('There was an error creating the agreement')
         return agreement_id
 
     def access(self, service_agreement_id, did, service_index, consumer_account,

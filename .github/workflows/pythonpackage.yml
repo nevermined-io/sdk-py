@@ -53,8 +53,11 @@ jobs:
           cd nevermined-tools
           rm -rf "${HOME}/.nevermined/nevermined-contracts/artifacts"
 
+          export KEEPER_VERSION=develop
+          export GATEWAY_VERSION=develop
+
           # start nevermined with the compute stack
-          ./start_nevermined.sh --latest --no-marketplace --no-metadata --local-spree-node --compute --spree-embedded-contracts --marketplace-api &
+          ./start_nevermined.sh --no-marketplace --no-metadata --local-spree-node --compute --geth --marketplace-api &
 
           # wait for the compute api to be online.
           # the compute api is the last service to come online

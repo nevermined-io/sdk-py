@@ -21,5 +21,7 @@ class NeverminedKeeper(Keeper):
             return 'execCompute'
         elif self.escrow_payment_condition.address == address:
             return 'escrowReward'
+        elif self.transfer_nft_condition.address == address:
+            return 'nftTransfer'
         else:
             logging.error(f'The current address {address} is not a condition address')

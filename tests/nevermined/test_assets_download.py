@@ -17,7 +17,7 @@ def test_publisher_download_compute(metadata):
     assert publisher_instance.assets.download(
         ddo.did, service_agreement.index, publisher, config.downloads_path
     )
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
 
 
 def test_consumer_download_compute(metadata):
@@ -42,7 +42,7 @@ def test_consumer_download_compute(metadata):
         consumer_instance.assets.download(
             ddo.did, service_agreement.index, consumer, config.downloads_path
         )
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
 
 
 def test_publisher_download_algorithm(ddo_algorithm):
@@ -57,12 +57,14 @@ def test_publisher_download_algorithm(ddo_algorithm):
     assert publisher_instance.assets.download(
         ddo.did, service_agreement.index, publisher, config.downloads_path
     )
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
 
 
 def test_provider_download_algorithm(ddo_algorithm):
     config = ExampleConfig.get_config()
     publisher_instance = get_publisher_instance(True, False, False)
+    publisher = publisher_instance.main_account
+
     provider = publisher_instance.main_account
     consumer_instance = get_consumer_instance(True, False, False)
     consumer = consumer_instance.main_account
@@ -79,4 +81,4 @@ def test_provider_download_algorithm(ddo_algorithm):
     assert publisher_instance.assets.download(
         ddo.did, service_agreement.index, consumer, config.downloads_path
     )
-    consumer_instance.assets.retire(ddo.did)
+    consumer_instance.assets.retire(ddo.did, publisher)
