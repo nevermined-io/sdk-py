@@ -57,11 +57,8 @@ jobs:
           export GATEWAY_VERSION=develop
 
           # start nevermined with the compute stack
-          ./start_nevermined.sh --no-marketplace --no-metadata --local-spree-node --compute --geth --marketplace-api &
+          ./start_nevermined.sh --no-marketplace --no-metadata --local-spree-node --geth --marketplace-api &
 
-          # wait for the compute api to be online.
-          # the compute api is the last service to come online
-          ./scripts/wait_for_compute_api.sh
           # extract contracts
           cd ..
           ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
