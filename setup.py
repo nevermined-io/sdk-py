@@ -21,7 +21,7 @@ install_requirements = [
     'PyJWT',  # not jwt
     'PyYAML>=5.2',
     'common-utils-py==1.0.0-rc7',
-    'contracts-lib-py==1.0.0-rc5',
+    'contracts-lib-py==1.0.0-rc6',
     'nevermined-secret-store==0.1.1',
     'requests>=2.21.0',
     'deprecated',
