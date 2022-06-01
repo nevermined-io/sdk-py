@@ -218,7 +218,8 @@ def setup_agreements_proof_environment(proof_ddo):
     price = service_agreement.get_price()
     access_cond_id, lock_cond_id, escrow_cond_id = \
         service_agreement.generate_agreement_condition_ids(
-            agreement_id, asset_id, consumer_acc.babyjub_address, keeper
+            agreement_id, asset_id, consumer_acc.address, keeper,
+            babyjub_pk=consumer_acc.babyjub_address
         )
 
     return (

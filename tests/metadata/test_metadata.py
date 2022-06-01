@@ -83,7 +83,7 @@ def test_update_ddo(asset1, asset2, metadata_provider_instance):
     metadata_provider_instance.retire_asset_ddo(asset1.did)
 
 
-def test_update_with_not_valid_ddo(asset1, metadata_provider_instance):
+def test_update_with_not_valifd_ddo(asset1, metadata_provider_instance):
     with pytest.raises(Exception):
         metadata_provider_instance.update_asset_ddo(asset1.did, {})
 
@@ -173,7 +173,7 @@ def test_retire_ddo(asset1, metadata_provider_instance):
     # wait for elasticsearch
     time.sleep(3)
 
-    assert len(metadata_provider_instance.list_assets()) == (n + 1)
+    assert len(metadata_provider_instance.list_assets()) == n + 1
     metadata_provider_instance.retire_asset_ddo(asset1.did)
 
     # wait for elasticsearch
