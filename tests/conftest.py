@@ -228,6 +228,7 @@ def setup_agreements_proof_environment(proof_ddo):
         keeper,
         publisher_acc,
         consumer_acc,
+        agreement_id_seed,
         agreement_id,
         asset_id,
         price,

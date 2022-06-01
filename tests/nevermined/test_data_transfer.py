@@ -108,6 +108,7 @@ def test_agreement_status(setup_agreements_proof_environment, agreements):
         keeper,
         publisher_acc,
         consumer_acc,
+        agreement_id_seed,
         agreement_id,
         asset_id,
         price,
@@ -122,7 +123,7 @@ def test_agreement_status(setup_agreements_proof_environment, agreements):
     proof = call_prover(consumer_acc.babyjub_address, provider_secret, '0x'+get_key())
 
     success = keeper.access_proof_template.create_agreement(
-        agreement_id,
+        agreement_id_seed,
         asset_id,
         [access_cond_id[0], lock_cond_id[0], escrow_cond_id[0]],
         service_agreement.conditions_timelocks,
