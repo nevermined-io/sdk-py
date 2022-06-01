@@ -1,4 +1,5 @@
 import logging
+from time import sleep
 from contracts_lib_py.keeper import Keeper
 
 import pytest
@@ -245,6 +246,7 @@ def test_assets_resolve(publisher_instance, metadata):
 def test_assets_search(publisher_instance, metadata):
     publisher = publisher_instance.main_account
     ddo = publisher_instance.assets.create(metadata, publisher)
+    sleep(3)
     assert len(publisher_instance.assets.search('Monkey')) > 0
     publisher_instance.assets.retire(ddo.did, publisher)
 

@@ -89,33 +89,22 @@ def test_update_with_not_valifd_ddo(asset1, metadata_provider_instance):
 
 
 def test_text_search(asset1, asset2, metadata_provider_instance):
-    result = metadata_provider_instance.text_search(text='Weather information', offset=10000)
-    before_number_matches = result['total_results']['value']
     metadata_provider_instance.publish_asset_ddo(asset1)
-
     # wait for it to be searcheable
     time.sleep(3)
 
     result = metadata_provider_instance.text_search(text='Weather information', offset=10000)
-    after_number_matches = result['total_results']['value']
-    assert after_number_matches == before_number_matches + 1
+    number_matches = result['total_results']['value']
+    assert number_matches > 0
 
     text = 'UK'
-    result = metadata_provider_instance.text_search(text=text, offset=10000)
-    before_number_matches_2 = result['total_results']['value']
     metadata_provider_instance.publish_asset_ddo(asset2)
-
     # wait for it to be searcheable
     time.sleep(3)
 
     result = metadata_provider_instance.text_search(text=text, offset=10000)
-    after_number_matches_2 = result['total_results']['value']
-    assert after_number_matches_2 == (before_number_matches_2 + 1)
-
-    result = metadata_provider_instance.text_search(text='Weather information', offset=10000)
-    total_matches = result['total_results']['value']
-
-    assert total_matches == (before_number_matches + 2)
+    number_matches = result['total_results']['value']
+    assert number_matches > 0
 
     metadata_provider_instance.retire_asset_ddo(asset1.did)
     metadata_provider_instance.retire_asset_ddo(asset2.did)
@@ -173,14 +162,8 @@ def test_retire_ddo(asset1, metadata_provider_instance):
     # wait for elasticsearch
     time.sleep(3)
 
-    assert len(metadata_provider_instance.list_assets()) == n + 1
-    metadata_provider_instance.retire_asset_ddo(asset1.did)
-
-    # wait for elasticsearch
-    time.sleep(3)
-
-    assert len(metadata_provider_instance.list_assets()) == n
-
+    response = metadata_provider_instance.retire_asset_ddo(asset1.did)
+    assert response.ok is True
 
 def test_retire_not_published_did(metadata_provider_instance):
     with pytest.raises(Exception):
