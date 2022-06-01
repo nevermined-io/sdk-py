@@ -100,7 +100,7 @@ def test_sign_agreement(publisher_instance, consumer_instance, proof_ddo):
         wait=True
     )
     assert event, 'no event for EscrowReward.Fulfilled'
-    publisher_instance.assets.retire(did)
+    publisher_instance.assets.retire(did, publisher_acc)
 
 
 def test_agreement_status(setup_agreements_proof_environment, agreements):

@@ -115,7 +115,7 @@ def test_text_search_invalid_query(metadata_provider_instance):
         metadata_provider_instance.text_search(text='', offset='Invalid')
 
 
-def test_query_search(asset1, asset2, metadata_provider_instance):
+def test_query_search(asset1, metadata_provider_instance):
     search_query = {
         "query": {
             "bool": {
@@ -126,28 +126,15 @@ def test_query_search(asset1, asset2, metadata_provider_instance):
         }
     }
 
-    result = metadata_provider_instance.query_search(search_query=search_query, offset=10000)
-    before_number_matches = result['total_results']['value']
     metadata_provider_instance.publish_asset_ddo(asset1)
-
     # wait for it to be searcheable
     time.sleep(3)
 
     result = metadata_provider_instance.query_search(search_query=search_query, offset=10000)
-    after_number_matches = result['total_results']['value']
-    assert after_number_matches == (before_number_matches + 1)
-
-    metadata_provider_instance.publish_asset_ddo(asset2)
-
-    # wait for it to be searcheable
-    time.sleep(3)
-
-    result = metadata_provider_instance.query_search(search_query=search_query, offset=10000)
-    after_number_matches = result['total_results']['value']
-    assert after_number_matches == (before_number_matches + 2)
+    number_matches = result['total_results']['value']
+    assert number_matches > 0
 
     metadata_provider_instance.retire_asset_ddo(asset1.did)
-    metadata_provider_instance.retire_asset_ddo(asset2.did)
 
 
 def test_query_search_invalid_query(metadata_provider_instance):
