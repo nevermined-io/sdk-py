@@ -98,7 +98,7 @@ def test_text_search(asset1, asset2, metadata_provider_instance):
 
     result = metadata_provider_instance.text_search(text='Weather information', offset=10000)
     after_number_matches = result['total_results']['value']
-    assert after_number_matches == (before_number_matches + 1)
+    assert after_number_matches == before_number_matches + 1
 
     text = 'UK'
     result = metadata_provider_instance.text_search(text=text, offset=10000)

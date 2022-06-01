@@ -302,7 +302,7 @@ def test_grant_permissions(publisher_instance, metadata, consumer_instance):
 
     publisher_instance.assets.retire(ddo.did, publisher)
 
-
+@pytest.mark.skip(reason='Compute stack disabled for now. See https://github.com/nevermined-io/internal/issues/218')
 def test_execute_workflow(publisher_instance_no_init, consumer_instance_no_init, metadata, algorithm_ddo, workflow_ddo):
     consumer = publisher_instance_no_init.main_account
     publisher = consumer_instance_no_init.main_account
@@ -341,6 +341,7 @@ def test_execute_workflow(publisher_instance_no_init, consumer_instance_no_init,
     publisher_instance_no_init.assets.retire(workflow_ddo.did, publisher)
 
 
+@pytest.mark.skip(reason='Compute stack disabled for now. See https://github.com/nevermined-io/internal/issues/218')
 def test_compute_status(publisher_instance_no_init, consumer_instance_no_init, metadata, algorithm_ddo, workflow_ddo):
     consumer = publisher_instance_no_init.main_account
     publisher = consumer_instance_no_init.main_account

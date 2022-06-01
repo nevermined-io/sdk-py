@@ -86,7 +86,7 @@ def test_sign_agreement(publisher_instance, consumer_instance, proof_ddo):
         keeper, service_agreement.get_param_value_by_name('_tokenAddress'))
 
     tx_hash = keeper.escrow_payment_condition.fulfill(
-        agreement_id, asset_id, amounts, receivers,
+        agreement_id, asset_id, amounts, receivers, consumer_acc.address,
         keeper.escrow_payment_condition.address, token_address, lock_cond_id,
         access_cond_id, publisher_acc
     )
