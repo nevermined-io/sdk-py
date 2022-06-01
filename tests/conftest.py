@@ -216,11 +216,13 @@ def setup_agreements_proof_environment(proof_ddo):
     service_agreement = ServiceAgreement.from_ddo(ServiceTypes.ASSET_ACCESS_PROOF, ddo)
     agreement_id = ServiceAgreement.create_new_agreement_id()
     price = service_agreement.get_price()
-    access_cond_id, lock_cond_id, escrow_cond_id = \
-        service_agreement.generate_agreement_condition_ids(
-            agreement_id, asset_id, consumer_acc.address, keeper,
-            babyjub_pk=consumer_acc.babyjub_address
-        )
+
+    ((agreement_id_seed, agreement_id), *conditions) = service_agreement.generate_agreement_condition_ids(
+        agreement_id, asset_id, consumer_acc.address, keeper,
+        babyjub_pk=consumer_acc.babyjub_address
+    )
+
+    access_cond_id, lock_cond_id, escrow_cond_id = conditions
 
     return (
         keeper,

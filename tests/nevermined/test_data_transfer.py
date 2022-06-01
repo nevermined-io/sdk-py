@@ -124,7 +124,7 @@ def test_agreement_status(setup_agreements_proof_environment, agreements):
     success = keeper.access_proof_template.create_agreement(
         agreement_id,
         asset_id,
-        [access_cond_id, lock_cond_id, escrow_cond_id],
+        [access_cond_id[0], lock_cond_id[0], escrow_cond_id[0]],
         service_agreement.conditions_timelocks,
         service_agreement.conditions_timeouts,
         consumer_acc.address,
