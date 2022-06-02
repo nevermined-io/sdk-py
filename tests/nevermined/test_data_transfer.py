@@ -117,10 +117,11 @@ def test_agreement_status(setup_agreements_proof_environment, agreements):
 
     ) = setup_agreements_proof_environment
 
+    keeper.dispenser.request_tokens(100, consumer_acc)
+
     consumer_acc.babyjub_address = get_buyer_public_key()
     publisher_acc.babyjub_address = get_provider_public_key()
     provider_secret = get_provider_babyjub_key().secret
-    proof = call_prover(consumer_acc.babyjub_address, provider_secret, '0x'+get_key())
 
     success = keeper.access_proof_template.create_agreement(
         agreement_id_seed,
@@ -129,7 +130,7 @@ def test_agreement_status(setup_agreements_proof_environment, agreements):
         service_agreement.conditions_timelocks,
         service_agreement.conditions_timeouts,
         consumer_acc.address,
-        publisher_acc
+        consumer_acc
     )
     assert success, f'createAgreement failed {success}'
     event = keeper.access_proof_template.subscribe_agreement_created(
@@ -146,6 +147,7 @@ def test_agreement_status(setup_agreements_proof_environment, agreements):
                                                               "escrowReward": 1
                                                               }
                                                }
+
 
     amounts = service_agreement.get_amounts_int()
     receivers = service_agreement.get_receivers()
@@ -169,6 +171,7 @@ def test_agreement_status(setup_agreements_proof_environment, agreements):
                                                               "escrowReward": 1
                                                               }
                                                }
+    proof = call_prover(consumer_acc.babyjub_address, provider_secret, '0x'+get_key())
     tx_hash = keeper.access_proof_condition.fulfill(
         agreement_id, proof['hash'], consumer_acc.babyjub_address, publisher_acc.babyjub_address, proof['cipher'], proof['proof'], publisher_acc
     )
@@ -189,9 +192,9 @@ def test_agreement_status(setup_agreements_proof_environment, agreements):
                                                }
 
     tx_hash = keeper.escrow_payment_condition.fulfill(
-        agreement_id, asset_id, amounts, receivers,
-        keeper.escrow_payment_condition.address, token_address, lock_cond_id,
-        access_cond_id, publisher_acc
+        agreement_id, asset_id, amounts, receivers, consumer_acc.address,
+        keeper.escrow_payment_condition.address, token_address, lock_cond_id[1],
+        access_cond_id[1], publisher_acc
     )
     keeper.escrow_payment_condition.get_tx_receipt(tx_hash)
     event = keeper.escrow_payment_condition.subscribe_condition_fulfilled(
