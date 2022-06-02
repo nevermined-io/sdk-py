@@ -5,85 +5,84 @@ name: Python package
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.7]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Set up node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: '14.x'
-    - name: Install rapidsnark
-      run: |
-        git clone https://github.com/nevermined-io/rapidsnark
-        cd rapidsnark
-        git submodule update --init --recursive
-        sh ./scripts/install-linux.sh
-        cd ..
-        rm -rf rapidsnark
+      - name: Set up node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.x"
+      - name: Install rapidsnark
+        run: |
+          git clone https://github.com/nevermined-io/rapidsnark
+          cd rapidsnark
+          git submodule update --init --recursive
+          sh ./scripts/install-linux.sh
+          cd ..
+          rm -rf rapidsnark
 
-    - name: Install minikube v1.22.0
-      run: |
-        wget https://storage.googleapis.com/minikube/releases/v1.22.0/minikube-linux-amd64
-        chmod +x minikube-linux-amd64
-        sudo mv minikube-linux-amd64 /usr/local/bin/minikube
+      - name: Install minikube v1.22.0
+        run: |
+          wget https://storage.googleapis.com/minikube/releases/v1.22.0/minikube-linux-amd64
+          chmod +x minikube-linux-amd64
+          sudo mv minikube-linux-amd64 /usr/local/bin/minikube
 
-    - name: Reclaim some disk space
-      run : |
+      - name: Reclaim some disk space
+        run: |
           docker system prune --all --volumes -f
 
-    - name: Start Nevermined
-      run: |
-        docker login -u ${{ secrets.NEVERMINED_DOCKER_USERNAME }} -p ${{ secrets.NEVERMINED_DOCKER_TOKEN}}
-        git clone https://github.com/nevermined-io/tools nevermined-tools
-        cd nevermined-tools
-        rm -rf "${HOME}/.nevermined/nevermined-contracts/artifacts"
+      - name: Start Nevermined
+        run: |
+          docker login -u ${{ secrets.NEVERMINED_DOCKER_USERNAME }} -p ${{ secrets.NEVERMINED_DOCKER_TOKEN}}
+          git clone https://github.com/nevermined-io/tools nevermined-tools
+          cd nevermined-tools
+          rm -rf "${HOME}/.nevermined/nevermined-contracts/artifacts"
 
-        # start nevermined with the compute stack
-        ./start_nevermined.sh --latest --no-marketplace --local-spree-node --compute --spree-embedded-contracts &
+          export KEEPER_VERSION=develop
+          export GATEWAY_VERSION=develop
 
-        # wait for the compute api to be online.
-        # the compute api is the last service to come online
-        ./scripts/wait_for_compute_api.sh
-        # extract contracts
-        cd ..
-        ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
+          # start nevermined with the compute stack
+          ./start_nevermined.sh --no-marketplace --no-metadata --local-spree-node --geth --marketplace-api &
 
-    - name: Install python package
-      run: |
-        pip install pip==20.2.4
-        pip install -r requirements_dev.txt
-    - name: Test with pytest
-      run: |
-        export PARITY_ADDRESS=0x00bd138abd70e2f00903268f3db08f2d25677c9e
-        export PARITY_PASSWORD=node0
-        export PARITY_KEYFILE=tests/resources/data/key_file_2.json
-        export PARITY_ADDRESS1=0x068ed00cf0441e4829d9784fcbe7b9e26d4bd8d0
-        export PARITY_PASSWORD1=secret
-        export PARITY_KEYFILE1=tests/resources/data/key_file_1.json
-        export INFURA_TOKEN=${{ secrets.INFURA_TOKEN }}
+          # extract contracts
+          cd ..
+          ./scripts/wait_for_migration_and_extract_keeper_artifacts.sh
 
-        export PROVIDER_BABYJUB_SECRET=abc                              
-        export BUYER_BABYJUB_SECRET=abd
-        export PROVIDER_BABYJUB_PUBLIC1=0x2e3133fbdaeb5486b665ba78c0e7e749700a5c32b1998ae14f7d1532972602bb
-        export PROVIDER_BABYJUB_PUBLIC2=0x0b932f02e59f90cdd761d9d5e7c15c8e620efce4ce018bf54015d68d9cb35561
-        export BUYER_BABYJUB_PUBLIC1=0x0d7cdd240c2f5b0640839c49fbaaf016a8c5571b8f592e2b62ea939063545981
-        export BUYER_BABYJUB_PUBLIC2=0x14b14fa0a30ec744dde9f32d519c65ebaa749bfe991a32deea44b83a4e5c65bb
+      - name: Install python package
+        run: |
+          pip install pip==20.2.4
+          pip install -r requirements_dev.txt
+      - name: Test with pytest
+        run: |
+          export INFURA_TOKEN=${{ secrets.INFURA_TOKEN }}
+          export PARITY_ADDRESS=0x00bd138abd70e2f00903268f3db08f2d25677c9e
+          export PARITY_PASSWORD=node0
+          export PARITY_KEYFILE=tests/resources/data/key_file_2.json
+          export PARITY_ADDRESS1=0x068ed00cf0441e4829d9784fcbe7b9e26d4bd8d0
+          export PARITY_PASSWORD1=secret
+          export PARITY_KEYFILE1=tests/resources/data/key_file_1.json
 
-        pip install pytest
-        pytest -v
+          export PROVIDER_BABYJUB_SECRET=abc
+          export BUYER_BABYJUB_SECRET=abd
+          export PROVIDER_BABYJUB_PUBLIC1=0x2e3133fbdaeb5486b665ba78c0e7e749700a5c32b1998ae14f7d1532972602bb
+          export PROVIDER_BABYJUB_PUBLIC2=0x0b932f02e59f90cdd761d9d5e7c15c8e620efce4ce018bf54015d68d9cb35561
+          export BUYER_BABYJUB_PUBLIC1=0x0d7cdd240c2f5b0640839c49fbaaf016a8c5571b8f592e2b62ea939063545981
+          export BUYER_BABYJUB_PUBLIC2=0x14b14fa0a30ec744dde9f32d519c65ebaa749bfe991a32deea44b83a4e5c65bb
+
+          pip install pytest
+          pytest -v

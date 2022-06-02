@@ -27,17 +27,17 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
     price = service_agreement.get_price()
 
     # Give consumer some tokens
-    keeper.dispenser.request_vodkas(price * 2, consumer_acc)
+    keeper.dispenser.request_tokens(100, consumer_acc)
 
-    agreement_id, signature = consumer_instance.agreements.prepare(
-        did, consumer_acc, ServiceTypesIndices.DEFAULT_ACCESS_INDEX)
+    agreement_id_seed = ServiceAgreement.create_new_agreement_id()
+    agreement_id = keeper.agreement_manager.hash_id(agreement_id_seed, consumer_acc.address)
 
     success = publisher_instance.agreements.create(
         did,
         ServiceTypesIndices.DEFAULT_ACCESS_INDEX,
-        agreement_id,
+        agreement_id_seed,
         consumer_acc,
-        publisher_acc
+        consumer_acc
     )
     assert success, 'createAgreement failed.'
 
@@ -79,7 +79,7 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
         keeper, service_agreement.get_param_value_by_name('_tokenAddress'))
 
     tx_hash = keeper.escrow_payment_condition.fulfill(
-        agreement_id, asset_id, amounts, receivers,
+        agreement_id, asset_id, amounts, receivers, consumer_acc.address,
         keeper.escrow_payment_condition.address, token_address, lock_cond_id,
         access_cond_id, publisher_acc
     )
@@ -93,15 +93,15 @@ def test_sign_agreement(publisher_instance, consumer_instance, registered_ddo):
         wait=True
     )
     assert event, 'no event for EscrowReward.Fulfilled'
-    publisher_instance.assets.retire(did)
+    publisher_instance.assets.retire(did, publisher_acc)
 
 
-# @pytest.mark.skip(reason="Failing some times with actions")
 def test_agreement_status(setup_agreements_environment, agreements):
     (
         keeper,
         publisher_acc,
         consumer_acc,
+        agreement_id_seed,
         agreement_id,
         asset_id,
         price,
@@ -110,16 +110,20 @@ def test_agreement_status(setup_agreements_environment, agreements):
 
     ) = setup_agreements_environment
 
+    # Give consumer some tokens
+    keeper.dispenser.request_tokens(100, consumer_acc)
+
     success = keeper.access_template.create_agreement(
-        agreement_id,
+        agreement_id_seed,
         asset_id,
-        [access_cond_id, lock_cond_id, escrow_cond_id],
+        [access_cond_id[0], lock_cond_id[0], escrow_cond_id[0]],
         service_agreement.conditions_timelocks,
         service_agreement.conditions_timeouts,
         consumer_acc.address,
-        publisher_acc
+        consumer_acc
     )
     print('create agreement: ', success)
+    print('--- agreement_id', agreement_id)
     assert success, f'createAgreement failed {success}'
     event = keeper.access_template.subscribe_agreement_created(
         agreement_id,
@@ -177,9 +181,9 @@ def test_agreement_status(setup_agreements_environment, agreements):
                                                }
 
     tx_hash = keeper.escrow_payment_condition.fulfill(
-        agreement_id, asset_id, amounts, receivers,
-        keeper.escrow_payment_condition.address, token_address, lock_cond_id,
-        access_cond_id, publisher_acc
+        agreement_id, asset_id, amounts, receivers, consumer_acc.address,
+        keeper.escrow_payment_condition.address, token_address, lock_cond_id[1],
+        access_cond_id[1], publisher_acc
     )
     keeper.escrow_payment_condition.get_tx_receipt(tx_hash)
     event = keeper.escrow_payment_condition.subscribe_condition_fulfilled(

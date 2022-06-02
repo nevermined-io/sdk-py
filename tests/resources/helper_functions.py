@@ -240,13 +240,13 @@ def get_registered_ddo_nft(nevermined_instance, account):
         "_receivers": _receivers
     }
 
-    metadata['main']['price'] = _total_price
+    metadata['main']['price'] = str(_total_price)
 
     access_service_attributes = {"main": {
         "name": "nftAccessAgreement",
         "creator": account.address,
         "timeout": 3600,
-        "price": _total_price,
+        "price": str(_total_price),
         "_amounts": _amounts,
         "_receivers": _receivers,
         "_numberNfts": str(_number_nfts),

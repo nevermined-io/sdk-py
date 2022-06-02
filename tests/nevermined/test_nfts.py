@@ -33,6 +33,8 @@ def test_nfts_flow(publisher_instance_no_init, consumer_instance_no_init):
     amounts = sa_sales.get_amounts_int()
     receivers = sa_sales.get_receivers()
     number_nfts = sa_sales.get_number_nfts()
+    nft_contract_address = sa_sales.get_nft_contract_address()
+    nft_transfer = sa_sales.get_nft_transfer_or_mint()
     token_address = keeper.token.address
 
     sales_agreement_id = consumer_instance_no_init.assets.order(
@@ -52,6 +54,8 @@ def test_nfts_flow(publisher_instance_no_init, consumer_instance_no_init):
         consumer_account.address,
         nft_amounts,
         lock_cond_id,
+        nft_contract_address,
+        nft_transfer,
         pub_acc
     )
 
@@ -61,6 +65,7 @@ def test_nfts_flow(publisher_instance_no_init, consumer_instance_no_init):
         asset_id,
         amounts,
         receivers,
+        consumer_account.address,
         keeper.escrow_payment_condition.address,
         token_address,
         lock_cond_id,
@@ -114,6 +119,7 @@ def test_nfts_flow(publisher_instance_no_init, consumer_instance_no_init):
 
     no_agreement_id = '0x'
 
+
     assert consumer_instance_no_init.assets.access(
         no_agreement_id,
         ddo.did,
@@ -125,19 +131,23 @@ def test_nfts_flow(publisher_instance_no_init, consumer_instance_no_init):
 
     # AND HERE CHECKING CREATING AN AGREEMENT FIRST
     nft_access_service_agreement = ServiceAgreement.from_ddo(ServiceTypes.NFT_ACCESS, ddo)
-    nft_access_agreement_id = ServiceAgreement.create_new_agreement_id()
-    (nft_access_cond_id, nft_holder_cond_id) = nft_access_service_agreement.generate_agreement_condition_ids(
-        nft_access_agreement_id, asset_id, consumer_account.address, keeper)
+    nft_access_agreement_id_seed = ServiceAgreement.create_new_agreement_id()
 
-    keeper.nft_access_template.create_agreement(
-        nft_access_agreement_id,
+    ((nft_access_agreement_id_seed, nft_access_agreement_id), *conditions) = nft_access_service_agreement.generate_agreement_condition_ids(
+        nft_access_agreement_id_seed, asset_id, consumer_account.address, keeper, pub_acc.address)
+
+    (nft_access_cond_id, nft_holder_cond_id) = conditions
+
+    result = keeper.nft_access_template.create_agreement(
+        nft_access_agreement_id_seed,
         asset_id,
-        [nft_holder_cond_id, nft_access_cond_id],
+        [nft_holder_cond_id[0], nft_access_cond_id[0]],
         nft_access_service_agreement.conditions_timelocks,
         nft_access_service_agreement.conditions_timeouts,
         consumer_account.address,
         pub_acc
     )
+    assert result is True
 
     event = keeper.nft_access_template.subscribe_agreement_created(
         nft_access_agreement_id,

@@ -42,7 +42,7 @@ def setup_all():
 def metadata_provider_instance():
     config = ExampleConfig.get_config()
     ConfigProvider.set_config(config)
-    return Metadata(ConfigProvider.get_config().metadata_url)
+    return Metadata(ConfigProvider.get_config().metadata_url, get_publisher_account())
 
 @pytest.fixture
 def secret_store():
@@ -99,7 +99,7 @@ def asset1():
     asset = _get_asset(
         'https://raw.githubusercontent.com/nevermined-io/docs/master/docs/architecture/specs'
         '/examples/access/v0.1/ddo1.json')
-    asset._did = DID.encoded_did(asset.proof['checksum'])
+    asset._did = DID.did(generate_prefixed_id())
     return asset
 
 @pytest.fixture
@@ -107,7 +107,7 @@ def asset2():
     asset = _get_asset(
         'https://raw.githubusercontent.com/nevermined-io/docs/master/docs/architecture/specs'
         '/examples/access/v0.1/ddo2-update.json')
-    asset._did = DID.encoded_did(asset.proof['checksum'])
+    asset._did = DID.did(generate_prefixed_id())
     return  asset
 
 @pytest.fixture
@@ -172,17 +172,19 @@ def setup_agreements_environment(ddo_sample):
     )
 
     service_agreement = ServiceAgreement.from_ddo(ServiceTypes.ASSET_ACCESS, ddo)
-    agreement_id = ServiceAgreement.create_new_agreement_id()
+    agreement_id_seed = ServiceAgreement.create_new_agreement_id()
     price = service_agreement.get_price()
-    access_cond_id, lock_cond_id, escrow_cond_id = \
-        service_agreement.generate_agreement_condition_ids(
-            agreement_id, asset_id, consumer_acc.address, keeper
-        )
+
+    ((agreement_id_seed, agreement_id), *conditions) = service_agreement.generate_agreement_condition_ids(
+            agreement_id_seed, asset_id, consumer_acc.address, keeper, token_address=keeper.token.address)
+
+    access_cond_id, lock_cond_id, escrow_cond_id = conditions
 
     return (
         keeper,
         publisher_acc,
         consumer_acc,
+        agreement_id_seed,
         agreement_id,
         asset_id,
         price,
@@ -212,17 +214,21 @@ def setup_agreements_proof_environment(proof_ddo):
     )
 
     service_agreement = ServiceAgreement.from_ddo(ServiceTypes.ASSET_ACCESS_PROOF, ddo)
-    agreement_id = ServiceAgreement.create_new_agreement_id()
+    agreement_id_seed = ServiceAgreement.create_new_agreement_id()
     price = service_agreement.get_price()
-    access_cond_id, lock_cond_id, escrow_cond_id = \
-        service_agreement.generate_agreement_condition_ids(
-            agreement_id, asset_id, consumer_acc.babyjub_address, keeper
-        )
+
+    ((agreement_id_seed, agreement_id), *conditions) = service_agreement.generate_agreement_condition_ids(
+        agreement_id_seed, asset_id, consumer_acc.address, keeper,
+        babyjub_pk=consumer_acc.babyjub_address
+    )
+
+    access_cond_id, lock_cond_id, escrow_cond_id = conditions
 
     return (
         keeper,
         publisher_acc,
         consumer_acc,
+        agreement_id_seed,
         agreement_id,
         asset_id,
         price,

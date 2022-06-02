@@ -1,4 +1,5 @@
 import pytest
+import time
 
 def test_get_service_endpoint(metadata_provider_instance):
     assert metadata_provider_instance.get_service_endpoint() == f'{metadata_provider_instance.url}/' + '{did}'
@@ -24,7 +25,8 @@ def test_publish_ddo_already_registered(asset1, metadata_provider_instance):
 
 def test_get_asset_ddo_for_not_registered_did(metadata_provider_instance):
     invalid_did = 'did:nv:not_valid'
-    assert metadata_provider_instance.get_asset_ddo(invalid_did) == {}
+    result = metadata_provider_instance.get_asset_ddo(invalid_did)
+    assert result == {}
 
 
 def test_get_asset_metadata(asset1, metadata_provider_instance):
@@ -39,14 +41,19 @@ def test_get_asset_metadata(asset1, metadata_provider_instance):
 
 def test_get_asset_metadata_for_not_registered_did(metadata_provider_instance):
     invalid_did = 'did:nv:not_valid'
-    with pytest.raises(ValueError):
-        metadata_provider_instance.get_asset_metadata(invalid_did)
+    metadata_dict = metadata_provider_instance.get_asset_metadata(invalid_did)
+    assert metadata_dict == {}
 
 
 def test_list_assets(asset1, metadata_provider_instance):
-    num_assets = len(metadata_provider_instance.list_assets())
-    metadata_provider_instance.publish_asset_ddo(asset1)
-    assert len(metadata_provider_instance.list_assets()) == (num_assets + 1)
+    ddo = metadata_provider_instance.publish_asset_ddo(asset1)
+
+    # wait for it to be searcheable
+    time.sleep(3)
+
+    assert ddo['id'] == asset1.did
+    assert ddo['id'] in metadata_provider_instance.list_assets()
+
     assets = metadata_provider_instance.list_assets()
     assert isinstance(assets, list)
     assert isinstance(assets[0], str)
@@ -54,10 +61,15 @@ def test_list_assets(asset1, metadata_provider_instance):
 
 
 def test_list_assets_ddo(asset1, metadata_provider_instance):
-    num_assets = len(metadata_provider_instance.list_assets_ddo())
-    metadata_provider_instance.publish_asset_ddo(asset1)
-    assert len(metadata_provider_instance.list_assets_ddo()) == (num_assets + 1)
-    assert isinstance(metadata_provider_instance.list_assets_ddo(), dict)
+    ddo = metadata_provider_instance.publish_asset_ddo(asset1)
+
+    # wait for it to be searcheable
+    time.sleep(3)
+
+    assert ddo['id'] == asset1.did
+    assert ddo in metadata_provider_instance.list_assets_ddo()
+
+    assert isinstance(metadata_provider_instance.list_assets_ddo(), list)
     metadata_provider_instance.retire_asset_ddo(asset1.did)
 
 
@@ -71,27 +83,29 @@ def test_update_ddo(asset1, asset2, metadata_provider_instance):
     metadata_provider_instance.retire_asset_ddo(asset1.did)
 
 
-def test_update_with_not_valid_ddo(asset1, metadata_provider_instance):
+def test_update_with_not_valifd_ddo(asset1, metadata_provider_instance):
     with pytest.raises(Exception):
         metadata_provider_instance.update_asset_ddo(asset1.did, {})
 
 
 def test_text_search(asset1, asset2, metadata_provider_instance):
-    office_matches = 0
     metadata_provider_instance.publish_asset_ddo(asset1)
-    assert len(
-        metadata_provider_instance.text_search(text='Weather information', offset=10000)['results']) == (
-                   office_matches + 1)
+    # wait for it to be searcheable
+    time.sleep(3)
+
+    result = metadata_provider_instance.text_search(text='Weather information', offset=10000)
+    number_matches = result['total_results']['value']
+    assert number_matches > 0
 
     text = 'UK'
-    id_matches2 = len(metadata_provider_instance.text_search(text=text, offset=10000)['results'])
     metadata_provider_instance.publish_asset_ddo(asset2)
-    assert len(metadata_provider_instance.text_search(text=text, offset=10000)['results']) == (
-            id_matches2 + 1)
+    # wait for it to be searcheable
+    time.sleep(3)
 
-    assert len(
-        metadata_provider_instance.text_search(text='Weather information', offset=10000)['results']) == (
-                   office_matches + 2)
+    result = metadata_provider_instance.text_search(text=text, offset=10000)
+    number_matches = result['total_results']['value']
+    assert number_matches > 0
+
     metadata_provider_instance.retire_asset_ddo(asset1.did)
     metadata_provider_instance.retire_asset_ddo(asset2.did)
 
@@ -101,10 +115,7 @@ def test_text_search_invalid_query(metadata_provider_instance):
         metadata_provider_instance.text_search(text='', offset='Invalid')
 
 
-def test_query_search(asset1, asset2, metadata_provider_instance):
-    num_matches = 0
-    metadata_provider_instance.publish_asset_ddo(asset1)
-
+def test_query_search(asset1, metadata_provider_instance):
     search_query = {
         "query": {
             "bool": {
@@ -114,17 +125,16 @@ def test_query_search(asset1, asset2, metadata_provider_instance):
             }
         }
     }
-    assert len(metadata_provider_instance.query_search(search_query=search_query,
-                                              offset=10000)['results']) == (
-                   num_matches + 1)
 
-    metadata_provider_instance.publish_asset_ddo(asset2)
+    metadata_provider_instance.publish_asset_ddo(asset1)
+    # wait for it to be searcheable
+    time.sleep(3)
 
-    assert len(metadata_provider_instance.query_search(search_query=search_query,
-                                              offset=10000)['results']) == (
-                   num_matches + 2)
+    result = metadata_provider_instance.query_search(search_query=search_query, offset=10000)
+    number_matches = result['total_results']['value']
+    assert number_matches > 0
+
     metadata_provider_instance.retire_asset_ddo(asset1.did)
-    metadata_provider_instance.retire_asset_ddo(asset2.did)
 
 
 def test_query_search_invalid_query(metadata_provider_instance):
@@ -135,15 +145,12 @@ def test_query_search_invalid_query(metadata_provider_instance):
 def test_retire_ddo(asset1, metadata_provider_instance):
     n = len(metadata_provider_instance.list_assets())
     metadata_provider_instance.publish_asset_ddo(asset1)
-    assert len(metadata_provider_instance.list_assets()) == (n + 1)
-    metadata_provider_instance.retire_asset_ddo(asset1.did)
-    assert len(metadata_provider_instance.list_assets()) == n
 
+    # wait for elasticsearch
+    time.sleep(3)
 
-def test_retire_all_ddos(asset1, metadata_provider_instance):
-    metadata_provider_instance.retire_all_assets()
-    assert len(metadata_provider_instance.list_assets()) == 0
-
+    response = metadata_provider_instance.retire_asset_ddo(asset1.did)
+    assert response.ok is True
 
 def test_retire_not_published_did(metadata_provider_instance):
     with pytest.raises(Exception):

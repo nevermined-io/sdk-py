@@ -21,7 +21,7 @@ class ExampleConfig:
             "secret_store.url": "http://172.17.0.1:12001",
         },
         "resources": {
-            "metadata.url": "http://172.17.0.1:5000",
+            "metadata.url": "http://172.17.0.1:3100",
             "gateway.url": "http://172.17.0.1:8030",
             "storage.path": "sdk.db",
             "downloads.path": "access-downloads"

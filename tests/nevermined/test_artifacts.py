@@ -13,11 +13,11 @@ INFURA_TOKEN = os.environ.get("INFURA_TOKEN")
 
 
 @pytest.mark.parametrize("keeper_url,network_name", [
-    [f"https://mainnet.infura.io/v3/{INFURA_TOKEN}", "mainnet"],
-    [f"https://rinkeby.infura.io/v3/{INFURA_TOKEN}", "rinkeby"],
-    ("http://localhost:8545", "spree"),
-    (f"https://polygon-mumbai.infura.io/v3/{INFURA_TOKEN}", "mumbai"),
-    ("https://alfajores-forno.celo-testnet.org", "celo-alfajores")
+    [f"https://mainnet.infura.io/v3/{INFURA_TOKEN}", ["mainnet"]],
+    [f"https://rinkeby.infura.io/v3/{INFURA_TOKEN}", ["rinkeby"]],
+    ("http://localhost:8545", ["spree", "geth-localnet"]),
+    (f"https://polygon-mumbai.infura.io/v3/{INFURA_TOKEN}", ["mumbai"]),
+    ("https://alfajores-forno.celo-testnet.org", ["celo-alfajores"])
 ])
 def test_artifact(keeper_url, network_name):
     options = {
@@ -30,4 +30,4 @@ def test_artifact(keeper_url, network_name):
     ConfigProvider.set_config(config)
 
     nevermined = Nevermined()
-    assert nevermined.keeper.network_name == network_name
+    assert nevermined.keeper.network_name in network_name

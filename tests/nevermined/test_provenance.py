@@ -31,7 +31,7 @@ def test_get_provenance(publisher_instance, ddo_sample):
     assert provenance_entry['method'] == 3
     assert provenance_entry['created_by'] == publisher.address
 
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
 
 
 def test_delegate_provenance(publisher_instance, consumer_instance, ddo_sample):

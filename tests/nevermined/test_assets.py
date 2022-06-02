@@ -1,4 +1,5 @@
 import logging
+from time import sleep
 from contracts_lib_py.keeper import Keeper
 
 import pytest
@@ -21,7 +22,11 @@ def create_asset(publisher_instance, ddo_sample):
     auth_service = ServiceDescriptor.authorization_service_descriptor(
         {'main': {'service': 'SecretStore', 'publicKey': '0casd',
                   'threshold': '1'}}, my_secret_store)
-    return nevermined.assets.create(asset.metadata, acct, [auth_service])
+    asset_rewards = {
+        "_amounts": ["10", "2"],
+        "_receivers": ["0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e", "0x068ed00cf0441e4829d9784fcbe7b9e26d4bd8d0"]
+    }
+    return nevermined.assets.create(asset.metadata, acct, [auth_service], asset_rewards=asset_rewards)
 
 
 def test_register_asset(publisher_instance, ddo_sample):
@@ -47,7 +52,7 @@ def test_register_asset(publisher_instance, ddo_sample):
     # Register using high-level interface
     ##########################################################
     ddo = publisher_instance.assets.create(asset.metadata, publisher)
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
 
 
 def test_resolve_did(publisher_instance, metadata):
@@ -79,7 +84,7 @@ def test_resolve_did(publisher_instance, metadata):
     invalid_did = "did:nv:0123456789"
     with pytest.raises(DIDNotFound):
         publisher_instance.assets.resolve(invalid_did)
-    publisher_instance.assets.retire(did)
+    publisher_instance.assets.retire(did, publisher)
 
 
 def test_create_data_asset(publisher_instance, consumer_instance, ddo_sample):
@@ -121,7 +126,7 @@ def test_create_data_asset(publisher_instance, consumer_instance, ddo_sample):
 
     if asset.did in meta_data_assets:
         publisher_instance.assets.resolve(asset.did)
-        publisher_instance.assets.retire(asset.did)
+        publisher_instance.assets.retire(asset.did, publisher_acct)
     # Publish the metadata
     new_asset = publisher_instance.assets.create(asset.metadata, publisher_acct)
 
@@ -132,7 +137,7 @@ def test_create_data_asset(publisher_instance, consumer_instance, ddo_sample):
     # only compare top level keys
     assert sorted(list(asset.metadata['main'].keys())).remove('files') == sorted(
         list(published_metadata.metadata.keys())).remove('encryptedFiles')
-    publisher_instance.assets.retire(new_asset.did)
+    publisher_instance.assets.retire(new_asset.did, publisher_acct)
 
 
 def test_create_asset_with_different_secret_store(publisher_instance, ddo_sample):
@@ -147,7 +152,7 @@ def test_create_asset_with_different_secret_store(publisher_instance, ddo_sample
     assert new_asset.get_service(ServiceTypes.AUTHORIZATION).service_endpoint == my_secret_store
     assert new_asset.get_service(ServiceTypes.ASSET_ACCESS)
     assert new_asset.get_service(ServiceTypes.METADATA)
-    publisher_instance.assets.retire(new_asset.did)
+    publisher_instance.assets.retire(new_asset.did, acct)
 
     access_service = ServiceDescriptor.access_service_descriptor(
         {"main": {
@@ -162,13 +167,13 @@ def test_create_asset_with_different_secret_store(publisher_instance, ddo_sample
     assert new_asset.get_service(ServiceTypes.AUTHORIZATION)
     assert new_asset.get_service(ServiceTypes.ASSET_ACCESS)
     assert new_asset.get_service(ServiceTypes.METADATA)
-    publisher_instance.assets.retire(new_asset.did)
+    publisher_instance.assets.retire(new_asset.did, acct)
 
     new_asset = publisher_instance.assets.create(asset.metadata, acct)
     assert new_asset.get_service(ServiceTypes.AUTHORIZATION)
     assert new_asset.get_service(ServiceTypes.ASSET_ACCESS)
     assert new_asset.get_service(ServiceTypes.METADATA)
-    publisher_instance.assets.retire(new_asset.did)
+    publisher_instance.assets.retire(new_asset.did, acct)
 
 
 def test_asset_owner(publisher_instance, ddo_sample):
@@ -182,7 +187,7 @@ def test_asset_owner(publisher_instance, ddo_sample):
     new_asset = publisher_instance.assets.create(asset.metadata, acct, [auth_service])
 
     assert publisher_instance.assets.owner(new_asset.did) == acct.address
-    publisher_instance.assets.retire(new_asset.did)
+    publisher_instance.assets.retire(new_asset.did, acct)
 
 
 def test_owner_assets(publisher_instance, ddo_sample):
@@ -190,7 +195,7 @@ def test_owner_assets(publisher_instance, ddo_sample):
     assets_owned = len(publisher_instance.assets.owner_assets(acct.address))
     asset = create_asset(publisher_instance, ddo_sample)
     assert len(publisher_instance.assets.owner_assets(acct.address)) == assets_owned + 1
-    publisher_instance.assets.retire(asset.did)
+    publisher_instance.assets.retire(asset.did, acct)
 
 
 def test_assets_consumed(publisher_instance, consumer_instance, ddo_sample):
@@ -227,7 +232,7 @@ def test_assets_consumed(publisher_instance, consumer_instance, ddo_sample):
     assert publisher_instance.agreements.is_access_granted(agreement_id, asset.did, acct.address)
 
     assert len(publisher_instance.assets.consumer_assets(acct.address)) == consumed_assets + 1
-    publisher_instance.assets.retire(asset.did)
+    publisher_instance.assets.retire(asset.did, acct)
 
 
 def test_assets_resolve(publisher_instance, metadata):
@@ -235,14 +240,15 @@ def test_assets_resolve(publisher_instance, metadata):
     ddo = publisher_instance.assets.create(metadata, publisher)
     ddo_resolved = publisher_instance.assets.resolve(ddo.did)
     assert ddo.did == ddo_resolved.did
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
 
 
 def test_assets_search(publisher_instance, metadata):
     publisher = publisher_instance.main_account
     ddo = publisher_instance.assets.create(metadata, publisher)
+    sleep(3)
     assert len(publisher_instance.assets.search('Monkey')) > 0
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
 
 
 def test_assets_algorithm(publisher_instance, algorithm_ddo):
@@ -251,7 +257,7 @@ def test_assets_algorithm(publisher_instance, algorithm_ddo):
     metadata = algorithm_ddo['service'][0]
     ddo = publisher_instance.assets.create(metadata['attributes'], publisher)
     assert ddo
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
 
 
 def test_assets_workflow(publisher_instance, workflow_ddo):
@@ -260,7 +266,7 @@ def test_assets_workflow(publisher_instance, workflow_ddo):
     metadata = workflow_ddo['service'][0]
     ddo = publisher_instance.assets.create(metadata['attributes'], publisher)
     assert ddo
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
 
 
 def test_assets_compute(publisher_instance, metadata):
@@ -271,7 +277,7 @@ def test_assets_compute(publisher_instance, metadata):
     }
     ddo = publisher_instance.assets.create_compute(metadata, publisher, asset_rewards=asset_rewards)
     assert ddo
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
 
 
 def test_transfer_ownership(publisher_instance, metadata, consumer_instance):
@@ -282,7 +288,7 @@ def test_transfer_ownership(publisher_instance, metadata, consumer_instance):
     assert owner == publisher.address
     publisher_instance.assets.transfer_ownership(ddo.did, consumer.address, publisher)
     assert publisher_instance.assets.owner(ddo.did) == consumer.address
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
 
 
 def test_grant_permissions(publisher_instance, metadata, consumer_instance):
@@ -296,9 +302,9 @@ def test_grant_permissions(publisher_instance, metadata, consumer_instance):
     publisher_instance.assets.revoke_permissions(ddo.did, consumer.address, publisher)
     assert not publisher_instance.assets.get_permissions(ddo.did, consumer.address)
 
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
 
-
+@pytest.mark.skip(reason='Compute stack disabled for now. See https://github.com/nevermined-io/internal/issues/218')
 def test_execute_workflow(publisher_instance_no_init, consumer_instance_no_init, metadata, algorithm_ddo, workflow_ddo):
     consumer = publisher_instance_no_init.main_account
     publisher = consumer_instance_no_init.main_account
@@ -332,11 +338,12 @@ def test_execute_workflow(publisher_instance_no_init, consumer_instance_no_init,
         workflow_ddo.did)
     assert execution_id
 
-    publisher_instance_no_init.assets.retire(ddo_computing.did)
-    publisher_instance_no_init.assets.retire(ddo_algorithm.did)
-    publisher_instance_no_init.assets.retire(workflow_ddo.did)
+    publisher_instance_no_init.assets.retire(ddo_computing.did, publisher)
+    publisher_instance_no_init.assets.retire(ddo_algorithm.did, consumer)
+    publisher_instance_no_init.assets.retire(workflow_ddo.did, publisher)
 
 
+@pytest.mark.skip(reason='Compute stack disabled for now. See https://github.com/nevermined-io/internal/issues/218')
 def test_compute_status(publisher_instance_no_init, consumer_instance_no_init, metadata, algorithm_ddo, workflow_ddo):
     consumer = publisher_instance_no_init.main_account
     publisher = consumer_instance_no_init.main_account
@@ -373,9 +380,9 @@ def test_compute_status(publisher_instance_no_init, consumer_instance_no_init, m
     status = consumer_instance_no_init.assets.compute_status(agreement_id, execution_id, consumer)
     assert status
 
-    publisher_instance_no_init.assets.retire(ddo_computing.did)
-    publisher_instance_no_init.assets.retire(ddo_algorithm.did)
-    publisher_instance_no_init.assets.retire(workflow_ddo.did)
+    publisher_instance_no_init.assets.retire(ddo_computing.did, publisher)
+    publisher_instance_no_init.assets.retire(ddo_algorithm.did, consumer)
+    publisher_instance_no_init.assets.retire(workflow_ddo.did, publisher)
 
 @pytest.mark.skip(reason="Compute containers need an update")
 def test_compute_logs(publisher_instance_no_init, consumer_instance_no_init, metadata, algorithm_ddo, workflow_ddo):
@@ -414,9 +421,9 @@ def test_compute_logs(publisher_instance_no_init, consumer_instance_no_init, met
     logs = consumer_instance_no_init.assets.compute_logs(agreement_id, execution_id, consumer)
     assert logs
 
-    publisher_instance_no_init.assets.retire(ddo_computing.did)
-    publisher_instance_no_init.assets.retire(ddo_algorithm.did)
-    publisher_instance_no_init.assets.retire(workflow_ddo.did)
+    publisher_instance_no_init.assets.retire(ddo_computing.did, publisher)
+    publisher_instance_no_init.assets.retire(ddo_algorithm.did, consumer)
+    publisher_instance_no_init.assets.retire(workflow_ddo.did, publisher)
 
 
 def test_agreement_direct(publisher_instance, consumer_instance, metadata):
@@ -446,7 +453,7 @@ def test_agreement_direct(publisher_instance, consumer_instance, metadata):
 
     assert publisher_instance.agreements.is_access_granted(agreement_id, ddo.did,
                                                                    consumer_account.address)
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher_account)
 
 
 def test_nfts(publisher_instance, metadata):
@@ -466,4 +473,4 @@ def test_nfts(publisher_instance, metadata):
     assert publisher_instance.nfts.balance(someone_address, ddo.did) == balance_consumer + 1
     publisher_instance.nfts.burn(ddo.did, 9, account=publisher)
     assert balance == publisher_instance.nfts.balance(publisher.address, ddo.did)
-    publisher_instance.assets.retire(ddo.did)
+    publisher_instance.assets.retire(ddo.did, publisher)
