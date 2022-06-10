@@ -53,7 +53,7 @@ jobs:
           cd nevermined-tools
           rm -rf "${HOME}/.nevermined/nevermined-contracts/artifacts"
 
-          export KEEPER_VERSION=develop
+          export KEEPER_VERSION=latest
           export GATEWAY_VERSION=develop
 
           # start nevermined with the compute stack
